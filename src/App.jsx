@@ -1,14 +1,15 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Auth from './pages/Auth';
+import Reset from './pages/Reset';
 
 function App() {
   return (
     <>
       <Router>
         <Routes>
-          {/* Aquí debes pasar <Auth /> como elemento */}
-          <Route path="/" element={<Auth />} />
+          <Route path="/Login" element={<Auth />} />
+          <Route path="/Reset" element={<Reset />} />
         </Routes>
       </Router>
     </>
