@@ -76,7 +76,7 @@ function Auth() {
           <p className="text-black mt-7 font-semibold">
             Forgot Password?{" "}
             <a
-              href="/Reset"
+              href="/Forgot"
               className="text-[#FF5353] border-b-1 border-transparent hover:border-[#FF5353] duration-300 ease-in-out"
             >
               Change Password
