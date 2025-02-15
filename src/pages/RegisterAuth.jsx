@@ -1,34 +1,71 @@
-import Input from "../components/Auth/Input";
 import Button from "../components/Auth/Button";
 import { useState } from "react";
 import background from "../assets/Auth/Q1A9065.png";
 import arrow from "../assets/Auth/flecha-derecha.png";
 import Toast from "../components/Auth/Toast";
 import usuario from "../assets/Auth/usuario.png"
+import { toast } from 'react-toastify';
 
 function RegisterAuth() {
     // Estados para las validaciones
     const [showToast, setShowToast] = useState(false);
-    const [toastMessage, setToastMessage] = useState("");
-    const [userName, setUserName] = useState('')
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
+
+    const [formData, setFormData] = useState({
+        nombre: "",
+        correo: "",
+        contraseña: "",
+      });
+
+    const url = `${import.meta.env.VITE_API_LINK}/auth/users/add`
+
+    const handleChange = (e) => {
+        const { id, value } = e.target;
+        setFormData({ ...formData, [id]: value });
+        // console.log(formData)
+      };
+
+    const data = {
+        nombre: formData.nombre,
+        correo: formData.correo,
+        contraseña: formData.contraseña,
+      }
 
     // Validaciones
     const validateSignIn = () => {
-        if (!userName.trim().length) {
-            setToastMessage('El campo userName está vacío ❌')
-            setShowToast(true)
+        if (!formData.nombre.trim().length) {
+            toast.error(`El campo de nombre está vacío`, {
+                position: "bottom-center",
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                theme: "colored",
+              });
             return false;
         }
-        if (!email.trim().length) {
-            setToastMessage("El campo email está vacío ❌");
-            setShowToast(true);
+        if (!formData.correo.trim().length) {
+            toast.error(`El campo de correo está vacío`, {
+                position: "bottom-center",
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                theme: "colored",
+              });
             return false;
         }
-        if (!password.trim().length) {
-            setToastMessage("El campo contraseña está vacío ❌");
-            setShowToast(true);
+        if (!formData.contraseña.trim().length) {
+            toast.error(`El campo de contraseña está vacío`, {
+                position: "bottom-center",
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                theme: "colored",
+              });
             return false;
         }
         return true;
@@ -37,19 +74,62 @@ function RegisterAuth() {
     // Estado de llamado al login junto con las verificaciones
     const handleRegister = async (e) => {
         e.preventDefault();
+        console.log(formData)
         if (validateSignIn()) {
             try {
-                // Aquí debe ir la autenticación JWT
-                setToastMessage("Redireccionando A Login... ");
-                setShowToast(true);
 
-                // Ocultar el Toast después de 3 segundos
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data),
+                  });
+
+                  if (!response.ok) {
+                    const errorData = await response.json();
+                    toast.error(`${errorData.message}`, {
+                      position: "bottom-center",
+                      autoClose: 3000,
+                      hideProgressBar: false,
+                      closeOnClick: true,
+                      pauseOnHover: true,
+                      draggable: true,
+                      theme: "colored",
+                    });
+                    return;
+                  }
+
+                const userData = await response.json();
+    
+                if (userData.token) {
+                localStorage.setItem('token', userData.token);
+                window.location.href = '/';
+                } else {
+                toast.error(`Error al iniciar sesión`, {
+                    position: "bottom-center",
+                    autoClose: 3000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    theme: "colored",
+                });
+                }
+
+                // // Ocultar el Toast después de 3 segundos
                 setTimeout(() => setShowToast(false), 3000);
             } catch (error) {
-                // y si devuelve error alguno de los 2 campos esta incorrecto
-                console.log(error);
-                setToastMessage("Error al ingresar los datos");
-                setShowToast(true);
+                console.log(error)
+                toast.error(`Verifica tu conexión y vuelve a intentarlo`, {
+                    position: "bottom-center",
+                    autoClose: 3000,
+                    hideProgressBar: false,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    theme: "colored",
+                  });
             }
         }
     };
@@ -64,25 +144,29 @@ function RegisterAuth() {
                     {/* Formulario */}
                     <form onSubmit={handleRegister}>
                         <div className="flex flex-col gap-8 mt-5 mb-10">
-                            <Input
-                                valor={userName}
-                                type={''}
-                                PlHolder={'Username'}
-                                onChange={(e) => setUserName(e.target.value)} />
+                            <input 
+                            type='text' 
+                            id='nombre'
+                            value={formData.nombre} 
+                            onChange={handleChange} 
+                            className='text-black p-2 border-b-1 w-xs lg:w-md font-semibold tracking-widest text-sm outline-none duration-1000 ease-in-out' 
+                            placeholder='Nombre'></input>
 
-                            <Input
-                                valor={email}
-                                type="email"
-                                PlHolder="Email"
-                                onChange={(e) => setEmail(e.target.value)}
-                            />
+                            <input 
+                            type='text' 
+                            id='correo'
+                            value={formData.correo} 
+                            onChange={handleChange} 
+                            className='text-black p-2 border-b-1 w-xs lg:w-md font-semibold tracking-widest text-sm outline-none duration-1000 ease-in-out' 
+                            placeholder='Correo'></input>
 
-                            <Input
-                                valor={password}
-                                type="password"
-                                PlHolder="Password"
-                                onChange={(e) => setPassword(e.target.value)}
-                            />
+                            <input 
+                            type='password' 
+                            id='contraseña'
+                            value={formData.contraseña} 
+                            onChange={handleChange} 
+                            className='text-black p-2 border-b-1 w-xs lg:w-md font-semibold tracking-widest text-sm outline-none duration-1000 ease-in-out' 
+                            placeholder='Contraseña'></input>
                         </div>
                         <Button placeholder="Register" type="submit" icon={arrow} />
                     </form>
@@ -100,11 +184,7 @@ function RegisterAuth() {
             </div>
 
             {/* Toast de notificación */}
-            <Toast
-                message={toastMessage}
-                isVisible={showToast}
-                onClose={() => setShowToast(false)}
-            />
+            <Toast/>
         </div>
     );
 }

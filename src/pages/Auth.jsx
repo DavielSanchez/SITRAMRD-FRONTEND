@@ -5,24 +5,39 @@ import background from "../assets/Auth/Q1A9065.png";
 import arrow from "../assets/Auth/flecha-derecha.png";
 import Toast from "../components/Auth/Toast";
 import usuario from "../assets/Auth/usuario.png"
+import { toast } from 'react-toastify';
 
 function Auth() {
-  // Estados para las validaciones
+  
   const [showToast, setShowToast] = useState(false);
-  const [toastMessage, setToastMessage] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [correo, setCorreo] = useState("");
+  const [contraseña, setContraseña] = useState("");
+  const url = `${import.meta.env.VITE_API_LINK}/auth/login`
 
-  // Validaciones
+  // // Validaciones
   const validateSignIn = () => {
-    if (!email.trim().length) {
-      setToastMessage("El campo de email está vacío ❌");
-      setShowToast(true);
+    if (!correo.trim().length) {
+      toast.error(`El campo de email está vacío`, {
+        position: "bottom-center",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        theme: "colored",
+      });
       return false;
     }
-    if (!password.trim().length) {
-      setToastMessage("El campo de contraseña está vacío ❌");
-      setShowToast(true);
+    if (!contraseña.trim().length) {
+      toast.error(`El campo de contraseña está vacío`, {
+        position: "bottom-center",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        theme: "colored",
+      });
       return false;
     }
     return true;
@@ -33,17 +48,59 @@ function Auth() {
     e.preventDefault();
     if (validateSignIn()) {
       try {
-        // Aquí debe ir la autenticación JWT
-        setToastMessage("Redireccionando A Home... ");
-        setShowToast(true);
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ correo, contraseña }),
+        });
+    
+        if (!response.ok) {
+          const errorData = await response.json();
+          toast.error(`${errorData.message}`, {
+            position: "bottom-center",
+            autoClose: 3000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            theme: "colored",
+          });
+          return;
+        }
+    
+        const data = await response.json();
+    
+        if (data.token) {
+          localStorage.setItem('token', data.token);
+          window.location.href = '/';
+        } else {
+          toast.error(`Error al iniciar sesión`, {
+            position: "bottom-center",
+            autoClose: 3000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            theme: "colored",
+          });
+        }
+        // setToastMessage("Redireccionando A Home... ");
+        // setShowToast(true);
 
-        // Ocultar el Toast después de 3 segundos
         setTimeout(() => setShowToast(false), 3000);
       } catch (error) {
-        // y si devuelve error alguno de los 2 campos esta incorrecto
-        console.log(error);
-        setToastMessage("Email o Password Incorrectas ❌");
-        setShowToast(true);
+
+        toast.error(`Verifica tu conexión y vuelve a intentarlo`, {
+          position: "bottom-center",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          theme: "colored",
+        });
       }
     }
   };
@@ -59,16 +116,16 @@ function Auth() {
           <form onSubmit={handleLogin}>
             <div className="flex flex-col gap-8 mt-5 mb-10">
               <Input
-                valor={email}
+                valor={correo}
                 type="email"
                 PlHolder="Email"
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => setCorreo(e.target.value)}
               />
               <Input
-                valor={password}
+                valor={contraseña}
                 type="password"
                 PlHolder="Password"
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e) => setContraseña(e.target.value)}
               />
             </div>
             <Button placeholder="Login" type="submit" icon={arrow} />
@@ -95,11 +152,7 @@ function Auth() {
       </div>
 
       {/* Toast de notificación */}
-      <Toast
-        message={toastMessage}
-        isVisible={showToast}
-        onClose={() => setShowToast(false)}
-      />
+      <Toast/>
     </div>
   );
 }

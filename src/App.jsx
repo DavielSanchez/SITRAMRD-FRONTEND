@@ -1,5 +1,6 @@
-import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { ToastContainer } from "react-toastify";
+import Home from './pages/Home';
 import Auth from './pages/Auth';
 import RegisterAuth from './pages/RegisterAuth';
 
@@ -7,10 +8,11 @@ function App() {
   return (
     <>
       <Router>
+        <ToastContainer />
         <Routes>
-          {/* Aquí debes pasar <Auth /> como elemento */}
-          <Route path="/" element={<Auth />} />
-          <Route path='/Register' element={<RegisterAuth/>}/>
+          <Route path="/" element={<Home />} />
+          <Route path="/login" element={<Auth />} />
+          <Route path='/register' element={<RegisterAuth/>}/>
         </Routes>
       </Router>
     </>
