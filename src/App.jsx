@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Auth from './pages/Auth';
+import RegisterAuth from './pages/RegisterAuth';
 
 function App() {
   return (
@@ -9,6 +10,7 @@ function App() {
         <Routes>
           {/* Aquí debes pasar <Auth /> como elemento */}
           <Route path="/" element={<Auth />} />
+          <Route path='/Register' element={<RegisterAuth/>}/>
         </Routes>
       </Router>
     </>
