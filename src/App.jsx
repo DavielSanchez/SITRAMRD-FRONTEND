@@ -7,8 +7,7 @@ function App() {
     <>
       <Router>
         <Routes>
-          {/* Aquí debes pasar <Auth /> como elemento */}
-          <Route path="/" element={<Auth />} />
+          <Route path="/login" element={<Auth />} />
         </Routes>
       </Router>
     </>

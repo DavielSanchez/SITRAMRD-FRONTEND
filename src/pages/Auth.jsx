@@ -3,47 +3,86 @@ import Button from "../components/Auth/Button";
 import { useState } from "react";
 import background from "../assets/Auth/Q1A9065.png";
 import arrow from "../assets/Auth/flecha-derecha.png";
-import Toast from "../components/Auth/Toast";
-import usuario from "../assets/Auth/usuario.png"
+import usuario from "../assets/Auth/usuario.png";
+import axios from 'axios';
+import { useNavigate } from "react-router-dom"
+import Swal from 'sweetalert2'
+
 
 function Auth() {
-  // Estados para las validaciones
-  const [showToast, setShowToast] = useState(false);
-  const [toastMessage, setToastMessage] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const navigate = useNavigate();
+  const [correo, setCorreo] = useState("");
+  const [contraseña, setContraseña] = useState("");
+
+  const showErrorToast = (message) => {
+    Swal.fire({
+      icon: "error",
+      title: "Oops...",
+      text: message,
+    });
+  };
+
+  const showSuccessToast = () => {
+    let timerInterval;
+    Swal.fire({
+      title: "Login Succeed!",
+      html: "You will be redirected to home page",
+      timer: 2000,
+      timerProgressBar: true,
+      didOpen: () => {
+        Swal.showLoading();
+        const timer = Swal.getPopup().querySelector("b");
+        timerInterval = setInterval(() => {
+          timer.textContent = `${Swal.getTimerLeft()}`;
+        }, 100);
+      },
+      willClose: () => {
+        clearInterval(timerInterval);
+      }
+    }).then((result) => {
+      if (result.dismiss === Swal.DismissReason.timer) {
+        console.log("I was closed by the timer");
+      }
+    });
+  };
 
   // Validaciones
   const validateSignIn = () => {
-    if (!email.trim().length) {
-      setToastMessage("El campo de email está vacío ❌");
-      setShowToast(true);
+    if (!correo.trim().length) {
+      showErrorToast("El campo de email está vacío.");
       return false;
     }
-    if (!password.trim().length) {
-      setToastMessage("El campo de contraseña está vacío ❌");
-      setShowToast(true);
+    if (!contraseña.trim().length) {
+      showErrorToast("El campo de password está vacío.");
       return false;
     }
     return true;
   };
 
-  // Estado de llamado al login junto con las verificaciones
   const handleLogin = async (e) => {
     e.preventDefault();
     if (validateSignIn()) {
       try {
-        // Aquí debe ir la autenticación JWT
-        setToastMessage("Redireccionando A Home... ");
-        setShowToast(true);
+        const response = await axios.post(import.meta.env.VITE_SERVER_API_URL, {
+          correo,
+          contraseña,
+        });
 
-        // Ocultar el Toast después de 3 segundos
-        setTimeout(() => setShowToast(false), 3000);
+        if (response.status !== 401) {
+          const token = response.data.token;
+          // Aqui guardo el token
+          localStorage.setItem('token', token);
+          showSuccessToast();
+          setTimeout(() => {
+            navigate('/home');
+          }, 2000);
+        }
       } catch (error) {
-        // y si devuelve error alguno de los 2 campos esta incorrecto
-        console.log(error);
-        setToastMessage("Email o Password Incorrectas ❌");
-        setShowToast(true);
+        if (error.response && error.response.status === 401) {
+          showErrorToast("Email o Password Incorrectos");
+        } else {
+          showErrorToast("Error en el servidor. Intenta más tarde.");
+        }
       }
     }
   };
@@ -54,21 +93,23 @@ function Auth() {
       <div className="w-full lg:w-[45%] bg-white flex justify-center items-center transition-all duration-1000 ease-in-out">
         <div className="text-center">
           <img src={usuario} alt="" className="mx-auto size-10" />
-          <h3 className="text-black my-7 font-semibold tracking-widest">Welcome to SITRAMrd!</h3>
+          <h3 className="text-black my-7 font-semibold tracking-widest">
+            Welcome to SITRAMrd!
+          </h3>
           {/* Formulario */}
           <form onSubmit={handleLogin}>
             <div className="flex flex-col gap-8 mt-5 mb-10">
               <Input
-                valor={email}
+                valor={correo}
                 type="email"
                 PlHolder="Email"
-                onChange={(e) => setEmail(e.target.value)}
+                onChange={(e) => setCorreo(e.target.value)}
               />
               <Input
-                valor={password}
+                valor={contraseña}
                 type="password"
                 PlHolder="Password"
-                onChange={(e) => setPassword(e.target.value)}
+                onChange={(e) => setContraseña(e.target.value)}
               />
             </div>
             <Button placeholder="Login" type="submit" icon={arrow} />
@@ -93,13 +134,6 @@ function Auth() {
           className="w-full h-full object-cover"
         />
       </div>
-
-      {/* Toast de notificación */}
-      <Toast
-        message={toastMessage}
-        isVisible={showToast}
-        onClose={() => setShowToast(false)}
-      />
     </div>
   );
 }
