@@ -16,7 +16,7 @@ function RegisterAuth() {
         contraseña: "",
       });
 
-    const url = `${import.meta.env.VITE_API_LINK}/auth/users/add`
+    const url = `${import.meta.env.VITE_API_LINK}/users/add`
 
     const handleChange = (e) => {
         const { id, value } = e.target;
