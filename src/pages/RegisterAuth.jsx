@@ -5,9 +5,14 @@ import arrow from "../assets/Auth/flecha-derecha.png";
 import Toast from "../components/Auth/Toast";
 import usuario from "../assets/Auth/usuario.png"
 import { toast } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
+import Swal from 'sweetalert2'
+import withReactContent from 'sweetalert2-react-content'
+
 
 function RegisterAuth() {
-    // Estados para las validaciones
+    const MySwal = withReactContent(Swal)
+    const navigate = useNavigate();
     const [showToast, setShowToast] = useState(false);
 
     const [formData, setFormData] = useState({
@@ -16,7 +21,7 @@ function RegisterAuth() {
         contraseña: "",
       });
 
-    const url = `${import.meta.env.VITE_API_LINK}/users/add`
+    const url = `${import.meta.env.VITE_API_LINK}auth/users/add`
 
     const handleChange = (e) => {
         const { id, value } = e.target;
@@ -103,8 +108,20 @@ function RegisterAuth() {
                 const userData = await response.json();
     
                 if (userData.token) {
-                localStorage.setItem('token', userData.token);
-                window.location.href = '/';
+                    MySwal.fire({
+                        icon: "success",
+                        title: "Muy bien!",
+                        text: "Te has registrado correctamente",
+                        timer: 1000,
+                        showConfirmButton: false,
+                        allowOutsideClick: false, 
+                        didOpen: () => {
+                          setTimeout(() => {
+                            localStorage.setItem("token", userData.token);
+                            navigate('/');
+                          }, 3000);
+                        }
+                      });
                 } else {
                 toast.error(`Error al iniciar sesión`, {
                     position: "bottom-center",

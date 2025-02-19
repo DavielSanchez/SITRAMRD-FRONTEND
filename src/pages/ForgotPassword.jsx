@@ -76,11 +76,11 @@ export default function ForgotPassword() {
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4 bg-white overflow-hidden">
-      <div className="w-full max-w-lg px-6 py-12 bg-[#eff3fe] rounded-[20px] flex flex-col justify-center items-center gap-6">
-        <h2 className="text-center text-[#211f47] text-3xl sm:text-4xl font-semibold">
+      <div className="w-full max-w-lg px-6 py-12 bg-[#ffffff] border-[#6A62DC] border-2 rounded-[20px] flex flex-col justify-center items-center gap-6">
+        <h2 className="text-center text-[#211f47] text-2xl sm:text-4xl font-semibold">
           Recuperar contraseña
         </h2>
-        <p className="text-center text-black text-lg sm:text-xl font-semibold">
+        <p className="text-center text-black text-sm sm:text-xl font-semibold">
           Por favor, ingresa tu correo electrónico
         </p>
         <div className="w-full relative">
@@ -89,7 +89,7 @@ export default function ForgotPassword() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Ingresa tu correo electrónico..."
-            className="w-full h-12 sm:h-[77px] bg-white rounded-[10px] border-2 border-[#6a62dc] px-4 text-lg sm:text-2xl font-semibold text-[#38357a] focus:outline-none"
+            className="w-full h-12 sm:h-[77px] bg-white rounded-[10px] border-2 border-[#6a62dc] px-4 text-md sm:text-2xl font-semibold text-[#6a62dc] focus:outline-none"
           />
         </div>
         <button
