@@ -4,7 +4,6 @@ import Color from "../components/Settings/Color";
 import CerrarSesion from "../components/Settings/CerrarSesion";
 import EditarPerfil from "../components/Settings/EditarPerfil";
 import Idioma from "../components/Settings/Idioma";
-
 import Ellipse19 from "../assets/Settings/Ellipse19.svg";
 import Perfil from "../assets/Settings/Perfil.svg";
 import CambiarPassword from "../assets/Settings/CambiarPassword.svg";
@@ -33,20 +32,41 @@ export default function Ajustes() {
   // Estado del tema
   const [theme, setTheme] = useState("light");
 
-  // Estado para controlar si Notificaciones está activado o no
+  // Estado para controlar si las Notificaciones están activadas o no
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
+
+  // Estado para la información del usuario
+  const [userData, setUserData] = useState(null);
 
   useEffect(() => {
     // Aplica la clase al body según el tema
     document.body.className = theme === "dark" ? "bg-[#000000]" : "bg-white";
   }, [theme]);
 
+  useEffect(() => {
+    // Función para obtener la información del usuario desde el backend
+    async function fetchUserData() {
+      try {
+        const response = await fetch(`${import.meta.env.VITE_API_LINK}/auth/users/`, {
+          headers: { "Content-Type": "application/json" },
+          // Agrega credentials si es necesario: credentials: "include"
+        });
+        const data = await response.json();
+        // Se asume que la respuesta contiene la info en data.usuario
+        setUserData(data.usuario);
+      } catch (error) {
+        console.error("Error al obtener datos del usuario:", error);
+      }
+    }
+    fetchUserData();
+  }, []);
+
   // Cuando el usuario elige un color en el modal
   const handleColorSelect = (selectedTheme) => {
     setTheme(selectedTheme);
   };
 
-  // Filtros que ya existían
+  // Filtros existentes para los íconos
   const redFilter =
     "invert(35%) sepia(100%) saturate(4896%) hue-rotate(340deg) brightness(95%) contrast(105%)";
   const ellipseDarkerRedFilter =
@@ -55,25 +75,19 @@ export default function Ajustes() {
     "invert(36%) sepia(63%) saturate(1874%) hue-rotate(245deg) brightness(97%) contrast(90%)";
 
   /**
-   * Función que determina el filtro para cada ícono según:
-   * - Tema (oscuro o claro)
-   * - Nombre del ícono (para Perfil, Paint y MiCuenta)
+   * Función que determina el filtro para cada ícono según el tema
+   * y el ícono (para Perfil, Paint y MiCuenta).
    */
   function getIconFilter(icon, theme, redFilter) {
-    // Modo oscuro => usa el filtro rojo existente
     if (theme === "dark") {
       return redFilter;
     }
-    // Modo claro:
-    // Si el ícono es MiCuenta, se aplica un tono morado más oscuro (brightness 80%)
     if (icon === MiCuenta) {
       return "invert(22%) sepia(81%) saturate(3413%) hue-rotate(240deg) brightness(80%) contrast(98%)";
     }
-    // Para Perfil y Paint, se aplica el tono morado estándar (brightness 92%)
     if (icon === Perfil || icon === Paint) {
       return "invert(22%) sepia(81%) saturate(3413%) hue-rotate(240deg) brightness(92%) contrast(98%)";
     }
-    // Para otros íconos en modo claro => sin filtro
     return "";
   }
 
@@ -94,9 +108,7 @@ export default function Ajustes() {
           src={LeftArrow}
           alt="Back"
           onClick={() => navigate("/home")}
-          style={{
-            filter: theme === "dark" ? redFilter : "",
-          }}
+          style={{ filter: theme === "dark" ? redFilter : "" }}
         />
         <h1
           className={`text-xl font-normal font-['Roboto'] ${
@@ -107,18 +119,18 @@ export default function Ajustes() {
         </h1>
       </div>
 
-      {/* Imagen de perfil */}
+      {/* Imagen de perfil y Nombre de usuario */}
       <div className="flex flex-col items-center mt-6">
         <img
           className="w-[100px] h-[100px] rounded-full"
           src={Ellipse19}
           alt="Perfil"
-          style={{
-            filter: theme === "dark" ? ellipseDarkerRedFilter : "",
-          }}
+          style={{ filter: theme === "dark" ? ellipseDarkerRedFilter : "" }}
         />
         <h2 className="mt-4 text-4xl font-normal font-['Roboto']">
-          Nombre de usuario
+          {userData
+            ? `${userData.nombre} ${userData.apellido}`
+            : "Cargando..."}
         </h2>
       </div>
 
@@ -193,18 +205,61 @@ export default function Ajustes() {
           theme === "dark" ? "bg-[#000000] border-[#ff5353]" : "bg-white border-[#6a62dc]"
         }`}
       >
-        {renderNavItem(Inicio, "Inicio", false, theme, redFilter, purpleFilter, getIconFilter)}
-        {renderNavItem(Billetera, "Billetera", false, theme, redFilter, purpleFilter, getIconFilter)}
-        {renderNavItem(Actividad, "Actividad", false, theme, redFilter, purpleFilter, getIconFilter)}
-        {renderNavItem(MiCuenta, "Mi cuenta", true, theme, redFilter, purpleFilter, getIconFilter)}
+        {renderNavItem(
+          Inicio,
+          "Inicio",
+          false,
+          theme,
+          redFilter,
+          purpleFilter,
+          getIconFilter
+        )}
+        {renderNavItem(
+          Billetera,
+          "Billetera",
+          false,
+          theme,
+          redFilter,
+          purpleFilter,
+          getIconFilter
+        )}
+        {renderNavItem(
+          Actividad,
+          "Actividad",
+          false,
+          theme,
+          redFilter,
+          purpleFilter,
+          getIconFilter
+        )}
+        {renderNavItem(
+          MiCuenta,
+          "Mi cuenta",
+          true,
+          theme,
+          redFilter,
+          purpleFilter,
+          getIconFilter
+        )}
       </div>
 
       {/* Modales */}
       {showColorModal && (
-        <Color onClose={() => setShowColorModal(false)} onColorSelect={handleColorSelect} />
+        <Color
+          onClose={() => setShowColorModal(false)}
+          onColorSelect={handleColorSelect}
+        />
       )}
-      {showCerrarSesion && <CerrarSesion onClose={() => setShowCerrarSesion(false)} />}
-      {showEditarPerfil && <EditarPerfil onClose={() => setShowEditarPerfil(false)} />}
+      {showCerrarSesion && (
+        <CerrarSesion onClose={() => setShowCerrarSesion(false)} />
+      )}
+      {showEditarPerfil && (
+        <EditarPerfil
+          onClose={() => setShowEditarPerfil(false)}
+          userData={userData}
+          onUpdate={(updatedUser) => setUserData(updatedUser)}
+        />
+      )}
       {showIdiomaModal && <Idioma onClose={() => setShowIdiomaModal(false)} />}
     </div>
   );
@@ -212,8 +267,8 @@ export default function Ajustes() {
 
 /**
  * Renderiza una sección con ítems.
- * Si un ítem tiene `isSwitch: true`, muestra el switch.
- * De lo contrario, muestra la flecha.
+ * Si un ítem tiene `isSwitch: true`, muestra el switch;
+ * de lo contrario, muestra la flecha.
  */
 function renderSection(title, items, theme, redFilter, purpleFilter, getIconFilter) {
   return (
@@ -241,15 +296,12 @@ function renderSection(title, items, theme, redFilter, purpleFilter, getIconFilt
                 className="w-6 h-6"
                 src={item.icon}
                 alt={item.label}
-                style={{
-                  filter: getIconFilter(item.icon, theme, redFilter),
-                }}
+                style={{ filter: getIconFilter(item.icon, theme, redFilter) }}
               />
               <span className={theme === "dark" ? "text-white" : "text-black"}>
                 {item.label}
               </span>
             </div>
-            {/* Si es switch mostramos el componente CustomSwitch, de lo contrario la flecha */}
             {item.isSwitch ? (
               <CustomSwitch enabled={item.switchState} onToggle={item.onClick} />
             ) : (
@@ -257,9 +309,7 @@ function renderSection(title, items, theme, redFilter, purpleFilter, getIconFilt
                 className="w-5 h-5"
                 src={RightArrow}
                 alt="arrow"
-                style={{
-                  filter: theme === "dark" ? "invert(100%)" : "",
-                }}
+                style={{ filter: theme === "dark" ? "invert(100%)" : "" }}
               />
             )}
           </div>
@@ -299,9 +349,7 @@ function renderNavItem(icon, label, isActive, theme, redFilter, purpleFilter, ge
         className="w-6 h-6"
         src={icon}
         alt={label}
-        style={{
-          filter: getIconFilter(icon, theme, redFilter),
-        }}
+        style={{ filter: getIconFilter(icon, theme, redFilter) }}
       />
       <span className={theme === "dark" ? "text-[#E0E0E0]" : "text-black"}>
         {label}
