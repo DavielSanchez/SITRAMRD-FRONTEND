@@ -1,42 +1,53 @@
 import React from "react";
 
-export default function Idioma({ onClose }) {
+export default function Idioma({ onClose, theme }) {
   const handleCancel = () => {
-    // Cierra el modal al hacer clic en "Cancelar"
     onClose();
   };
 
   const handleContinue = () => {
-    // Lógica para guardar/cambiar el idioma
-    // ...
-    // Cierra el modal si lo deseas
     onClose();
   };
 
   return (
     <div
-      className="fixed inset-0 flex justify-center items-center backdrop-blur-md bg-black/30 z-50 min-h-screen px-4"
+      className={`fixed inset-0 flex justify-center items-center backdrop-blur-md ${
+        theme === "dark" ? "bg-black/50" : "bg-black/30"
+      } z-50 min-h-screen px-4`}
       onClick={onClose}
     >
       <div
-        className="w-full max-w-xs sm:max-w-sm md:max-w-md bg-white p-6 rounded-lg border-2 border-[#6a62dc] shadow-xl"
+        className={`w-full max-w-[90%] sm:max-w-sm lg:max-w-md xl:max-w-lg p-6 rounded-lg border-2 shadow-xl ${
+          theme === "dark"
+            ? "bg-[#1E1E1E] text-white border-[#ff5353]"
+            : "bg-white text-black border-[#6a62dc]"
+        }`}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Etiqueta para el idioma */}
-        <label className="text-[#6a62dc] block mb-2">Idioma</label>
+        <label
+          className={`block mb-2 ${
+            theme === "dark" ? "text-[#ff5353]" : "text-[#6a62dc]"
+          }`}
+        >
+          Idioma
+        </label>
 
-        {/* Contenedor relativo para el select y la flecha */}
         <div className="relative">
           <select
-            className="w-full px-3 py-2 border rounded bg-gray-100 appearance-none"
+            className={`w-full px-3 py-2 border rounded appearance-none ${
+              theme === "dark"
+                ? "bg-[#333] text-white border-[#ff5353]"
+                : "bg-gray-100 text-black"
+            }`}
           >
             <option value="es">Español</option>
             <option value="en">Inglés</option>
           </select>
-          {/* Flecha del select */}
           <div className="absolute top-0 right-0 h-full flex items-center pr-3 pointer-events-none">
             <svg
-              className="w-4 h-4 text-gray-500"
+              className={`w-4 h-4 ${
+                theme === "dark" ? "text-gray-300" : "text-gray-500"
+              }`}
               fill="currentColor"
               viewBox="0 0 20 20"
             >
@@ -52,19 +63,22 @@ export default function Idioma({ onClose }) {
           </div>
         </div>
 
-        {/* Botones para Cancelar y Continuar */}
         <div className="flex justify-center gap-2 mt-4">
           <button
-            className="bg-red-500 text-white px-4 py-2 rounded"
+            className={`px-4 py-2 rounded text-white ${
+              theme === "dark" ? "bg-[#ff5353]" : "bg-[#6a62dc]"
+            }`}
             onClick={handleCancel}
           >
             Cancelar
           </button>
           <button
-            className="bg-[#6a62dc] text-white px-4 py-2 rounded"
+            className={`px-4 py-2 rounded text-white ${
+              theme === "dark" ? "bg-[#6a62dc]" : "bg-[#f16900]"
+            }`}
             onClick={handleContinue}
           >
-            Continuar
+            Guardar
           </button>
         </div>
       </div>

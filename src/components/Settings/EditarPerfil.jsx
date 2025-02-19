@@ -2,29 +2,28 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Ellipse19 from "/src/assets/Settings/Ellipse19.svg"; 
 import Lapiz from "/src/assets/Settings/lapiz.svg"; 
+import { jwtDecode } from "jwt-decode";
 
-export default function EditarPerfil({ onClose, userData }) {
+export default function EditarPerfil({ onClose, theme }) {
   const navigate = useNavigate();
+  const token = localStorage.getItem('token');
+  const decodedToken = jwtDecode(token);
+  const username = decodedToken.nombre;
+  const id = decodedToken.id;
 
   // Inicializamos los estados con la información actual del usuario
-  const [nombre, setNombre] = useState(userData?.nombre || '');
-  const [apellido, setApellido] = useState(userData?.apellido || '');
-  // Eliminamos el campo de correo para que no se muestre
-  // Eliminamos el campo de userRol, ya que no se debe editar
-  const [estadoUsuario, setEstadoUsuario] = useState(userData?.estadoUsuario || "activo");
+  const [nombre, setNombre] = useState(username || "");
 
   const handleConfirm = async () => {
     try {
       // Se utiliza la URL completa del backend para actualizar el usuario
-      const response = await fetch(`${import.meta.env.VITE_API_LINK}/auth/users/put/${userData._id}`, {
+      const response = await fetch(`${import.meta.env.VITE_API_LINK}/auth/users/put/${id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
           nombre,
-          apellido,
-          estadoUsuario
         })
       });
 
@@ -32,8 +31,7 @@ export default function EditarPerfil({ onClose, userData }) {
 
       if (response.ok) {
         console.log("Usuario actualizado:", data.usuario);
-        // Redirige a la ruta deseada después de la actualización
-        navigate("/Auth");
+        navigate("/settings");
       } else {
         alert(data.message || "Error al actualizar el usuario");
       }
@@ -45,11 +43,17 @@ export default function EditarPerfil({ onClose, userData }) {
 
   return (
     <div
-      className="fixed inset-0 flex justify-center items-center backdrop-blur-md bg-black/30 z-50 min-h-screen px-4"
+      className={`fixed inset-0 flex justify-center items-center backdrop-blur-md ${
+        theme === "dark" ? "bg-black/50" : "bg-black/30"
+      } z-50 min-h-screen px-4`}
       onClick={onClose}
     >
       <div
-        className="w-full max-w-xs sm:max-w-sm md:max-w-md bg-white p-6 rounded-lg border-2 border-[#6a62dc] shadow-xl relative"
+        className={`w-full max-w-xs sm:max-w-sm md:max-w-md p-6 rounded-lg border-2 shadow-xl relative ${
+          theme === "dark"
+            ? "bg-[#1E1E1E] text-white border-[#ff5353]"
+            : "bg-white text-black border-[#6a62dc]"
+        }`}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex justify-center mb-4 relative">
@@ -58,49 +62,36 @@ export default function EditarPerfil({ onClose, userData }) {
         </div>
         <div className="space-y-3">
           <div>
-            <label className="text-[#6a62dc] block">Nombre</label>
+            <label className={`block ${theme === "dark" ? "text-[#ff5353]" : "text-[#6a62dc]"}`}>
+              Nombre
+            </label>
             <input 
               type="text" 
               placeholder="Nombre de usuario" 
-              className="w-full px-3 py-2 border rounded bg-gray-100" 
+              className={`w-full px-3 py-2 border rounded ${
+                theme === "dark" ? "bg-[#333] text-white border-[#ff5353]" : "bg-gray-100 text-black border-[#6a62dc]"
+              }`}
               value={nombre}
               onChange={(e) => setNombre(e.target.value)}
             />
           </div>
-          <div>
-            <label className="text-[#6a62dc] block">Apellido</label>
-            <input 
-              type="text" 
-              placeholder="Apellido del usuario" 
-              className="w-full px-3 py-2 border rounded bg-gray-100" 
-              value={apellido}
-              onChange={(e) => setApellido(e.target.value)}
-            />
-          </div>
-          <div>
-            <label className="text-[#6a62dc] block">Estado de Usuario</label>
-            <select 
-              value={estadoUsuario} 
-              onChange={(e) => setEstadoUsuario(e.target.value)} 
-              className="w-full px-3 py-2 border rounded bg-gray-100"
-            >
-              <option value="activo">Activo</option>
-              <option value="suspendido">Suspendido</option>
-            </select>
-          </div>
         </div>
         <div className="flex justify-center gap-2 mt-4">
           <button 
-            className="bg-red-500 text-white px-4 py-2 rounded" 
+            className={`px-4 py-2 rounded transition-all ${
+              theme === "dark" ? "bg-[#ff5353] text-white" : "bg-[#6a62dc] text-white"
+          }`}
             onClick={onClose}
           >
             Cancelar
           </button>
           <button 
-            className="bg-[#6a62dc] text-white px-4 py-2 rounded" 
+            className={`px-4 py-2 rounded transition-all ${
+              theme === "dark" ? "bg-[#6a62dc] text-white" : "bg-[#f16900] text-white"
+            }`}
             onClick={handleConfirm}
           >
-            Continuar
+            Guardar
           </button>
         </div>
       </div>

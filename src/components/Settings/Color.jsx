@@ -4,7 +4,35 @@ export default function Color({ onClose, onColorSelect, theme }) {
   const [tempTheme, setTempTheme] = useState(theme || "light");
 
   useEffect(() => {
-    setTempTheme(theme); // Actualiza el estado cuando cambia el prop theme
+    
+    const handleConfirm = async () => {
+      try {
+        // Se utiliza la URL completa del backend para actualizar el usuario
+        const response = await fetch(`${import.meta.env.VITE_API_LINK}/auth/users/put/${id}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            nombre,
+          })
+        });
+  
+        const data = await response.json();
+  
+        if (response.ok) {
+          console.log("Usuario actualizado:", data.usuario);
+          navigate("/settings");
+        } else {
+          alert(data.message || "Error al actualizar el usuario");
+        }
+      } catch (error) {
+        console.error("Error en el servidor:", error);
+        alert("Error en el servidor");
+      }
+    };
+
+    setTempTheme(theme);
   }, [theme]);
 
   // Selección de tema
@@ -20,33 +48,59 @@ export default function Color({ onClose, onColorSelect, theme }) {
 
   return (
     <div
-      className="fixed inset-0 flex justify-center items-center bg-black/50 backdrop-blur-md z-50 p-4"
+      className={`fixed inset-0 flex justify-center items-center backdrop-blur-md ${
+        theme === "dark" ? "bg-black/50" : "bg-black/30"
+      } z-50 p-4`}
       onClick={onClose} // Cerrar el modal al hacer clic fuera
     >
       <div
-        className="w-full max-w-sm bg-white p-6 rounded-lg border-2 border-[#6a62dc] shadow-xl"
+        className={`w-full max-w-sm p-6 rounded-lg border-2 shadow-xl ${
+          theme === "dark"
+            ? "bg-[#1E1E1E] text-white border-[#ff5353]"
+            : "bg-white text-black border-[#6a62dc]"
+        }`}
         onClick={(e) => e.stopPropagation()} // Evita cerrar si se hace clic dentro
       >
-        <h2 className="text-lg font-semibold text-[#6a62dc] mb-4">Selecciona un tema</h2>
+        <h2
+          className={`text-lg font-semibold mb-4 ${
+            theme === "dark" ? "text-[#ff5353]" : "text-[#6a62dc]"
+          }`}
+        >
+          Selecciona un tema
+        </h2>
 
         {/* Opción de Tema Claro */}
         <div
           className={`flex items-center justify-between p-4 rounded-lg border cursor-pointer transition-all ${
-            tempTheme === "light" ? "border-[#6a62dc] ring-2 ring-[#6a62dc]" : "border-gray-300"
+            tempTheme === "light"
+              ? theme === "dark"
+                ? "border-[#ff5353] ring-2 ring-[#ff5353]"
+                : "border-[#6a62dc] ring-2 ring-[#6a62dc]"
+              : "border-gray-300"
           }`}
           onClick={() => handleThemeSelection("light")}
         >
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-white border border-gray-300 rounded"></div>
-            <span className="text-gray-700">Claro</span>
+            <span className={theme === "dark" ? "text-white" : "text-gray-700"}>
+              Claro
+            </span>
           </div>
-          {tempTheme === "light" && <span className="text-[#6a62dc] font-bold">✓</span>}
+          {tempTheme === "light" && (
+            <span className={theme === "dark" ? "text-[#ff5353]" : "text-[#6a62dc]"}>
+              ✓
+            </span>
+          )}
         </div>
 
         {/* Opción de Tema Oscuro */}
         <div
           className={`flex items-center justify-between p-4 mt-3 rounded-lg border cursor-pointer transition-all ${
-            tempTheme === "dark" ? "border-[#ff4444] ring-2 ring-[#ff4444]" : "border-gray-300"
+            tempTheme === "dark"
+              ? theme === "dark"
+                ? "border-[#ff5353] ring-2 ring-[#ff5353]"
+                : "border-[#6a62dc] ring-2 ring-[#6a62dc]"
+              : "border-gray-300"
           }`}
           onClick={() => handleThemeSelection("dark")}
         >
@@ -54,15 +108,23 @@ export default function Color({ onClose, onColorSelect, theme }) {
             <div className="w-10 h-10 bg-black border border-gray-300 rounded flex items-center justify-center">
               <span className="text-red-500 font-bold">N</span>
             </div>
-            <span className="text-gray-700">Oscuro</span>
+            <span className={theme === "dark" ? "text-white" : "text-gray-700"}>
+              Oscuro
+            </span>
           </div>
-          {tempTheme === "dark" && <span className="text-red-500 font-bold">✓</span>}
+          {tempTheme === "dark" && (
+            <span className={theme === "dark" ? "text-[#ff5353]" : "text-[#6a62dc]"}>
+              ✓
+            </span>
+          )}
         </div>
 
         {/* Botones */}
         <div className="flex justify-end mt-4 gap-2">
           <button
-            className="bg-red-500 text-white px-4 py-2 rounded transition-all hover:bg-red-600"
+            className={`px-4 py-2 rounded transition-all ${
+              theme === "dark" ? "bg-[#ff5353] text-white" : "bg-[#554dcf] text-white"
+            } hover:bg-[#554dcf]`}
             onClick={() => {
               setTempTheme(theme); // Restaurar el tema previo al cerrar
               onClose();
@@ -71,7 +133,9 @@ export default function Color({ onClose, onColorSelect, theme }) {
             Cancelar
           </button>
           <button
-            className="bg-[#6a62dc] text-white px-4 py-2 rounded transition-all hover:bg-[#554dcf]"
+            className={`px-4 py-2 rounded transition-all ${
+              theme === "dark" ? "bg-[#554dcf] text-white" : "bg-[#f16900] text-white"
+            } hover:bg-[#f16900]`}
             onClick={handleSave} // Aplica el tema seleccionado y cierra
           >
             Guardar

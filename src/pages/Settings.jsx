@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Color from "../components/Settings/Color";
-import CerrarSesion from "../components/Settings/CerrarSesion.jsx";
+// import CerrarSesion from "../components/Settings/CerrarSesion.jsx";
 import EditarPerfil from "../components/Settings/EditarPerfil";
 import Idioma from "../components/Settings/Idioma";
 import Ellipse19 from "../assets/Settings/Ellipse19.svg";
@@ -17,16 +17,17 @@ import LeftArrow from "../assets/Settings/left-arrow.png";
 import Inicio from "../assets/Settings/Inicio.svg";
 import Billetera from "../assets/Settings/Billetera.svg";
 import Actividad from "../assets/Settings/Actividad.svg";
-import MiCuenta from "../assets/Settings/MiCuenta.svg";
+import MiCuenta from "../assets/Settings/MiCuenta.png";
 import Paint from "../assets/Settings/paint.png";
 import { jwtDecode } from "jwt-decode";
 
 export default function Ajustes() {
   const token = localStorage.getItem('token');
-    const decodedToken = jwtDecode(token);
-    const username = decodedToken.nombre
+  const decodedToken = jwtDecode(token);
+  const username = decodedToken.nombre;
+  const usertheme = decodedToken.theme;
 
-    const navigate = useNavigate();
+  const navigate = useNavigate();
 
   // Estados de modales
   const [showColorModal, setShowColorModal] = useState(false);
@@ -35,36 +36,15 @@ export default function Ajustes() {
   const [showIdiomaModal, setShowIdiomaModal] = useState(false);
 
   // Estado del tema
-  const [theme, setTheme] = useState("light");
+  const [theme, setTheme] = useState(usertheme);
 
   // Estado para controlar si las Notificaciones están activadas o no
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
-
-  // Estado para la información del usuario
-  const [userData, setUserData] = useState(null);
 
   useEffect(() => {
     // Aplica la clase al body según el tema
     document.body.className = theme === "dark" ? "bg-[#000000]" : "bg-white";
   }, [theme]);
-
-  useEffect(() => {
-    // Función para obtener la información del usuario desde el backend
-    async function fetchUserData() {
-      try {
-        const response = await fetch(`${import.meta.env.VITE_API_LINK}/auth/users/:nombre`, {
-          headers: { "Content-Type": "application/json" },
-          // Agrega credentials si es necesario: credentials: "include"
-        });
-        const data = await response.json();
-        // Se asume que la respuesta contiene la info en data.usuario
-        setUserData(data.usuario);
-      } catch (error) {
-        console.error("Error al obtener datos del usuario:", error);
-      }
-    }
-    fetchUserData();
-  }, []);
 
   // Cuando el usuario elige un color en el modal
   const handleColorSelect = (selectedTheme) => {
@@ -79,10 +59,6 @@ export default function Ajustes() {
   const purpleFilter =
     "invert(36%) sepia(63%) saturate(1874%) hue-rotate(245deg) brightness(97%) contrast(90%)";
 
-  /**
-   * Función que determina el filtro para cada ícono según el tema
-   * y el ícono (para Perfil, Paint y MiCuenta).
-   */
   function getIconFilter(icon, theme, redFilter) {
     if (theme === "dark") {
       return redFilter;
@@ -112,7 +88,7 @@ export default function Ajustes() {
           className="w-[29px] h-[29px] absolute left-[10px] cursor-pointer hover:opacity-75 active:opacity-50"
           src={LeftArrow}
           alt="Back"
-          onClick={() => navigate("/home")}
+          onClick={() => navigate("/")}
           style={{ filter: theme === "dark" ? redFilter : "" }}
         />
         <h1
@@ -133,10 +109,7 @@ export default function Ajustes() {
           style={{ filter: theme === "dark" ? ellipseDarkerRedFilter : "" }}
         />
         <h2 className="mt-4 text-4xl font-normal font-['Roboto']">
-          {/* {userData
-            ? `${userData.nombre} ${userData.apellido}`
-            : "Cargando..."} */}
-            {username}
+          {username}
         </h2>
       </div>
 
@@ -154,11 +127,6 @@ export default function Ajustes() {
               icon: CambiarPassword,
               label: "Cambiar Contraseña",
               onClick: () => navigate("/forgot"),
-            },
-            {
-              icon: LogOut,
-              label: "Cerrar Sesión",
-              onClick: () => setShowCerrarSesion(true),
             },
           ],
           theme,
@@ -218,7 +186,8 @@ export default function Ajustes() {
           theme,
           redFilter,
           purpleFilter,
-          getIconFilter
+          getIconFilter,
+          () => navigate("/") // Redirigir a la página principal
         )}
         {renderNavItem(
           Billetera,
@@ -227,7 +196,8 @@ export default function Ajustes() {
           theme,
           redFilter,
           purpleFilter,
-          getIconFilter
+          getIconFilter,
+          () => {} // Puedes agregar una función para Billetera si es necesario
         )}
         {renderNavItem(
           Actividad,
@@ -236,7 +206,8 @@ export default function Ajustes() {
           theme,
           redFilter,
           purpleFilter,
-          getIconFilter
+          getIconFilter,
+          () => {} // Puedes agregar una función para Actividad si es necesario
         )}
         {renderNavItem(
           MiCuenta,
@@ -245,7 +216,8 @@ export default function Ajustes() {
           theme,
           redFilter,
           purpleFilter,
-          getIconFilter
+          getIconFilter,
+          () => {} // Puedes agregar una función para MiCuenta si es necesario
         )}
       </div>
 
@@ -254,6 +226,7 @@ export default function Ajustes() {
         <Color
           onClose={() => setShowColorModal(false)}
           onColorSelect={handleColorSelect}
+          theme={theme}
         />
       )}
       {showCerrarSesion && (
@@ -262,11 +235,10 @@ export default function Ajustes() {
       {showEditarPerfil && (
         <EditarPerfil
           onClose={() => setShowEditarPerfil(false)}
-          userData={userData}
-          onUpdate={(updatedUser) => setUserData(updatedUser)}
+          theme={theme}
         />
       )}
-      {showIdiomaModal && <Idioma onClose={() => setShowIdiomaModal(false)} />}
+      {showIdiomaModal && <Idioma onClose={() => setShowIdiomaModal(false)} theme={theme} />}
     </div>
   );
 }
@@ -348,9 +320,12 @@ function CustomSwitch({ enabled, onToggle }) {
   );
 }
 
-function renderNavItem(icon, label, isActive, theme, redFilter, purpleFilter, getIconFilter) {
+function renderNavItem(icon, label, isActive, theme, redFilter, purpleFilter, getIconFilter, onClick) {
   return (
-    <div className="flex flex-col items-center cursor-pointer hover:text-[#6a62dc]">
+    <div
+      className="flex flex-col items-center cursor-pointer hover:text-[#6a62dc]"
+      onClick={onClick} // Añadir el evento onClick
+    >
       <img
         className="w-6 h-6"
         src={icon}
