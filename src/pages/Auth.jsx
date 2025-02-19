@@ -12,7 +12,7 @@ function Auth() {
   const [showToast, setShowToast] = useState(false);
   const [correo, setCorreo] = useState("");
   const [contraseña, setContraseña] = useState("");
-  const url = `${import.meta.env.VITE_API_LINK}/login`
+  const url = `${import.meta.env.VITE_API_LINK}auth/login`
 
   // // Validaciones
   const validateSignIn = () => {
@@ -134,7 +134,7 @@ function Auth() {
             Forgot Password?{" "}
             <a
               href="/forgot"
-              className="text-[#FF5353] border-b-1 border-transparent hover:border-[#FF5353] duration-300 ease-in-out"
+              className="text-[#6A62DC] border-b-1 border-transparent hover:border-[#6A62DC] duration-300 ease-in-out"
             >
               Change Password
             </a>
