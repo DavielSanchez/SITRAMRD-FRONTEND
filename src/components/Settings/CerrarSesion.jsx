@@ -5,9 +5,9 @@ export default function CerrarSesion({ onClose, theme }) {
   const navigate = useNavigate();
 
   const handleConfirm = () => {
-    // Remueve el token y redirige a la página de autenticación
+    
     localStorage.removeItem("token");
-    navigate("/Auth");
+    navigate("/login");
   };
 
   return (
