@@ -6,13 +6,30 @@ import arrow from "../assets/Auth/flecha-derecha.png";
 import Toast from "../components/Auth/Toast";
 import usuario from "../assets/Auth/usuario.png"
 import { toast } from 'react-toastify';
+import { jwtDecode } from 'jwt-decode'
+import PersonIcon from '@mui/icons-material/Person';
 
 function Auth() {
-  
+  const token = localStorage.getItem('token');
+  const decodedToken = jwtDecode(token);
+  const usertheme = decodedToken.theme;
+  const [theme, setTheme] = useState(usertheme);
   const [showToast, setShowToast] = useState(false);
   const [correo, setCorreo] = useState("");
   const [contraseña, setContraseña] = useState("");
-  const url = `${import.meta.env.VITE_API_LINK}auth/login`
+  const url = `${import.meta.env.VITE_API_LINK}/auth/login`
+
+  function getIconColor(variant, theme) {
+    if (theme === "dark") {
+      if (variant === "chevronRight") return "white";
+      return "#ff5353";
+    } else {
+      if (variant === "chevron") return "black";
+      if (variant === "chevronRight") return "black";
+      if (variant === "gray") return "gray";
+      return "#6a62dc";
+    }
+  }
 
   // // Validaciones
   const validateSignIn = () => {
@@ -108,42 +125,42 @@ function Auth() {
   return (
     <div className="h-screen w-screen flex overflow-hidden">
       {/* Lado izquierdo */}
-      <div className="w-full lg:w-[45%] bg-white flex justify-center items-center transition-all duration-1000 ease-in-out">
+      <div className={`w-full lg:w-[45%] ${ theme === 'dark' ? 'bg-black' : 'bg-white' } flex justify-center items-center transition-all duration-1000 ease-in-out`}>
         <div className="text-center">
-          <img src={usuario} alt="" className="mx-auto size-10" />
-          <h3 className="text-black my-7 font-semibold tracking-widest">Welcome to SITRAMrd!</h3>
+          <PersonIcon sx={{ color: getIconColor("black", theme), fontSize: 200 }}/>
+          {/* <img src={usuario} alt="" className="mx-auto size-10" /> */}
+          <h3 className={`${ theme === 'dark' ? 'text-white' : 'text-black' } my-7 font-semibold tracking-widest`}>Bienvenido a SITRAMRD!</h3>
           {/* Formulario */}
           <form onSubmit={handleLogin}>
             <div className="flex flex-col gap-8 mt-5 mb-10">
-              <Input
-                valor={correo}
-                type="email"
-                PlHolder="Email"
-                onChange={(e) => setCorreo(e.target.value)}
-              />
-              <Input
-                valor={contraseña}
-                type="password"
-                PlHolder="Password"
-                onChange={(e) => setContraseña(e.target.value)}
-              />
+              <input type='email' value={correo} onChange={(e) => setCorreo(e.target.value)} className={`${ theme === 'dark' ? 'text-white' : 'text-black' } p-2 border-b-1 w-xs lg:w-md font-semibold tracking-widest text-sm outline-none duration-1000 ease-in-out`} placeholder='Correo'/>
+              <input type='contraseña' value={contraseña} onChange={(e) => setCorreo(e.target.value)} className={`${ theme === 'dark' ? 'text-white' : 'text-black' } p-2 border-b-1 w-xs lg:w-md font-semibold tracking-widest text-sm outline-none duration-1000 ease-in-out`} placeholder='Contraseña'/>
             </div>
-            <Button placeholder="Login" type="submit" icon={arrow} />
+            <Button placeholder="Entra" type="submit" icon={arrow} theme={theme} />
           </form>
-          <p className="text-black mt-7 font-semibold">
-            Forgot Password?{" "}
+          <p className={`${ theme === 'dark' ? 'text-white' : 'text-black' } mt-7 font-semibold`}>
+            Aun no tienes cuenta?{" "}
             <a
               href="/forgot"
-              className="text-[#6A62DC] border-b-1 border-transparent hover:border-[#6A62DC] duration-300 ease-in-out"
+              className={`${ theme === 'dark' ? 'text-[#ff5353]' : 'text-[#6a62dc]' } border-b-1 border-transparent hover:border-[#6A62DC] duration-300 ease-in-out`}
             >
-              Change Password
+              Registrate
+            </a>
+          </p>
+          <p className={`${ theme === 'dark' ? 'text-white' : 'text-black' } mt-7 font-semibold`}>
+            Olvidaste la contraseña?{" "}
+            <a
+              href="/forgot"
+              className={`${ theme === 'dark' ? 'text-[#ff5353]' : 'text-[#6a62dc]' } border-b-1 border-transparent hover:border-[#6A62DC] duration-300 ease-in-out`}
+            >
+              Cambiar
             </a>
           </p>
         </div>
       </div>
 
       {/* Lado derecho */}
-      <div className="w-0 lg:w-[55%] bg-black transition-all duration-1000 ease-in-out">
+      <div className={`w-0 lg:w-[55%] ${ theme === 'dark' ? 'bg-black' : 'bg-white' } transition-all duration-1000 ease-in-out`}>
         <img
           src={background}
           alt="Background Image"

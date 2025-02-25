@@ -8,12 +8,30 @@ import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2'
 import withReactContent from 'sweetalert2-react-content'
+import { jwtDecode } from 'jwt-decode'
+import PersonIcon from '@mui/icons-material/Person';
 
 
 function RegisterAuth() {
-    const MySwal = withReactContent(Swal)
-    const navigate = useNavigate();
-    const [showToast, setShowToast] = useState(false);
+  const token = localStorage.getItem('token');
+  const decodedToken = jwtDecode(token);
+  const usertheme = decodedToken.theme;
+  const [theme, setTheme] = useState(usertheme);
+  const MySwal = withReactContent(Swal)
+  const navigate = useNavigate();
+  const [showToast, setShowToast] = useState(false);
+
+  function getIconColor(variant, theme) {
+    if (theme === "dark") {
+      if (variant === "chevronRight") return "white";
+      return "#ff5353";
+    } else {
+      if (variant === "chevron") return "black";
+      if (variant === "chevronRight") return "black";
+      if (variant === "gray") return "gray";
+      return "#6a62dc";
+    }
+  }
 
     const [formData, setFormData] = useState({
         nombre: "",
@@ -21,7 +39,7 @@ function RegisterAuth() {
         contraseña: "",
       });
 
-    const url = `${import.meta.env.VITE_API_LINK}auth/users/add`
+    const url = `${import.meta.env.VITE_API_LINK}/auth/users/add`
 
     const handleChange = (e) => {
         const { id, value } = e.target;
@@ -154,39 +172,42 @@ function RegisterAuth() {
     return (
         <div className="h-screen w-screen flex overflow-hidden">
             {/* Lado izquierdo */}
-            <div className="w-full lg:w-[45%] bg-white flex justify-center items-center transition-all duration-1000 ease-in-out">
+            <div className={`w-full lg:w-[45%] ${ theme === 'dark' ? 'bg-black' : 'bg-white'} flex justify-center items-center transition-all duration-1000 ease-in-out`}>
                 <div className="text-center">
-                    <img src={usuario} alt="" className="mx-auto size-10" />
-                    <h3 className="text-black my-7 font-semibold tracking-widest">Welcome to SITRAMrd!</h3>
+                <PersonIcon sx={{ color: getIconColor("black", theme), fontSize: 200 }}/>
+                    <h3 className={`${theme === 'dark' ? 'text-white' : 'text-black'} my-7 font-semibold tracking-widest`}>Welcome to SITRAMrd!</h3>
                     {/* Formulario */}
                     <form onSubmit={handleRegister}>
-                        <div className="flex flex-col gap-8 mt-5 mb-10">
-                            <input 
-                            type='text' 
-                            id='nombre'
-                            value={formData.nombre} 
-                            onChange={handleChange} 
-                            className='text-black p-2 border-b-1 w-xs lg:w-md font-semibold tracking-widest text-sm outline-none duration-1000 ease-in-out' 
-                            placeholder='Nombre'></input>
+    <div className="flex flex-col gap-8 mt-5 mb-10">
+        <input 
+            type='text' 
+            id='nombre'
+            value={formData.nombre} 
+            onChange={handleChange} 
+            className={`${theme === 'dark' ? 'text-white' : 'text-black'} p-2 border-b w-xs lg:w-md font-semibold tracking-widest text-sm outline-none bg-transparent duration-1000 ease-in-out`}
+            placeholder='Nombre'
+        />
 
-                            <input 
-                            type='text' 
-                            id='correo'
-                            value={formData.correo} 
-                            onChange={handleChange} 
-                            className='text-black p-2 border-b-1 w-xs lg:w-md font-semibold tracking-widest text-sm outline-none duration-1000 ease-in-out' 
-                            placeholder='Correo'></input>
+        <input 
+            type='email' 
+            id='correo'
+            value={formData.correo} 
+            onChange={handleChange} 
+            className={`${theme === 'dark' ? 'text-white border-gray-500' : 'text-black border-gray-300'} p-2 border-b w-xs lg:w-md font-semibold tracking-widest text-sm outline-none bg-transparent duration-1000 ease-in-out`}
+            placeholder='Correo'
+        />
 
-                            <input 
-                            type='password' 
-                            id='contraseña'
-                            value={formData.contraseña} 
-                            onChange={handleChange} 
-                            className='text-black p-2 border-b-1 w-xs lg:w-md font-semibold tracking-widest text-sm outline-none duration-1000 ease-in-out' 
-                            placeholder='Contraseña'></input>
-                        </div>
-                        <Button placeholder="Register" type="submit" icon={arrow} />
-                    </form>
+        <input 
+            type='password' 
+            id='contraseña'
+            value={formData.contraseña} 
+            onChange={handleChange} 
+            className={`${theme === 'dark' ? 'text-white border-gray-500' : 'text-black border-gray-300'} p-2 border-b w-xs lg:w-md font-semibold tracking-widest text-sm outline-none bg-transparent duration-1000 ease-in-out`}                            
+            placeholder='Contraseña'
+        />
+    </div>
+    <Button placeholder="Register" type="submit" icon={arrow} />
+</form>
 
                 </div>
             </div>

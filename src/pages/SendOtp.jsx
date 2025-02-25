@@ -31,7 +31,7 @@ function SendOtp() {
         setLoading(true);
 
         try{
-            const response = await fetch(`${import.meta.env.VITE_API_LINK}/confirm-otp`, {
+            const response = await fetch(`${import.meta.env.VITE_API_LINK}/auth/confirm-otp`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({

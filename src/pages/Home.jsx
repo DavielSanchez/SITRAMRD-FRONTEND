@@ -3,6 +3,8 @@ import withReactContent from 'sweetalert2-react-content'
 import { useNavigate } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode'
 import { useState } from 'react';
+import NavBar from "../components/NavBar";
+
 
 function Home() {
   const MySwal = withReactContent(Swal)
@@ -10,7 +12,8 @@ function Home() {
   const token = localStorage.getItem('token');
   const decodedToken = jwtDecode(token);
   const userName = decodedToken.nombre
-  const [theme, setTheme] = useState(decodedToken.theme)
+  const usertheme = decodedToken.theme;
+  const [theme, setTheme] = useState(usertheme);
   console.log(theme)
 
   const handleLogout = () => {
@@ -71,8 +74,8 @@ function Home() {
             /forgot
           </a>
 
-          <a href="/register" className="bg-[#ff5353] w-[181px] h-9 rounded-[10px] flex items-center justify-center text-white text-base">
-            /register
+          <a href="/settings" className="bg-[#ff5353] w-[181px] h-9 rounded-[10px] flex items-center justify-center text-white text-base">
+            /settings
           </a>
 
           <a onClick={handleLogout} className="bg-[#6a62dc] w-[181px] h-9 rounded-[10px] flex items-center justify-center text-white text-base">
@@ -80,6 +83,7 @@ function Home() {
           </a>
         </div>
       </div>
+      <NavBar theme={theme}/>
     </div>
   </>
   
