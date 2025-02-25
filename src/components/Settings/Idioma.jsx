@@ -41,7 +41,7 @@ export default function Idioma({ onClose, theme }) {
             }`}
           >
             <option value="es">Español</option>
-            <option value="en">Inglés</option>
+            {/* <option value="en">Inglés</option> */}
           </select>
           <div className="absolute top-0 right-0 h-full flex items-center pr-3 pointer-events-none">
             <svg
@@ -66,19 +66,19 @@ export default function Idioma({ onClose, theme }) {
         <div className="flex justify-center gap-2 mt-4">
           <button
             className={`px-4 py-2 rounded text-white ${
+              theme === "dark" ? "bg-[#6a62dc]" : "bg-[#ff5353]"
+            }`}
+            onClick={handleContinue}
+          >
+            Guardar
+          </button>
+          <button
+            className={`px-4 py-2 rounded text-white ${
               theme === "dark" ? "bg-[#ff5353]" : "bg-[#6a62dc]"
             }`}
             onClick={handleCancel}
           >
             Cancelar
-          </button>
-          <button
-            className={`px-4 py-2 rounded text-white ${
-              theme === "dark" ? "bg-[#6a62dc]" : "bg-[#f16900]"
-            }`}
-            onClick={handleContinue}
-          >
-            Guardar
           </button>
         </div>
       </div>

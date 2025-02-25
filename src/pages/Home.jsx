@@ -5,6 +5,7 @@ import { jwtDecode } from 'jwt-decode'
 import { useState } from 'react';
 import NavBar from "../components/NavBar";
 
+
 function Home() {
   const MySwal = withReactContent(Swal)
   const navigate = useNavigate();
@@ -73,8 +74,8 @@ function Home() {
             /forgot
           </a>
 
-          <a href="/register" className="bg-[#ff5353] w-[181px] h-9 rounded-[10px] flex items-center justify-center text-white text-base">
-            /register
+          <a href="/settings" className="bg-[#ff5353] w-[181px] h-9 rounded-[10px] flex items-center justify-center text-white text-base">
+            /settings
           </a>
 
           <a onClick={handleLogout} className="bg-[#6a62dc] w-[181px] h-9 rounded-[10px] flex items-center justify-center text-white text-base">
@@ -82,7 +83,7 @@ function Home() {
           </a>
         </div>
       </div>
-      <NavBar/>
+      <NavBar theme={theme}/>
     </div>
   </>
   

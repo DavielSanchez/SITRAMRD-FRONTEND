@@ -2,9 +2,16 @@ import { useState } from "react";
 import Toast from "../components/Auth/Toast";
 import { toast } from 'react-toastify';
 import { useNavigate } from "react-router-dom";
+import { jwtDecode } from 'jwt-decode'
+import PersonIcon from '@mui/icons-material/Person';
+import Button from "../components/Auth/Button";
 
 
 export default function ForgotPassword() {
+  const token = localStorage.getItem('token');
+  const decodedToken = jwtDecode(token);
+  const usertheme = decodedToken.theme;
+  const [theme, setTheme] = useState(usertheme);
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -27,7 +34,7 @@ export default function ForgotPassword() {
     try {
 
       // Hacer la solicitud al backend
-      const response = await fetch(`${import.meta.env.VITE_API_LINK}/send-otp`, {
+      const response = await fetch(`${import.meta.env.VITE_API_LINK}/auth/send-otp`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ correo: email }),
@@ -75,9 +82,9 @@ export default function ForgotPassword() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 bg-white overflow-hidden">
-      <div className="w-full max-w-lg px-6 py-12 bg-[#ffffff] border-[#6A62DC] border-2 rounded-[20px] flex flex-col justify-center items-center gap-6">
-        <h2 className="text-center text-[#211f47] text-2xl sm:text-4xl font-semibold">
+    <div className={`min-h-screen flex items-center justify-center px-4 ${ theme === 'dark' ? 'bg-black' : 'bg-white'} overflow-hidden`}>
+      <div className={`w-full max-w-lg px-6 py-12 ${ theme === 'dark' ? 'bg-black border-[#ff5353]' : 'bg-white border-[#6A62DC]'} border-2 rounded-[20px] flex flex-col justify-center items-center gap-6`}>
+        <h2 className={`text-center ${ theme === 'dark' ? 'text-white' : 'text-[#211f47]'} text-2xl sm:text-4xl font-semibold`}>
           Recuperar contraseña
         </h2>
         <p className="text-center text-black text-sm sm:text-xl font-semibold">
@@ -89,12 +96,12 @@ export default function ForgotPassword() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Ingresa tu correo electrónico..."
-            className="w-full h-12 sm:h-[77px] bg-white rounded-[10px] border-2 border-[#6a62dc] px-4 text-md sm:text-2xl font-semibold text-[#6a62dc] focus:outline-none"
+            className={`w-full h-12 sm:h-[77px] ${ theme === 'dark' ? 'bg-black border-[#ff5353] text-[#ff5353]' : 'bg-white border-[#6a62dc] text-[#6a62dc]' } rounded-[10px] border-2 px-4 text-md sm:text-2xl font-semibold focus:outline-none`}
           />
         </div>
         <button
           onClick={handleForgotPassword}
-          className="w-full h-12 sm:h-[60.40px] bg-[#6a62dc] rounded-[10px] text-white text-lg sm:text-2xl font-semibold"
+          className={`${ theme === 'dark' ? 'bg-[#ff5353]' : 'bg-[#6A62DC]' } w-full h-12 sm:h-[60.40px] rounded-[10px] text-white text-lg sm:text-2xl font-semibold`}          
           disabled={loading}
         >
           {loading ? "Enviando..." : "Enviar correo"}

@@ -67,6 +67,7 @@ export default function Ajustes() {
       text: "¿Estás seguro de que quieres cerrar la sesión?",
       showCancelButton: true,
       cancelButtonText: "Cancelar",
+      cancelButtonColor: "#ff5353",
       showConfirmButton: true,
       confirmButtonText: "Confirmar",
       customClass: {

@@ -7,11 +7,8 @@ import RegisterAuth from './pages/RegisterAuth';
 import ResetPassword from './pages/ResetPassword';
 import SendOtp from './pages/SendOtp';
 import ForgotPassword from './pages/ForgotPassword';
-<<<<<<< HEAD
 import Settings from './pages/Settings';
-=======
 import Unauthorized from './pages/unauthorized';
->>>>>>> 9eeb96811d5ccc93398f1aa474d31ada52cc3d86
 
 function App() {
   return (
@@ -25,9 +22,7 @@ function App() {
           <Route path='/forgot' element={<ForgotPassword/>}/>
           <Route path='/send-otp' element={<SendOtp/>}/>
           <Route path='/reset' element={<ResetPassword/>}/>
-<<<<<<< HEAD
           <Route path='/settings' element={<Settings/>}/>
-=======
           <Route 
           path="/" 
           element={
@@ -35,7 +30,6 @@ function App() {
             <Home />
           </ProtectedRoute>
           } />
->>>>>>> 9eeb96811d5ccc93398f1aa474d31ada52cc3d86
         </Routes>
       </Router>
     </>

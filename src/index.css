@@ -24,7 +24,6 @@ input:-webkit-autofill:active {
     border-bottom: 1px solid #000 !important;
     /* Establece el borde como desees */
     font-weight: bold;
-<<<<<<< HEAD
 }
 
 .swal-dark {
@@ -93,6 +92,3 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 } */
-=======
-}
->>>>>>> 9eeb96811d5ccc93398f1aa474d31ada52cc3d86

@@ -1,49 +1,64 @@
 import React, { useState, useEffect } from "react";
+import { jwtDecode } from "jwt-decode";
+import { useNavigate } from "react-router-dom";
 
 export default function Color({ onClose, onColorSelect, theme }) {
-  const [tempTheme, setTempTheme] = useState(theme || "light");
+  const navigate = useNavigate();
+  const token = localStorage.getItem("token");
+  const decodedtoken = jwtDecode(token);
+  console.log(decodedtoken);
 
-  useEffect(() => {
-    
-    const handleConfirm = async () => {
-      try {
-        // Se utiliza la URL completa del backend para actualizar el usuario
-        const response = await fetch(`${import.meta.env.VITE_API_LINK}/auth/users/put/${id}`, {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            nombre,
-          })
-        });
-  
-        const data = await response.json();
-  
-        if (response.ok) {
-          console.log("Usuario actualizado:", data.usuario);
-          navigate("/settings");
-        } else {
-          alert(data.message || "Error al actualizar el usuario");
-        }
-      } catch (error) {
-        console.error("Error en el servidor:", error);
-        alert("Error en el servidor");
-      }
-    };
+  let decodedToken;
+  try {
+    decodedToken = token ? jwtDecode(token) : null;
+  } catch (error) {
+    console.error("Token inválido:", error);
+    return null;
+  }
 
-    setTempTheme(theme);
-  }, [theme]);
+  const userTheme = decodedToken?.theme || "light"; // Valor por defecto
+  const id = decodedToken?.id || "";
 
-  // Selección de tema
+  const [tempTheme, setTempTheme] = useState(userTheme);
+
   const handleThemeSelection = (selectedTheme) => {
     setTempTheme(selectedTheme);
   };
 
-  // Aplicar el tema seleccionado
   const handleSave = () => {
     onColorSelect(tempTheme);
     onClose();
+  };
+
+  const handleConfirm = async () => {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_LINK}/auth/users/put/theme/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({ theme: tempTheme }),
+      });
+  
+      const data = await response.json();
+  
+      if (response.ok) {
+        console.log("Usuario actualizado:", data);
+  
+        if (data.token) {
+          localStorage.setItem('token', data.token);
+          window.location.reload();
+        } else {
+          navigate("/settings");
+        }
+      } else {
+        alert(data.message || "Error al actualizar el usuario");
+      }
+    } catch (error) {
+      console.error("Error en el servidor:", error);
+      alert("Error en el servidor");
+    }
   };
 
   return (
@@ -51,7 +66,7 @@ export default function Color({ onClose, onColorSelect, theme }) {
       className={`fixed inset-0 flex justify-center items-center backdrop-blur-md ${
         theme === "dark" ? "bg-black/50" : "bg-black/30"
       } z-50 p-4`}
-      onClick={onClose} // Cerrar el modal al hacer clic fuera
+      onClick={onClose}
     >
       <div
         className={`w-full max-w-sm p-6 rounded-lg border-2 shadow-xl ${
@@ -59,7 +74,7 @@ export default function Color({ onClose, onColorSelect, theme }) {
             ? "bg-[#1E1E1E] text-white border-[#ff5353]"
             : "bg-white text-black border-[#6a62dc]"
         }`}
-        onClick={(e) => e.stopPropagation()} // Evita cerrar si se hace clic dentro
+        onClick={(e) => e.stopPropagation()}
       >
         <h2
           className={`text-lg font-semibold mb-4 ${
@@ -69,7 +84,7 @@ export default function Color({ onClose, onColorSelect, theme }) {
           Selecciona un tema
         </h2>
 
-        {/* Opción de Tema Claro */}
+        {/* Tema Claro */}
         <div
           className={`flex items-center justify-between p-4 rounded-lg border cursor-pointer transition-all ${
             tempTheme === "light"
@@ -87,13 +102,15 @@ export default function Color({ onClose, onColorSelect, theme }) {
             </span>
           </div>
           {tempTheme === "light" && (
-            <span className={theme === "dark" ? "text-[#ff5353]" : "text-[#6a62dc]"}>
+            <span
+              className={theme === "dark" ? "text-[#ff5353]" : "text-[#6a62dc]"}
+            >
               ✓
             </span>
           )}
         </div>
 
-        {/* Opción de Tema Oscuro */}
+        {/* Tema Oscuro */}
         <div
           className={`flex items-center justify-between p-4 mt-3 rounded-lg border cursor-pointer transition-all ${
             tempTheme === "dark"
@@ -113,7 +130,9 @@ export default function Color({ onClose, onColorSelect, theme }) {
             </span>
           </div>
           {tempTheme === "dark" && (
-            <span className={theme === "dark" ? "text-[#ff5353]" : "text-[#6a62dc]"}>
+            <span
+              className={theme === "dark" ? "text-[#ff5353]" : "text-[#6a62dc]"}
+            >
               ✓
             </span>
           )}
@@ -123,22 +142,26 @@ export default function Color({ onClose, onColorSelect, theme }) {
         <div className="flex justify-end mt-4 gap-2">
           <button
             className={`px-4 py-2 rounded transition-all ${
-              theme === "dark" ? "bg-[#ff5353] text-white" : "bg-[#554dcf] text-white"
-            } hover:bg-[#554dcf]`}
+              theme === "dark"
+                ? "bg-[#554dcf] text-white"
+                : "bg-[#ff5353] text-white"
+            } hover:bg-[#ff5353]`}
             onClick={() => {
-              setTempTheme(theme); // Restaurar el tema previo al cerrar
-              onClose();
+              handleSave();
+              handleConfirm();
             }}
           >
-            Cancelar
+            Guardar
           </button>
           <button
             className={`px-4 py-2 rounded transition-all ${
-              theme === "dark" ? "bg-[#554dcf] text-white" : "bg-[#f16900] text-white"
-            } hover:bg-[#f16900]`}
-            onClick={handleSave} // Aplica el tema seleccionado y cierra
+              theme === "dark"
+                ? "bg-[#ff5353] text-white"
+                : "bg-[#554dcf] text-white"
+            } hover:bg-[#554dcf]`}
+            onClick={onClose} 
           >
-            Guardar
+            Cancelar
           </button>
         </div>
       </div>

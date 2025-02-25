@@ -79,19 +79,19 @@ export default function EditarPerfil({ onClose, theme }) {
         <div className="flex justify-center gap-2 mt-4">
           <button 
             className={`px-4 py-2 rounded transition-all ${
+              theme === "dark" ? "bg-[#6a62dc] text-white" : "bg-[#ff5353] text-white"
+            }`}
+            onClick={handleConfirm}
+          >
+            Guardar
+          </button>
+          <button 
+            className={`px-4 py-2 rounded transition-all ${
               theme === "dark" ? "bg-[#ff5353] text-white" : "bg-[#6a62dc] text-white"
           }`}
             onClick={onClose}
           >
             Cancelar
-          </button>
-          <button 
-            className={`px-4 py-2 rounded transition-all ${
-              theme === "dark" ? "bg-[#6a62dc] text-white" : "bg-[#f16900] text-white"
-            }`}
-            onClick={handleConfirm}
-          >
-            Guardar
           </button>
         </div>
       </div>

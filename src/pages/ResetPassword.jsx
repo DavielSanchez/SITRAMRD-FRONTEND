@@ -16,7 +16,7 @@ function ResetPassword() {
         contraseña: "",
         confirmContraseña: "",
       });
-    const url = `${import.meta.env.VITE_API_LINK}/users/password/change`;
+    const url = `${import.meta.env.VITE_API_LINK}/auth/users/password/change`;
 
     const handleChange = (e) => {
         const { id, value } = e.target;
