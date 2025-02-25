@@ -13,7 +13,7 @@ function Auth() {
   const token = localStorage.getItem('token');
   const decodedToken = jwtDecode(token);
   const usertheme = decodedToken.theme;
-  const [theme, setTheme] = useState(usertheme);
+  const [theme] = useState(usertheme);
   const [showToast, setShowToast] = useState(false);
   const [correo, setCorreo] = useState("");
   const [contraseña, setContraseña] = useState("");
@@ -134,7 +134,7 @@ function Auth() {
           <form onSubmit={handleLogin}>
             <div className="flex flex-col gap-8 mt-5 mb-10">
               <input type='email' value={correo} onChange={(e) => setCorreo(e.target.value)} className={`${ theme === 'dark' ? 'text-white' : 'text-black' } p-2 border-b-1 w-xs lg:w-md font-semibold tracking-widest text-sm outline-none duration-1000 ease-in-out`} placeholder='Correo'/>
-              <input type='contraseña' value={contraseña} onChange={(e) => setCorreo(e.target.value)} className={`${ theme === 'dark' ? 'text-white' : 'text-black' } p-2 border-b-1 w-xs lg:w-md font-semibold tracking-widest text-sm outline-none duration-1000 ease-in-out`} placeholder='Contraseña'/>
+              <input type='contraseña' value={contraseña} onChange={(e) => setContraseña(e.target.value)} className={`${ theme === 'dark' ? 'text-white' : 'text-black' } p-2 border-b-1 w-xs lg:w-md font-semibold tracking-widest text-sm outline-none duration-1000 ease-in-out`} placeholder='Contraseña'/>
             </div>
             <Button placeholder="Entra" type="submit" icon={arrow} theme={theme} />
           </form>

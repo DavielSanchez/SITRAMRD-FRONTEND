@@ -4,6 +4,7 @@ import { useLocation } from "react-router-dom";
 import Toast from "../components/Auth/Toast";
 import { toast } from 'react-toastify';
 import { useNavigate } from "react-router-dom";
+import { jwtDecode } from 'jwt-decode'
 
 function SendOtp() {
     const [otp, setOtp] = useState('');
@@ -12,6 +13,11 @@ function SendOtp() {
     const queryParams = new URLSearchParams(location.search);
     const email = queryParams.get("correo");
     const navigate = useNavigate();
+    
+    const token = localStorage.getItem('token');
+    const decodedToken = jwtDecode(token);
+    const usertheme = decodedToken.theme;
+    const [theme, setTheme] = useState(usertheme);
 
     const handleChange = (otp) => setOtp(otp);
 
@@ -53,7 +59,6 @@ function SendOtp() {
                     draggable: true,
                     theme: "colored",
                   });
-                
               }
 
         } catch {
@@ -68,31 +73,33 @@ function SendOtp() {
               });
         } finally {
             setLoading(false);
-          }
-
+        }
     }
 
     return (
-        <div className="min-h-screen flex items-center justify-center px-4 bg-white overflow-hidden">
-            <div className="w-full max-w-lg px-6 py-12 bg-[#eff3fe] rounded-[20px] flex flex-col justify-center items-center gap-6">
-                <h2 className="text-center text-[#6A62DC] text-3xl sm:text-4xl font-semibold">
+        <div className={`min-h-screen flex items-center justify-center px-4 ${theme === 'dark' ? 'bg-black' : 'bg-white'} overflow-hidden`}>
+            <div className={`w-full max-w-lg px-6 py-12 ${theme === 'dark' ? 'bg-black border-[#ff5353]' : 'bg-[#eff3fe] border-[#6A62DC]'} border-2 rounded-[20px] flex flex-col justify-center items-center gap-6`}>
+                <h2 className={`text-center ${theme === 'dark' ? 'text-white' : 'text-[#6A62DC]'} text-3xl sm:text-4xl font-semibold`}>
                     Introduce el código
                 </h2>
-                <p className="text-center text-black text-lg sm:text-xl font-semibold">
+                <p className={`text-center ${theme === 'dark' ? 'text-white' : 'text-black'} text-lg sm:text-xl font-semibold`}>
                     Hemos enviado un código a tu correo.
                 </p>
-                <OtpInput 
-                value={otp} 
-                onChange={handleChange} 
-                numInputs={6} 
-                className='text-[#6A62DC] bg-center text-4xl text-center justify-items-center border-3 w-12 h-18 rounded-lg m-1 border-[#8c84ff]'
-                // separator={<span className='text-white text-center' >-</span>} 
-                />;
+                <div id="otp-container">
+                    <OtpInput 
+                        value={otp} 
+                        onChange={handleChange} 
+                        numInputs={6} 
+                        className={`${theme === 'dark' ? 'text-[#ff5353] border-[#ff5353]' : 'text-[#6A62DC]'} bg-center text-4xl justify-center border-3 w-12 h-18 mx-2 rounded-lg m-1 border-[#8c84ff] outline-none appearance-none`}
+                    />
+                </div>
                 <button
-                className="w-45 h-12 sm:h-[60.40px] bg-[#6a62dc] rounded-[10px] text-white text-lg sm:text-2xl font-semibold"
-                onClick={handleSubmit}
-        >Enviar
-        </button>
+                    className={`${theme === 'dark' ? 'bg-[#ff5353]' : 'bg-[#6A62DC]'} w-45 h-12 sm:h-[60.40px] rounded-[10px] text-white text-lg sm:text-2xl font-semibold`}
+                    onClick={handleSubmit}
+                    disabled={loading}
+                >
+                    {loading ? "Enviando..." : "Enviar"}
+                </button>
             </div>
             <Toast/>
         </div>

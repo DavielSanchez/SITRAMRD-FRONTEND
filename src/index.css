@@ -26,6 +26,14 @@ input:-webkit-autofill:active {
     font-weight: bold;
 }
 
+#otp-container input[type="text"]:focus {
+  outline: none !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+
+
+
 .swal-dark {
     background-color: #1E1E1E !important;
     color: white !important;

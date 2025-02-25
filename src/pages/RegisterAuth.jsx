@@ -177,7 +177,7 @@ function RegisterAuth() {
                 <PersonIcon sx={{ color: getIconColor("black", theme), fontSize: 200 }}/>
                     <h3 className={`${theme === 'dark' ? 'text-white' : 'text-black'} my-7 font-semibold tracking-widest`}>Welcome to SITRAMrd!</h3>
                     {/* Formulario */}
-                    <form onSubmit={handleRegister}>
+                    <form onSubmit={handleRegister} autocomplete="off">  {/* Aquí añadí autocomplete="off" */}
     <div className="flex flex-col gap-8 mt-5 mb-10">
         <input 
             type='text' 
@@ -186,6 +186,7 @@ function RegisterAuth() {
             onChange={handleChange} 
             className={`${theme === 'dark' ? 'text-white' : 'text-black'} p-2 border-b w-xs lg:w-md font-semibold tracking-widest text-sm outline-none bg-transparent duration-1000 ease-in-out`}
             placeholder='Nombre'
+            autocomplete="off"
         />
 
         <input 
@@ -193,8 +194,9 @@ function RegisterAuth() {
             id='correo'
             value={formData.correo} 
             onChange={handleChange} 
-            className={`${theme === 'dark' ? 'text-white border-gray-500' : 'text-black border-gray-300'} p-2 border-b w-xs lg:w-md font-semibold tracking-widest text-sm outline-none bg-transparent duration-1000 ease-in-out`}
+            className={`${theme === 'dark' ? 'text-white' : 'text-black border-gray-300'} p-2 border-b w-xs lg:w-md font-semibold tracking-widest text-sm outline-none bg-transparent duration-1000 ease-in-out`}
             placeholder='Correo'
+            autocomplete="off"
         />
 
         <input 
@@ -202,11 +204,12 @@ function RegisterAuth() {
             id='contraseña'
             value={formData.contraseña} 
             onChange={handleChange} 
-            className={`${theme === 'dark' ? 'text-white border-gray-500' : 'text-black border-gray-300'} p-2 border-b w-xs lg:w-md font-semibold tracking-widest text-sm outline-none bg-transparent duration-1000 ease-in-out`}                            
+            className={`${theme === 'dark' ? 'text-white border-gray-500' : 'text-black border-gray-300'} p-2 border-b w-xs lg:w-md font-semibold tracking-widest text-sm outline-none bg-transparent duration-1000 ease-in-out`}                             
             placeholder='Contraseña'
+            autocomplete="new-password"
         />
     </div>
-    <Button placeholder="Register" type="submit" icon={arrow} />
+    <Button placeholder="Register" type="submit" icon={arrow} theme={theme} />
 </form>
 
                 </div>
