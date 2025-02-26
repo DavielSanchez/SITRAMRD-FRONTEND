@@ -9,6 +9,13 @@
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    --primary-orange-color: #ff5353;
+    --primary-purple-color: #6a62dc;
+    --color-dark: #fff;
+    --color-light: #161616;
+    --color-gray: #6a7282;
+    --bg-dark: #161616;
+    --bg-light: #ffffff;
 }
 
 
@@ -24,6 +31,12 @@ input:-webkit-autofill:active {
     border-bottom: 1px solid #000 !important;
     /* Establece el borde como desees */
     font-weight: bold;
+}
+
+#otp-container input[type="text"]:focus {
+    outline: none !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
 }
 
 .swal-dark {

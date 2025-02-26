@@ -9,9 +9,20 @@ import Button from "../components/Auth/Button";
 
 export default function ForgotPassword() {
   const token = localStorage.getItem('token');
-  const decodedToken = jwtDecode(token);
-  const usertheme = decodedToken.theme;
-  const [theme, setTheme] = useState(usertheme);
+  const [theme, setTheme] = useState('');
+  useEffect(() => {
+      if (token) {
+        const decodedToken = jwtDecode(token);
+        const usertheme = decodedToken.theme;
+        if (usertheme !== theme) {
+          setTheme(usertheme);
+        }
+      } else {
+        if (theme !== "white") {
+          setTheme("white");
+        }
+      }
+    }, [token, theme]); 
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
