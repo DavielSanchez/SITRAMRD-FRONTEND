@@ -1,5 +1,5 @@
 import Button from "../components/Auth/Button";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import background from "../assets/Auth/Q1A9065.png";
 import arrow from "../assets/Auth/flecha-derecha.png";
 import Toast from "../components/Auth/Toast";
@@ -10,13 +10,25 @@ import Swal from 'sweetalert2'
 import withReactContent from 'sweetalert2-react-content'
 import { jwtDecode } from 'jwt-decode'
 import PersonIcon from '@mui/icons-material/Person';
+import '../../public/CSS/Auth.css'
 
 
 function RegisterAuth() {
   const token = localStorage.getItem('token');
-  const decodedToken = jwtDecode(token);
-  const usertheme = decodedToken.theme;
-  const [theme, setTheme] = useState(usertheme);
+  const [theme, setTheme] = useState('');
+  useEffect(() => {
+      if (token) {
+        const decodedToken = jwtDecode(token);
+        const usertheme = decodedToken.theme;
+        if (usertheme !== theme) {
+          setTheme(usertheme);
+        }
+      } else {
+        if (theme !== "white") {
+          setTheme("white");
+        }
+      }
+    }, [token, theme]); 
   const MySwal = withReactContent(Swal)
   const navigate = useNavigate();
   const [showToast, setShowToast] = useState(false);
@@ -175,43 +187,51 @@ function RegisterAuth() {
             <div className={`w-full lg:w-[45%] ${ theme === 'dark' ? 'bg-black' : 'bg-white'} flex justify-center items-center transition-all duration-1000 ease-in-out`}>
                 <div className="text-center">
                 <PersonIcon sx={{ color: getIconColor("black", theme), fontSize: 200 }}/>
-                    <h3 className={`${theme === 'dark' ? 'text-white' : 'text-black'} my-7 font-semibold tracking-widest`}>Welcome to SITRAMrd!</h3>
+                    <h3 className={`${theme === 'dark' ? 'text-[var(--color-dark)]' : 'text-black'} my-7 font-semibold tracking-widest`}>Welcome to SITRAMrd!</h3>
                     {/* Formulario */}
-                    <form onSubmit={handleRegister} autocomplete="off">  {/* Aquí añadí autocomplete="off" */}
-    <div className="flex flex-col gap-8 mt-5 mb-10">
-        <input 
-            type='text' 
-            id='nombre'
-            value={formData.nombre} 
-            onChange={handleChange} 
-            className={`${theme === 'dark' ? 'text-white' : 'text-black'} p-2 border-b w-xs lg:w-md font-semibold tracking-widest text-sm outline-none bg-transparent duration-1000 ease-in-out`}
-            placeholder='Nombre'
-            autocomplete="off"
-        />
+                    <form onSubmit={handleRegister} autoComplete="off" className={theme === 'dark' ? 'dark' : ''}>
+                      <div className="flex flex-col gap-8 mt-5 mb-10">
+                          <input 
+                              type="text"
+                              id="nombre"
+                              value={formData.nombre}
+                              onChange={handleChange}
+                              className="p-2 border-b border-gray-300 light:text-black dark:border-gray-600 w-xs lg:w-md font-semibold tracking-widest text-sm outline-none bg-transparent text-black dark:text-[var(--color-dark)]"
+                              placeholder="Nombre"
+                              autoComplete="off"
+                          />
 
-        <input 
-            type='email' 
-            id='correo'
-            value={formData.correo} 
-            onChange={handleChange} 
-            className={`${theme === 'dark' ? 'text-white' : 'text-black border-gray-300'} p-2 border-b w-xs lg:w-md font-semibold tracking-widest text-sm outline-none bg-transparent duration-1000 ease-in-out`}
-            placeholder='Correo'
-            autocomplete="off"
-        />
+                          <input 
+                              type="email"
+                              id="correo"
+                              value={formData.correo}
+                              onChange={handleChange}
+                              className="p-2 border-b border-gray-300 dark:border-gray-600 w-xs lg:w-md font-semibold tracking-widest text-sm outline-none bg-transparent text-black dark:text-[var(--color-dark)]"
+                              placeholder="Correo"
+                              autoComplete="off"
+                          />
 
-        <input 
-            type='password' 
-            id='contraseña'
-            value={formData.contraseña} 
-            onChange={handleChange} 
-            className={`${theme === 'dark' ? 'text-white border-gray-500' : 'text-black border-gray-300'} p-2 border-b w-xs lg:w-md font-semibold tracking-widest text-sm outline-none bg-transparent duration-1000 ease-in-out`}                             
-            placeholder='Contraseña'
-            autocomplete="new-password"
-        />
-    </div>
-    <Button placeholder="Register" type="submit" icon={arrow} theme={theme} />
-</form>
-
+                          <input 
+                              type="password"
+                              id="contraseña"
+                              value={formData.contraseña}
+                              onChange={handleChange}
+                              className="p-2 border-b border-gray-300 dark:border-gray-600 w-xs lg:w-md font-semibold tracking-widest text-sm outline-none bg-transparent text-black dark:text-[var(--color-dark)]"
+                              placeholder="Contraseña"
+                              autoComplete="new-password"
+                          />
+                      </div>
+                      <Button placeholder="Register" type="submit" icon={arrow} theme={theme} />
+                  </form>
+                    <p className={`${ theme === 'dark' ? 'text-white' : 'text-black' } mt-7 font-semibold`}>
+                    Ya tienes una cuenta?{" "}
+                    <a
+                      href="/login"
+                      className={`${ theme === 'dark' ? 'text-[#ff5353]' : 'text-[#6a62dc]' } border-b-1 border-transparent hover:border-[#6A62DC] duration-300 ease-in-out`}
+                    >
+                      Inicia session
+                    </a>
+                  </p>
                 </div>
             </div>
 

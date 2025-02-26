@@ -37,48 +37,48 @@ function Home() {
 
   return (
     <>
-    <div className={`${ theme === 'dark' ? 'bg-black' : 'bg-white' } flex justify-center items-center w-full min-h-screen`}>
-      <div className={` ${ theme === 'dark' ? 'bg-black' : 'bg-white' } w-[1440px] flex flex-col items-center text-center`}>
-        <h1 className={` ${ theme === 'dark' ? 'text-white' : 'text-black' }font-bold text-5xl mb-4`}>
+    <div className={`${ theme === 'dark' ? 'bg-[var(--bg-dark)]' : 'bg-[var(--bg-light)]' } flex justify-center items-center w-full min-h-screen`}>
+      <div className={` ${ theme === 'dark' ? 'bg-[var(--bg-dark)]' : 'bg-[var(--bg-light)]' } w-[1440px] flex flex-col items-center text-center`}>
+        <h1 className={` ${ theme === 'dark' ? 'bg-[var(--color-dark)]' : 'bg-[var(--color-light)]' }font-bold text-5xl mb-4`}>
           Bienvenidos a SITRAMRD {userName}!
         </h1>
         
-        <p className={` ${ theme === 'dark' ? 'text-white' : 'text-black' } font-normal text-[28px] mb-10 mt-5`}>
+        <p className={` ${ theme === 'dark' ? 'text-[var(--color-dark)]' : 'text-[var(--color-light)]' } font-normal text-[28px] mb-10 mt-5`}>
           Sistema Integral de Transporte y Movilidad de la República Dominicana.
         </p>
   
   
         <div className="flex gap-4 mb-6">
-          <a href="https://github.com/DavielSanchez/SITRAMRD-FRONTEND.git" className="bg-[#6a62dc] w-[181px] h-9 rounded-[10px] flex items-center justify-center text-white text-base">
+          <a href="https://github.com/DavielSanchez/SITRAMRD-FRONTEND.git" className="bg-[var(--primary-purple-color)] w-[181px] h-9 rounded-[10px] flex items-center justify-center text-[var(--color-dark)] text-base">
             Repositorio Front-End
           </a>
           
-          <a href="https://github.com/DavielSanchez/SITRAMRD-BACKEND.git" className="bg-[#ff5353] w-[181px] h-9 rounded-[10px] flex items-center justify-center text-white text-base">
+          <a href="https://github.com/DavielSanchez/SITRAMRD-BACKEND.git" className="bg-[var(--primary-orange-color)] w-[181px] h-9 rounded-[10px] flex items-center justify-center text-[var(--color-dark)] text-base">
             Repositorio Back-End
           </a>
         </div>
-        <h2 className={` ${ theme === 'dark' ? 'text-white' : 'text-black' } font-semibold text-[40px] mb-10 mt-5`}>
+        <h2 className={` ${ theme === 'dark' ? 'text-[var(--color-dark)]' : 'text-[var(--color-light)]' } font-semibold text-[40px] mb-10 mt-5`}>
           Rutas funcionales
         </h2>
   
         <div className="flex gap-4">
-          <a href="/login" className="bg-[#6a62dc] w-[181px] h-9 rounded-[10px] flex items-center justify-center text-white text-base">
+          <a href="/login" className="bg-[var(--primary-purple-color)] w-[181px] h-9 rounded-[10px] flex items-center justify-center text-[var(--color-dark)] text-base">
             /login
           </a>
           
-          <a href="/register" className="bg-[#ff5353] w-[181px] h-9 rounded-[10px] flex items-center justify-center text-white text-base">
+          <a href="/register" className="bg-[var(--primary-orange-color)] w-[181px] h-9 rounded-[10px] flex items-center justify-center text-[var(--color-dark)] text-base">
             /register
           </a>
           
-          <a href="/forgot" className="bg-[#6a62dc] w-[181px] h-9 rounded-[10px] flex items-center justify-center text-white text-base">
+          <a href="/forgot" className="bg-[var(--primary-purple-color)] w-[181px] h-9 rounded-[10px] flex items-center justify-center text-[var(--color-dark)] text-base">
             /forgot
           </a>
 
-          <a href="/settings" className="bg-[#ff5353] w-[181px] h-9 rounded-[10px] flex items-center justify-center text-white text-base">
+          <a href="/settings" className="bg-[var(--primary-orange-color)] w-[181px] h-9 rounded-[10px] flex items-center justify-center text-[var(--color-dark)] text-base">
             /settings
           </a>
 
-          <a onClick={handleLogout} className="bg-[#6a62dc] w-[181px] h-9 rounded-[10px] flex items-center justify-center text-white text-base">
+          <a onClick={handleLogout} className="bg-[var(--primary-purple-color)] w-[181px] h-9 rounded-[10px] flex items-center justify-center text-[var(--color-dark)] text-base">
             logout
           </a>
         </div>

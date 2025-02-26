@@ -18,9 +18,20 @@ function ResetPassword() {
     });
 
     const token = localStorage.getItem('token');
-    const decodedToken = jwtDecode(token);
-    const usertheme = decodedToken.theme;
-    const [theme, setTheme] = useState(usertheme);
+    const [theme, setTheme] = useState('');
+    useEffect(() => {
+        if (token) {
+          const decodedToken = jwtDecode(token);
+          const usertheme = decodedToken.theme;
+          if (usertheme !== theme) {
+            setTheme(usertheme);
+          }
+        } else {
+          if (theme !== "white") {
+            setTheme("white");
+          }
+        }
+      }, [token, theme]); 
 
     const url = `${import.meta.env.VITE_API_LINK}/auth/users/password/change`;
 
