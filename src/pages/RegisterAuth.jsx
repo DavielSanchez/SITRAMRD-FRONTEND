@@ -3,7 +3,6 @@ import { useState, useEffect } from "react";
 import background from "../assets/Auth/Q1A9065.png";
 import arrow from "../assets/Auth/flecha-derecha.png";
 import Toast from "../components/Auth/Toast";
-import usuario from "../assets/Auth/usuario.png"
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2'
@@ -49,6 +48,7 @@ function RegisterAuth() {
         nombre: "",
         correo: "",
         contraseña: "",
+        userImage: "https://res.cloudinary.com/dv4wfetu1/image/upload/v1740610245/avatar_qspfc1.svg",
       });
 
     const url = `${import.meta.env.VITE_API_LINK}/auth/users/add`
@@ -63,6 +63,7 @@ function RegisterAuth() {
         nombre: formData.nombre,
         correo: formData.correo,
         contraseña: formData.contraseña,
+        userImage: formData.userImage
       }
 
     // Validaciones
@@ -223,7 +224,7 @@ function RegisterAuth() {
                       </div>
                       <Button placeholder="Register" type="submit" icon={arrow} theme={theme} />
                   </form>
-                    <p className={`${ theme === 'dark' ? 'text-white' : 'text-black' } mt-7 font-semibold`}>
+                    <p className={`${ theme === 'dark' ? 'text-[var(--color-dark)]' : 'text-black' } mt-7 font-semibold`}>
                     Ya tienes una cuenta?{" "}
                     <a
                       href="/login"

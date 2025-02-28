@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState } from "react";
 import { jwtDecode } from "jwt-decode";
 import { useNavigate } from "react-router-dom";
 
@@ -71,7 +71,7 @@ export default function Color({ onClose, onColorSelect, theme }) {
       <div
         className={`w-full max-w-sm p-6 rounded-lg border-2 shadow-xl ${
           theme === "dark"
-            ? "bg-[#1E1E1E] text-white border-[#ff5353]"
+            ? "bg-[#1E1E1E] text-[var(--color-dark)] border-[#ff5353]"
             : "bg-white text-black border-[#6a62dc]"
         }`}
         onClick={(e) => e.stopPropagation()}
@@ -97,7 +97,7 @@ export default function Color({ onClose, onColorSelect, theme }) {
         >
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-white border border-gray-300 rounded"></div>
-            <span className={theme === "dark" ? "text-white" : "text-gray-700"}>
+            <span className={theme === "dark" ? "text-[var(--color-dark)]" : "text-gray-700"}>
               Claro
             </span>
           </div>

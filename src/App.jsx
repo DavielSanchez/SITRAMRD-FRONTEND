@@ -1,5 +1,7 @@
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { ToastContainer } from "react-toastify";
+import { Elements } from "@stripe/react-stripe-js";
+import { loadStripe } from "@stripe/stripe-js";
 import ProtectedRoute from './components/ProtectedRoute';
 import Home from './pages/Home';
 import Auth from './pages/Auth';
@@ -9,11 +11,15 @@ import SendOtp from './pages/SendOtp';
 import ForgotPassword from './pages/ForgotPassword';
 import Settings from './pages/Settings';
 import Unauthorized from './pages/unauthorized';
+import Pay from './pages/Pay';
+
+const stripePromise = loadStripe(`${import.meta.env.VITE_STRIPE_SECRET_LINK}`);
 
 function App() {
   return (
     <>
       <Router>
+      <Elements stripe={stripePromise}>
         <ToastContainer />
         <Routes>
           <Route path="/unauthorized" element={<Unauthorized />} />
@@ -23,6 +29,7 @@ function App() {
           <Route path='/send-otp' element={<SendOtp/>}/>
           <Route path='/reset' element={<ResetPassword/>}/>
           <Route path='/settings' element={<Settings/>}/>
+          <Route path='/pay' element={<Pay/>}/>
           <Route 
           path="/" 
           element={
@@ -31,6 +38,7 @@ function App() {
           </ProtectedRoute>
           } />
         </Routes>
+        </Elements>
       </Router>
     </>
   );

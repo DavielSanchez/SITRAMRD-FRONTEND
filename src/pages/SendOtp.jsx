@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { OtpInput } from 'reactjs-otp-input';
 import { useLocation } from "react-router-dom";
 import Toast from "../components/Auth/Toast";

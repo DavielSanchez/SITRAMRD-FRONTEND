@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import Toast from "../components/Auth/Toast";
 import { useLocation } from "react-router-dom";
@@ -126,10 +126,10 @@ function ResetPassword() {
         <>
             <div className={`min-h-screen flex items-center justify-center px-4 ${theme === 'dark' ? 'bg-black' : 'bg-white'} overflow-hidden`}>
                 <div className={`w-full max-w-lg px-6 py-12 ${theme === 'dark' ? 'bg-black border-[#ff5353]' : 'bg-[#eff3fe] border-[#6A62DC]'} border-2 rounded-[20px] flex flex-col justify-center items-center gap-6`}>
-                    <h2 className={`text-center ${theme === 'dark' ? 'text-white' : 'text-[#211f47]'} text-3xl sm:text-4xl font-semibold`}>
+                    <h2 className={`text-center ${theme === 'dark' ? 'text-[var(--color-dark)]' : 'text-[#211f47]'} text-3xl sm:text-4xl font-semibold`}>
                         Reset your password
                     </h2>
-                    <p className={`text-center ${theme === 'dark' ? 'text-white' : 'text-black'} text-lg sm:text-xl font-semibold`}>
+                    <p className={`text-center ${theme === 'dark' ? 'text-[var(--color-dark)]' : 'text-black'} text-lg sm:text-xl font-semibold`}>
                         Enter a new password below
                     </p>
                     <div className="w-full relative">
@@ -156,7 +156,7 @@ function ResetPassword() {
                     </div>
                     <button
                         onClick={handleSubmit}
-                        className={`w-full h-12 sm:h-[60.40px] ${theme === 'dark' ? 'bg-[#ff5353]' : 'bg-[#6A62DC]'} rounded-[10px] text-white text-lg sm:text-2xl font-semibold`}
+                        className={`w-full h-12 sm:h-[60.40px] ${theme === 'dark' ? 'bg-[#ff5353]' : 'bg-[#6A62DC]'} rounded-[10px] text-[var(--color-dark)] text-lg sm:text-2xl font-semibold`}
                         disabled={loading}
                     >
                         {loading ? "Resetting..." : "Reset Password"}
