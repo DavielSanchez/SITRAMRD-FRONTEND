@@ -12,7 +12,7 @@ function Unauthorized() {
           Si crees que esto es un error, contacta con soporte.
         </p>
 
-        <a href="/login" className="bg-[#6a62dc] w-[140px] h-9 rounded-[10px] flex items-center justify-center text-white text-base">
+        <a href="/login" className="bg-[var(--primary-purple-color)] w-[140px] h-9 rounded-[10px] flex items-center justify-center text-white text-base">
             Inicia Seccion
           </a>
       </div>

@@ -21,6 +21,7 @@ import NavBar from "../components/NavBar.jsx";
 import renderSection from "../components/Settings/RenderSection.jsx";
 import Swal from 'sweetalert2'
 import withReactContent from 'sweetalert2-react-content';
+import { useBG, useText, usePrimaryColors, useColorsWithHover, useIconColor } from "../ColorClass";
 
 export default function Ajustes() {
   const token = localStorage.getItem('token');
@@ -39,6 +40,15 @@ export default function Ajustes() {
   const [theme, setTheme] = useState(usertheme);
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
 
+    //colors
+
+    const bgColor = useBG(theme);
+    const textColor = useText(theme);
+    const primaryColors = usePrimaryColors(theme);
+    const primaryHover = useColorsWithHover(theme);
+    const getIconColor = useIconColor(theme, 'gray')
+    const getChevronIconColor = useIconColor(theme, 'chevron')
+
   useEffect(() => {
     document.body.className = theme === "dark" ? "bg-[#000000]" : "bg-white";
   }, [theme]);
@@ -46,18 +56,6 @@ export default function Ajustes() {
   const handleColorSelect = (selectedTheme) => {
     setTheme(selectedTheme);
   };
-
-  function getIconColor(variant, theme) {
-    if (theme === "dark") {
-      if (variant === "chevronRight") return "white";
-      return "#ff5353";
-    } else {
-      if (variant === "chevron") return "black";
-      if (variant === "chevronRight") return "black";
-      if (variant === "gray") return "gray";
-      return "#6a62dc";
-    }
-  }
 
   const handleLogOut = async () => {
     MySwal.fire({
@@ -97,11 +95,11 @@ export default function Ajustes() {
           className="absolute left-[10px] cursor-pointer hover:opacity-75 active:opacity-50"
           onClick={() => navigate("/")}
         >
-          <ChevronLeftIcon sx={{ color: getIconColor("chevron", theme), fontSize: 32 }} />
+          <ChevronLeftIcon sx={{ color: getChevronIconColor, fontSize: 32 }} />
         </div>
         <h1
           className={`text-xl font-normal font-['Roboto'] ${
-            theme === "dark" ? "text-[#ff5353]" : "text-[#6a62dc]"
+            primaryColors
           }`}
         >
           Mi Cuenta
@@ -111,7 +109,7 @@ export default function Ajustes() {
       <div className="flex flex-col items-center mt-6">
       <Box sx={{ position: "relative", display: "inline-block" }}>
   {/* Icono de fondo (grande) */}
-  <LensIcon sx={{ color: getIconColor("gray", theme), fontSize: 200 }} />
+  <LensIcon sx={{ color: getIconColor, fontSize: 200 }} />
   <CreateIcon
   sx={{
     position: "absolute",

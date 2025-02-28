@@ -7,17 +7,17 @@ import HomeIcon from "@mui/icons-material/Home";
 function renderNavItem(IconComponent, label, isActive, theme, variant, onClick) {
   function getIconColor(variant, theme) {
     if (theme === "dark") {
-      return variant === "chevronRight" ? "white" : "#ff5353";
+      return variant === "chevronRight" ? "white" : "var(--primary-orange-color)";
     } else {
       if (variant === "chevron" || variant === "chevronRight") return "black";
       if (variant === "gray") return "gray";
-      return "#6a62dc";
+      return "var(--primary-purple-color)";
     }
   }
 
   return (
     <div
-      className="flex flex-col items-center cursor-pointer hover:text-[#6a62dc]"
+      className="flex flex-col items-center cursor-pointer hover:text-[var(--primary-purple-color)]"
       onClick={onClick}
     >
       <IconComponent sx={{ color: getIconColor(variant, theme), fontSize: 24 }} />
@@ -32,7 +32,7 @@ function NavBar({ theme }) {
   return (
     <div
       className={`w-full md:max-w-full h-[77px] shadow-md flex justify-around items-center border-t fixed bottom-0 left-0 
-        ${theme === "dark" ? "bg-[#000000] border-[#ff5353]" : "bg-white border-[#6a62dc]"}`}
+        ${theme === "dark" ? "bg-[#000000] border-[var(--primary-orange-color)]" : "bg-white border-[var(--primary-purple-color)]"}`}
     >
       {renderNavItem(HomeIcon, "Inicio", false, theme, "default", () => navigate("/"))}
       {renderNavItem(AttachMoneyIcon, "Billetera", false, theme, "default", () => navigate("/billetera"))}

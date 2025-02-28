@@ -11,39 +11,33 @@ import withReactContent from 'sweetalert2-react-content'
 import { jwtDecode } from 'jwt-decode'
 import PersonIcon from '@mui/icons-material/Person';
 import '../../public/CSS/Auth.css'
-
+import { useBG, useText, useColorsWithHover, useIconColor } from "../ColorClass";
 
 function RegisterAuth() {
   const token = localStorage.getItem('token');
   const [theme, setTheme] = useState('');
-  useEffect(() => {
-      if (token) {
-        const decodedToken = jwtDecode(token);
-        const usertheme = decodedToken.theme;
-        if (usertheme !== theme) {
-          setTheme(usertheme);
-        }
-      } else {
-        if (theme !== "white") {
-          setTheme("white");
-        }
-      }
-    }, [token, theme]); 
   const MySwal = withReactContent(Swal)
   const navigate = useNavigate();
-  const [showToast, setShowToast] = useState(false);
+  const [setShowToast] = useState(false);
+  const bgColor = useBG(theme);
+  const textColor = useText(theme);
+  const primaryHover = useColorsWithHover(theme);
+  const getIconColor = useIconColor(theme, 'black')
 
-  function getIconColor(variant, theme) {
-    if (theme === "dark") {
-      if (variant === "chevronRight") return "white";
-      return "#ff5353";
+
+  useEffect(() => {
+    if (token) {
+      const decodedToken = jwtDecode(token);
+      const usertheme = decodedToken.theme;
+      if (usertheme !== theme) {
+        setTheme(usertheme);
+      }
     } else {
-      if (variant === "chevron") return "black";
-      if (variant === "chevronRight") return "black";
-      if (variant === "gray") return "gray";
-      return "#6a62dc";
+      if (theme !== "white") {
+        setTheme("white");
+      }
     }
-  }
+  }, [token, theme]); 
 
     const [formData, setFormData] = useState({
         nombre: "",
@@ -184,10 +178,10 @@ function RegisterAuth() {
     return (
         <div className="h-screen w-screen flex overflow-hidden">
             {/* Lado izquierdo */}
-            <div className={`w-full lg:w-[45%] ${ theme === 'dark' ? 'bg-black' : 'bg-white'} flex justify-center items-center transition-all duration-1000 ease-in-out`}>
+            <div className={`w-full lg:w-[45%] ${bgColor} flex justify-center items-center transition-all duration-1000 ease-in-out`}>
                 <div className="text-center">
-                <PersonIcon sx={{ color: getIconColor("black", theme), fontSize: 200 }}/>
-                    <h3 className={`${theme === 'dark' ? 'text-[var(--color-dark)]' : 'text-black'} my-7 font-semibold tracking-widest`}>Welcome to SITRAMrd!</h3>
+                <PersonIcon sx={{ color: getIconColor, fontSize: 200 }}/>
+                    <h3 className={`${ textColor } my-7 font-semibold tracking-widest`}>Welcome to SITRAMrd!</h3>
                     {/* Formulario */}
                     <form onSubmit={handleRegister} autoComplete="off" className={theme === 'dark' ? 'dark' : ''}>
                       <div className="flex flex-col gap-8 mt-5 mb-10">
@@ -196,7 +190,7 @@ function RegisterAuth() {
                               id="nombre"
                               value={formData.nombre}
                               onChange={handleChange}
-                              className="p-2 border-b border-gray-300 light:text-black dark:border-gray-600 w-xs lg:w-md font-semibold tracking-widest text-sm outline-none bg-transparent text-black dark:text-[var(--color-dark)]"
+                              className={` ${textColor} p-2 border-b border-gray-300 light:text-black dark:border-gray-600 w-xs lg:w-md font-semibold tracking-widest text-sm outline-none bg-transparent`}
                               placeholder="Nombre"
                               autoComplete="off"
                           />
@@ -206,7 +200,7 @@ function RegisterAuth() {
                               id="correo"
                               value={formData.correo}
                               onChange={handleChange}
-                              className="p-2 border-b border-gray-300 dark:border-gray-600 w-xs lg:w-md font-semibold tracking-widest text-sm outline-none bg-transparent text-black dark:text-[var(--color-dark)]"
+                              className={`${textColor} p-2 border-b border-gray-300 dark:border-gray-600 w-xs lg:w-md font-semibold tracking-widest text-sm outline-none bg-transparent`}
                               placeholder="Correo"
                               autoComplete="off"
                           />
@@ -216,27 +210,27 @@ function RegisterAuth() {
                               id="contraseña"
                               value={formData.contraseña}
                               onChange={handleChange}
-                              className="p-2 border-b border-gray-300 dark:border-gray-600 w-xs lg:w-md font-semibold tracking-widest text-sm outline-none bg-transparent text-black dark:text-[var(--color-dark)]"
+                              className={`${textColor} p-2 border-b border-gray-300 dark:border-gray-600 w-xs lg:w-md font-semibold tracking-widest text-sm outline-none bg-transparent`}
                               placeholder="Contraseña"
                               autoComplete="new-password"
                           />
                       </div>
                       <Button placeholder="Register" type="submit" icon={arrow} theme={theme} />
                   </form>
-                    <p className={`${ theme === 'dark' ? 'text-white' : 'text-black' } mt-7 font-semibold`}>
+                    <p className={`${ textColor } mt-7 font-semibold`}>
                     Ya tienes una cuenta?{" "}
                     <a
                       href="/login"
-                      className={`${ theme === 'dark' ? 'text-[#ff5353]' : 'text-[#6a62dc]' } border-b-1 border-transparent hover:border-[#6A62DC] duration-300 ease-in-out`}
+                      className={`${ primaryHover } border-b-1 border-transparent duration-300 ease-in-out`}
                     >
-                      Inicia session
+                      Inicia sesion
                     </a>
                   </p>
                 </div>
             </div>
 
             {/* Lado derecho */}
-            <div className="w-0 lg:w-[55%] bg-black transition-all duration-1000 ease-in-out">
+            <div className="w-0 lg:w-[55%] var(--bg-dark) transition-all duration-1000 ease-in-out">
                 <img
                     src={background}
                     alt="Background Image"
