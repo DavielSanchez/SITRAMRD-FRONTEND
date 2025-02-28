@@ -18,6 +18,7 @@ import renderSection from "../components/Settings/RenderSection.jsx";
 import Swal from 'sweetalert2'
 import withReactContent from 'sweetalert2-react-content';
 import TopBar from "../components/TopBar.jsx";
+import { useBG, useText, usePrimaryColors, useColorsWithHover, useIconColor } from "../ColorClass";
 
 export default function Ajustes() {
   const token = localStorage.getItem('token');
@@ -37,6 +38,15 @@ export default function Ajustes() {
 
   const [theme, setTheme] = useState(usertheme);
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
+
+    //colors
+
+    const bgColor = useBG(theme);
+    const textColor = useText(theme);
+    const primaryColors = usePrimaryColors(theme);
+    const primaryHover = useColorsWithHover(theme);
+    const getIconColor = useIconColor(theme, 'gray')
+    const getChevronIconColor = useIconColor(theme, 'chevron')
 
   useEffect(() => {
     document.body.className = theme === "dark" ? "bg-[#000000]" : "bg-white";

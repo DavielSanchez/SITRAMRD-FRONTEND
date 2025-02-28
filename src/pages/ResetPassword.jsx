@@ -4,6 +4,7 @@ import Toast from "../components/Auth/Toast";
 import { useLocation } from "react-router-dom";
 import { useNavigate } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
+import { useBG, useText, useBGForButtons } from "../ColorClass";
 
 function ResetPassword() {
     const [loading, setLoading] = useState(false);
@@ -11,14 +12,19 @@ function ResetPassword() {
     const queryParams = new URLSearchParams(location.search);
     const email = queryParams.get("correo");
     const navigate = useNavigate();
-    
+    const url = `${import.meta.env.VITE_API_LINK}/auth/users/password/change`;
+    const token = localStorage.getItem('token');
+    const [theme, setTheme] = useState('');
     const [formData, setFormData] = useState({
         contraseña: "",
         confirmContraseña: "",
     });
 
-    const token = localStorage.getItem('token');
-    const [theme, setTheme] = useState('');
+    const bgColor = useBG(theme);
+    const textColor = useText(theme);
+    const buttonColor = useBGForButtons(theme);
+
+
     useEffect(() => {
         if (token) {
           const decodedToken = jwtDecode(token);
@@ -32,8 +38,6 @@ function ResetPassword() {
           }
         }
       }, [token, theme]); 
-
-    const url = `${import.meta.env.VITE_API_LINK}/auth/users/password/change`;
 
     const handleChange = (e) => {
         const { id, value } = e.target;
@@ -124,22 +128,23 @@ function ResetPassword() {
 
     return (
         <>
-            <div className={`min-h-screen flex items-center justify-center px-4 ${theme === 'dark' ? 'bg-black' : 'bg-white'} overflow-hidden`}>
-                <div className={`w-full max-w-lg px-6 py-12 ${theme === 'dark' ? 'bg-black border-[#ff5353]' : 'bg-[#eff3fe] border-[#6A62DC]'} border-2 rounded-[20px] flex flex-col justify-center items-center gap-6`}>
-                    <h2 className={`text-center ${theme === 'dark' ? 'text-[var(--color-dark)]' : 'text-[#211f47]'} text-3xl sm:text-4xl font-semibold`}>
+            <div className={`min-h-screen flex items-center justify-center px-4 ${ bgColor } overflow-hidden`}>
+                <div className={`w-full max-w-lg px-6 py-12 ${ theme === 'dark' ? 'bg-[var(--bg-dark)] border-[var(--primary-orange-color)]' : 'bg-[var(--bg-light)] border-[#6A62DC]'} border-2 rounded-[20px] flex flex-col justify-center items-center gap-6`}>
+                    <h2 className={`text-center ${ textColor } text-3xl sm:text-4xl font-semibold`}>
                         Reset your password
                     </h2>
-                    <p className={`text-center ${theme === 'dark' ? 'text-[var(--color-dark)]' : 'text-black'} text-lg sm:text-xl font-semibold`}>
+                    <p className={`text-center ${ textColor } text-lg sm:text-xl font-semibold`}>
                         Enter a new password below
                     </p>
                     <div className="w-full relative">
                         <input
                             type="password"
                             id="contraseña"
-                            className={`w-full h-12 sm:h-[77px] ${theme === 'dark' ? 'bg-black border-[#ff5353] text-[#ff5353]' : 'bg-white border-[#6a62dc] text-[#38357a]'} rounded-[10px] border-2 px-4 text-lg sm:text-2xl font-semibold focus:outline-none`}
+                            className={`w-full h-12 sm:h-[77px] ${theme === 'dark' ? 'bg-[var(--bg-dark)] border-[var(--primary-orange-color)] text-[var(--primary-orange-color)]' : 'bg-[var(--bg-light)] border-[var(--primary-purple-color)] text-[#38357a]'} rounded-[10px] border-2 px-4 text-lg sm:text-2xl font-semibold focus:outline-none`}
                             value={formData.contraseña}
                             placeholder='New password'
                             onChange={handleChange}
+                            autoComplete="new-password"
                             required
                         />
                     </div>
@@ -147,16 +152,17 @@ function ResetPassword() {
                         <input
                             type="password"
                             id="confirmContraseña"
-                            className={`w-full h-12 sm:h-[77px] ${theme === 'dark' ? 'bg-black border-[#ff5353] text-[#ff5353]' : 'bg-white border-[#6a62dc] text-[#38357a]'} rounded-[10px] border-2 px-4 text-lg sm:text-2xl font-semibold focus:outline-none`}
+                            className={`w-full h-12 sm:h-[77px] ${theme === 'dark' ? 'bg-[var(--bg-dark)] border-[var(--primary-orange-color)] text-[var(--primary-orange-color)]' : 'bg-[var(--bg-light)] border-[var(--primary-purple-color)] text-[#38357a]'} rounded-[10px] border-2 px-4 text-lg sm:text-2xl font-semibold focus:outline-none`}
                             value={formData.confirmContraseña}
                             placeholder='Confirm new password'
                             onChange={handleChange}
+                            autoComplete="new-password"
                             required
                         />
                     </div>
                     <button
                         onClick={handleSubmit}
-                        className={`w-full h-12 sm:h-[60.40px] ${theme === 'dark' ? 'bg-[#ff5353]' : 'bg-[#6A62DC]'} rounded-[10px] text-[var(--color-dark)] text-lg sm:text-2xl font-semibold`}
+                        className={`w-full h-12 sm:h-[60.40px] ${ buttonColor } rounded-[10px] text-white text-lg sm:text-2xl font-semibold`}
                         disabled={loading}
                     >
                         {loading ? "Resetting..." : "Reset Password"}
