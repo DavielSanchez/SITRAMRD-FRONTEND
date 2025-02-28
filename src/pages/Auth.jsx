@@ -41,18 +41,6 @@ function Auth() {
   }, [Lasttoken, theme]); 
   
 
-  function getIconColor(variant, theme) {
-    if (theme === "dark") {
-      if (variant === "chevronRight") return "white";
-      return "#ff5353";
-    } else {
-      if (variant === "chevron") return "black";
-      if (variant === "chevronRight") return "black";
-      if (variant === "gray") return "gray";
-      return "#6a62dc";
-    }
-  }
-
   // // Validaciones
   const validateSignIn = () => {
     if (!correo.trim().length) {
