@@ -14,7 +14,7 @@ function Home() {
   const userName = decodedToken.nombre
   const usertheme = decodedToken.theme;
   const [theme, setTheme] = useState(usertheme);
-  console.log(theme)
+  console.log(decodedToken)
 
   const handleLogout = () => {
     MySwal.fire({
@@ -80,6 +80,10 @@ function Home() {
 
           <a onClick={handleLogout} className="bg-[var(--primary-purple-color)] w-[181px] h-9 rounded-[10px] flex items-center justify-center text-[var(--color-dark)] text-base">
             logout
+          </a>
+
+          <a href='/pay' className="bg-[var(--primary-purple-color)] w-[181px] h-9 rounded-[10px] flex items-center justify-center text-[var(--color-dark)] text-base">
+            Pagos
           </a>
         </div>
       </div>

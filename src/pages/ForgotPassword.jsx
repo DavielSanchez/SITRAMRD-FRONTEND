@@ -1,10 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Toast from "../components/Auth/Toast";
 import { toast } from 'react-toastify';
 import { useNavigate } from "react-router-dom";
 import { jwtDecode } from 'jwt-decode'
-import PersonIcon from '@mui/icons-material/Person';
-import Button from "../components/Auth/Button";
+
 
 
 export default function ForgotPassword() {
@@ -95,7 +94,7 @@ export default function ForgotPassword() {
   return (
     <div className={`min-h-screen flex items-center justify-center px-4 ${ theme === 'dark' ? 'bg-black' : 'bg-white'} overflow-hidden`}>
       <div className={`w-full max-w-lg px-6 py-12 ${ theme === 'dark' ? 'bg-black border-[#ff5353]' : 'bg-white border-[#6A62DC]'} border-2 rounded-[20px] flex flex-col justify-center items-center gap-6`}>
-        <h2 className={`text-center ${ theme === 'dark' ? 'text-white' : 'text-[#211f47]'} text-2xl sm:text-4xl font-semibold`}>
+        <h2 className={`text-center ${ theme === 'dark' ? 'text-[var(--color-dark)]' : 'text-[#211f47]'} text-2xl sm:text-4xl font-semibold`}>
           Recuperar contraseña
         </h2>
         <p className="text-center text-black text-sm sm:text-xl font-semibold">
@@ -112,7 +111,7 @@ export default function ForgotPassword() {
         </div>
         <button
           onClick={handleForgotPassword}
-          className={`${ theme === 'dark' ? 'bg-[#ff5353]' : 'bg-[#6A62DC]' } w-full h-12 sm:h-[60.40px] rounded-[10px] text-white text-lg sm:text-2xl font-semibold`}          
+          className={`${ theme === 'dark' ? 'bg-[#ff5353]' : 'bg-[#6A62DC]' } w-full h-12 sm:h-[60.40px] rounded-[10px] text-[var(--color-dark)] text-lg sm:text-2xl font-semibold`}          
           disabled={loading}
         >
           {loading ? "Enviando..." : "Enviar correo"}
