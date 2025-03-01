@@ -14,7 +14,8 @@
     --color-dark: #fff;
     --color-light: #161616;
     --color-gray: #6a7282;
-    --bg-dark: #161616;
+    /* --bg-dark: #161616; */
+    --bg-dark: #000000;
     --bg-light: #ffffff;
 }
 

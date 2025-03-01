@@ -124,7 +124,7 @@ export default function Ajustes() {
   return (
     <div
       className={`w-full min-h-screen mx-auto p-4 md:p-8 flex flex-col ${
-        theme === "dark" ? "bg-[#000000] text-[var(--color-dark)]" : "bg-white text-black"
+        theme === "dark" ? `${bgColor} text-[var(--color-dark)]` : "bg-white text-black"
       }`}
     >
       <TopBar nombre='Mi Cuenta' ruta='/' theme={theme}/>
