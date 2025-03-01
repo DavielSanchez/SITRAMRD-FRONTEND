@@ -17,6 +17,7 @@ import NavBar from "../components/NavBar.jsx";
 import renderSection from "../components/Settings/RenderSection.jsx";
 import Swal from 'sweetalert2'
 import withReactContent from 'sweetalert2-react-content';
+import { useBG, useText, usePrimaryColors, useColorsWithHover, useIconColor } from "../ColorClass";
 import TopBar from "../components/TopBar.jsx";
 
 export default function Ajustes() {
@@ -37,6 +38,15 @@ export default function Ajustes() {
 
   const [theme, setTheme] = useState(usertheme);
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
+
+    //colors
+
+    const bgColor = useBG(theme);
+    const textColor = useText(theme);
+    const primaryColors = usePrimaryColors(theme);
+    const primaryHover = useColorsWithHover(theme);
+    const getIconColor = useIconColor(theme, 'gray')
+    const getChevronIconColor = useIconColor(theme, 'chevron')
 
   useEffect(() => {
     document.body.className = theme === "dark" ? "bg-[#000000]" : "bg-white";
@@ -90,8 +100,7 @@ export default function Ajustes() {
       if (!response.ok) {
         throw new Error("Error al actualizar el perfil");
       }
-  
-      const data = await response.json();
+
       setUserImage(newImageUrl);
       setUsername(newNombre);
   

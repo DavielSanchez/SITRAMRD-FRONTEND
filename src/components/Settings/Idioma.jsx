@@ -19,14 +19,14 @@ export default function Idioma({ onClose, theme }) {
       <div
         className={`w-full max-w-[90%] sm:max-w-sm lg:max-w-md xl:max-w-lg p-6 rounded-lg border-2 shadow-xl ${
           theme === "dark"
-            ? "bg-[#1E1E1E] text-white border-[#ff5353]"
-            : "bg-white text-black border-[#6a62dc]"
+            ? "bg-[#1E1E1E] text-white border-[var(--primary-orange-color)]"
+            : "bg-white text-black border-[var(--primary-purple-color)]"
         }`}
         onClick={(e) => e.stopPropagation()}
       >
         <label
           className={`block mb-2 ${
-            theme === "dark" ? "text-[#ff5353]" : "text-[#6a62dc]"
+            theme === "dark" ? "text-[var(--primary-orange-color)]" : "text-[var(--primary-purple-color)]"
           }`}
         >
           Idioma
@@ -36,7 +36,7 @@ export default function Idioma({ onClose, theme }) {
           <select
             className={`w-full px-3 py-2 border rounded appearance-none ${
               theme === "dark"
-                ? "bg-[#333] text-white border-[#ff5353]"
+                ? "bg-[#333] text-white border-[var(--primary-orange-color)]"
                 : "bg-gray-100 text-black"
             }`}
           >
@@ -66,7 +66,7 @@ export default function Idioma({ onClose, theme }) {
         <div className="flex justify-center gap-2 mt-4">
           <button
             className={`px-4 py-2 rounded text-white ${
-              theme === "dark" ? "bg-[#6a62dc]" : "bg-[#ff5353]"
+              theme === "dark" ? "bg-[var(--primary-purple-color)]" : "bg-[var(--primary-orange-color)]"
             }`}
             onClick={handleContinue}
           >
@@ -74,7 +74,7 @@ export default function Idioma({ onClose, theme }) {
           </button>
           <button
             className={`px-4 py-2 rounded text-white ${
-              theme === "dark" ? "bg-[#ff5353]" : "bg-[#6a62dc]"
+              theme === "dark" ? "bg-[var(--primary-orange-color)]" : "bg-[var(--primary-purple-color)]"
             }`}
             onClick={handleCancel}
           >

@@ -5,6 +5,7 @@ import Toast from "../components/Auth/Toast";
 import { toast } from 'react-toastify';
 import { useNavigate } from "react-router-dom";
 import { jwtDecode } from 'jwt-decode'
+import { useBG } from "../ColorClass";
 
 function SendOtp() {
     const [otp, setOtp] = useState('');
@@ -13,9 +14,11 @@ function SendOtp() {
     const queryParams = new URLSearchParams(location.search);
     const email = queryParams.get("correo");
     const navigate = useNavigate();
-    
     const token = localStorage.getItem('token');
     const [theme, setTheme] = useState('');
+
+    const bgColor = useBG(theme);
+
     useEffect(() => {
         if (token) {
           const decodedToken = jwtDecode(token);
@@ -88,9 +91,9 @@ function SendOtp() {
     }
 
     return (
-        <div className={`min-h-screen flex items-center justify-center px-4 ${theme === 'dark' ? 'bg-black' : 'bg-white'} overflow-hidden`}>
-            <div className={`w-full max-w-lg px-6 py-12 ${theme === 'dark' ? 'bg-black border-[#ff5353]' : 'bg-[#eff3fe] border-[#6A62DC]'} border-2 rounded-[20px] flex flex-col justify-center items-center gap-6`}>
-                <h2 className={`text-center ${theme === 'dark' ? 'text-[var(--color-dark)]' : 'text-[#6A62DC]'} text-3xl sm:text-4xl font-semibold`}>
+        <div className={`min-h-screen flex items-center justify-center px-4 ${bgColor} overflow-hidden`}>
+            <div className={`w-full max-w-lg px-6 py-12 ${theme === 'dark' ? 'bg-[var(--bg-dark)] border-[var(--primary-orange-color)]' : 'bg-[var(--bg-light)] border-[var(--primary-purple-color)]'} border-2 rounded-[20px] flex flex-col justify-center items-center gap-6`}>
+                <h2 className={`text-center ${theme === 'dark' ? 'text-[var(--color-dark)]' : 'text-[var(--primary-purple-color)]'} text-3xl sm:text-4xl font-semibold`}>
                     Introduce el código
                 </h2>
                 <p className={`text-center ${theme === 'dark' ? 'text-[var(--color-dark)]' : 'text-black'} text-lg sm:text-xl font-semibold`}>
@@ -101,11 +104,11 @@ function SendOtp() {
                         value={otp} 
                         onChange={handleChange} 
                         numInputs={6} 
-                        className={`${theme === 'dark' ? 'text-[#ff5353] border-[#ff5353]' : 'text-[#6A62DC]'} bg-center text-4xl justify-center border-3 w-12 h-18 mx-2 rounded-lg m-1 border-[#8c84ff] outline-none appearance-none`}
+                        className={`${theme === 'dark' ? 'text-[var(--primary-orange-color)] border-[var(--primary-orange-color)]' : 'text-[var(--primary-purple-color)] border-[var(--primary-purple-color)]'} bg-center text-4xl justify-center border-3 w-12 h-18 mx-2 rounded-lg m-1 outline-none appearance-none`}
                     />
                 </div>
                 <button
-                    className={`${theme === 'dark' ? 'bg-[#ff5353]' : 'bg-[#6A62DC]'} w-45 h-12 sm:h-[60.40px] rounded-[10px] text-[var(--color-dark)] text-lg sm:text-2xl font-semibold`}
+                    className={`${theme === 'dark' ? 'bg-[var(--primary-orange-color)]' : 'bg-[var(--primary-purple-color)]'} w-45 h-12 sm:h-[60.40px] rounded-[10px] text-[var(--color-dark)] text-lg sm:text-2xl font-semibold`}
                     onClick={handleSubmit}
                     disabled={loading}
                 >

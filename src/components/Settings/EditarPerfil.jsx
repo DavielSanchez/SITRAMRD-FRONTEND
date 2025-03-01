@@ -89,7 +89,7 @@ export default function EditarPerfil({ onClose, theme, onProfileUpdate }) {
       <div
         className={`w-full max-w-xs sm:max-w-sm md:max-w-md p-6 rounded-lg border-2 shadow-xl relative ${
           theme === "dark"
-            ? "bg-[#1E1E1E] text-white border-[#ff5353]"
+            ? "bg-[#1E1E1E] text-white border-[var(--primary-orange-color)]"
             : "bg-white text-black border-[#6a62dc]"
         }`}
         onClick={(e) => e.stopPropagation()}
@@ -110,14 +110,14 @@ export default function EditarPerfil({ onClose, theme, onProfileUpdate }) {
         </div>
 
         <div className="space-y-3">
-          <label className={`block ${theme === "dark" ? "text-[#ff5353]" : "text-[#6a62dc]"}`}>
+          <label className={`block ${theme === "dark" ? "text-[var(--primary-orange-color)]" : "text-[var(--primary-orange-color)]"}`}>
             Nombre
           </label>
           <input
             type="text"
             placeholder="Nombre de usuario"
             className={`w-full px-3 py-2 border rounded ${
-              theme === "dark" ? "bg-[#333] text-white border-[#ff5353]" : "bg-gray-100 text-black border-[#6a62dc]"
+              theme === "dark" ? "bg-[#333] text-white border-[var(--primary-orange-color)]" : "bg-gray-100 text-black border-[var(--primary-orange-color)]"
             }`}
             value={nombre}
             onChange={(e) => setNombre(e.target.value)}
@@ -127,7 +127,7 @@ export default function EditarPerfil({ onClose, theme, onProfileUpdate }) {
         <div className="flex justify-center gap-2 mt-4">
           <button
             className={`px-4 py-2 rounded transition-all ${
-              theme === "dark" ? "bg-[#6a62dc] text-white" : "bg-[#ff5353] text-white"
+              theme === "dark" ? "bg-[var(--primary-orange-color)] text-white" : "bg-[var(--primary-orange-color)] text-white"
             }`}
             onClick={updateProfile}
           >
@@ -135,7 +135,7 @@ export default function EditarPerfil({ onClose, theme, onProfileUpdate }) {
           </button>
           <button
             className={`px-4 py-2 rounded transition-all ${
-              theme === "dark" ? "bg-[#ff5353] text-white" : "bg-[#6a62dc] text-white"
+              theme === "dark" ? "bg-[var(--primary-orange-color)] text-white" : "bg-[var(--primary-orange-color)] text-white"
             }`}
             onClick={onClose}
           >

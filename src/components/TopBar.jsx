@@ -9,12 +9,12 @@ function TopBar({nombre, ruta, theme}) {
     function getIconColor(variant, theme) {
         if (theme === "dark") {
           if (variant === "chevronRight") return "white";
-          return "#ff5353";
+          return "var(--primary-orange-color)";
         } else {
           if (variant === "chevron") return "black";
           if (variant === "chevronRight") return "black";
           if (variant === "gray") return "gray";
-          return "#6a62dc";
+          return "var(--primary-purple-color)";
         }
       }
 
@@ -33,7 +33,7 @@ function TopBar({nombre, ruta, theme}) {
         </div>
         <h1
           className={`text-xl font-normal font-['Roboto'] ${
-            theme === "dark" ? "text-[#ff5353]" : "text-[#6a62dc]"
+            theme === "dark" ? "text-[var(--primary-orange-color)]" : "text-[var(--primary-purple-color)]"
           }`}
         >
           {nombre}

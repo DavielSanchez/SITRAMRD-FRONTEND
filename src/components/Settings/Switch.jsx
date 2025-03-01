@@ -6,7 +6,7 @@ export default function CustomSwitch({ enabled, onToggle }) {
           onToggle();
         }}
         className="w-12 h-6 rounded-full relative cursor-pointer transition-colors duration-300"
-        style={{ backgroundColor: enabled ? "#6a62dc" : "#ccc" }}
+        style={{ backgroundColor: enabled ? "var(--primary-purple-color)" : "#ccc" }}
       >
         <div
           className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full shadow-md transition-transform duration-300 transform ${

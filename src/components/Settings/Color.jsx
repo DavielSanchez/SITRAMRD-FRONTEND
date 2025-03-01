@@ -71,14 +71,14 @@ export default function Color({ onClose, onColorSelect, theme }) {
       <div
         className={`w-full max-w-sm p-6 rounded-lg border-2 shadow-xl ${
           theme === "dark"
-            ? "bg-[#1E1E1E] text-[var(--color-dark)] border-[#ff5353]"
-            : "bg-white text-black border-[#6a62dc]"
+            ? "bg-[#1E1E1E] text-[var(--color-dark)] border-[var(--primary-orange-color)]"
+            : "bg-white text-black border-[var(--primary-purple-color)]"
         }`}
         onClick={(e) => e.stopPropagation()}
       >
         <h2
           className={`text-lg font-semibold mb-4 ${
-            theme === "dark" ? "text-[#ff5353]" : "text-[#6a62dc]"
+            theme === "dark" ? "text-[var(--primary-orange-color)]" : "text-[var(--primary-purple-color)]"
           }`}
         >
           Selecciona un tema
@@ -89,8 +89,8 @@ export default function Color({ onClose, onColorSelect, theme }) {
           className={`flex items-center justify-between p-4 rounded-lg border cursor-pointer transition-all ${
             tempTheme === "light"
               ? theme === "dark"
-                ? "border-[#ff5353] ring-2 ring-[#ff5353]"
-                : "border-[#6a62dc] ring-2 ring-[#6a62dc]"
+                ? "border-[var(--primary-orange-color)] ring-2 ring-[var(--primary-orange-color)]"
+                : "border-[var(--primary-purple-color)] ring-2 ring-[var(--primary-purple-color)]"
               : "border-gray-300"
           }`}
           onClick={() => handleThemeSelection("light")}
@@ -103,7 +103,7 @@ export default function Color({ onClose, onColorSelect, theme }) {
           </div>
           {tempTheme === "light" && (
             <span
-              className={theme === "dark" ? "text-[#ff5353]" : "text-[#6a62dc]"}
+              className={theme === "dark" ? "text-[var(--primary-orange-color)]" : "text-[var(--primary-purple-color)]"}
             >
               ✓
             </span>
@@ -115,8 +115,8 @@ export default function Color({ onClose, onColorSelect, theme }) {
           className={`flex items-center justify-between p-4 mt-3 rounded-lg border cursor-pointer transition-all ${
             tempTheme === "dark"
               ? theme === "dark"
-                ? "border-[#ff5353] ring-2 ring-[#ff5353]"
-                : "border-[#6a62dc] ring-2 ring-[#6a62dc]"
+                ? "border-[var(--primary-orange-color)] ring-2 ring-[var(--primary-orange-color)]"
+                : "border-[var(--primary-purple-color)] ring-2 ring-[var(--primary-purple-color)]"
               : "border-gray-300"
           }`}
           onClick={() => handleThemeSelection("dark")}
@@ -131,7 +131,7 @@ export default function Color({ onClose, onColorSelect, theme }) {
           </div>
           {tempTheme === "dark" && (
             <span
-              className={theme === "dark" ? "text-[#ff5353]" : "text-[#6a62dc]"}
+              className={theme === "dark" ? "text-[var(--primary-orange-color)]" : "text-[var(--primary-purple-color)]"}
             >
               ✓
             </span>
@@ -144,8 +144,8 @@ export default function Color({ onClose, onColorSelect, theme }) {
             className={`px-4 py-2 rounded transition-all ${
               theme === "dark"
                 ? "bg-[#554dcf] text-white"
-                : "bg-[#ff5353] text-white"
-            } hover:bg-[#ff5353]`}
+                : "bg-[var(--primary-orange-color)] text-white"
+            } hover:bg-[var(--primary-orange-color)]`}
             onClick={() => {
               handleSave();
               handleConfirm();
@@ -156,7 +156,7 @@ export default function Color({ onClose, onColorSelect, theme }) {
           <button
             className={`px-4 py-2 rounded transition-all ${
               theme === "dark"
-                ? "bg-[#ff5353] text-white"
+                ? "bg-[var(--primary-orange-color)] text-white"
                 : "bg-[#554dcf] text-white"
             } hover:bg-[#554dcf]`}
             onClick={onClose} 

@@ -5,7 +5,7 @@ function Button({ placeholder, onChange, icon, onClick, theme }) {
     <button
       onChange={onChange}
       onClick={onClick}
-      className={`${ theme === 'dark' ? 'bg-[#ff5353]' : 'bg-[#6A62DC]' } rounded-md text-white h-10 w-32 lg:h-14 lg:w-40 transition duration-500 mx-auto font-bold relative flex items-center justify-center hover:scale-110 cursor-pointer`}
+      className={`${ theme === 'dark' ? 'bg-[var(--primary-orange-color)]' : 'bg-[var(--primary-purple-color)]' } rounded-md text-white h-10 w-32 lg:h-14 lg:w-40 transition duration-500 mx-auto font-bold relative flex items-center justify-center hover:scale-110 cursor-pointer`}
     >
       {/* Icono posicionado al borde izquierdo con left-0 */}
       {icon && (
