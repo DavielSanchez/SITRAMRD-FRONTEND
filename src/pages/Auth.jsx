@@ -1,20 +1,19 @@
-import Input from "../components/Auth/Input";
+
 import Button from "../components/Auth/Button";
 import { useState, useEffect } from "react";
 import background from "../assets/Auth/Q1A9065.png";
 import arrow from "../assets/Auth/flecha-derecha.png";
 import Toast from "../components/Auth/Toast";
-import usuario from "../assets/Auth/usuario.png"
 import { toast } from 'react-toastify';
 import { jwtDecode } from 'jwt-decode'
 import PersonIcon from '@mui/icons-material/Person';
 
 function Auth() {
-  const token = localStorage.getItem('token');
+  const Lasttoken = localStorage.getItem('token');
   const [theme, setTheme] = useState('');
   useEffect(() => {
-    if (token) {
-      const decodedToken = jwtDecode(token);
+    if (Lasttoken) {
+      const decodedToken = jwtDecode(Lasttoken);
       const usertheme = decodedToken.theme;
       if (usertheme !== theme) {
         setTheme(usertheme);
@@ -24,7 +23,7 @@ function Auth() {
         setTheme("white");
       }
     }
-  }, [token, theme]); 
+  }, [Lasttoken, theme]); 
   
   const [showToast, setShowToast] = useState(false);
   const [correo, setCorreo] = useState("");
@@ -81,6 +80,7 @@ function Auth() {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
+            // 'Authorization': `Bearer ${token}`
           },
           body: JSON.stringify({ correo, contraseña }),
         });
@@ -163,9 +163,9 @@ function Auth() {
               type='password' 
               name="fake-password-field"
               value={contraseña} 
-              onChange={(e) => setCorreo(e.target.value)} 
+              onChange={(e) => setContraseña(e.target.value)} 
               autoComplete="new-email"
-              className={`p-2 border-b-1 w-xs lg:w-md font-semibold tracking-widest text-sm duration-1000 ease-in-out ${ theme === 'dark' ? 'text-white' : 'text-black' } placeholder-gray-500`}
+              className={`p-2 border-b-1 w-xs lg:w-md font-semibold tracking-widest text-sm duration-1000 ease-in-out ${ theme === 'dark' ? 'text-[var(--color-dark)]' : 'text-black' } placeholder-gray-500`}
               placeholder='Contraseña'
               style={{
                 color: theme === 'dark' ? 'white' : 'black',
@@ -175,7 +175,7 @@ function Auth() {
             </div>
             <Button placeholder="Entra" type="submit" icon={arrow} theme={theme} />
           </form>
-          <p className={`${ theme === 'dark' ? 'text-white' : 'text-black' } mt-7 font-semibold`}>
+          <p className={`${ theme === 'dark' ? 'text-[var(--color-dark)]' : 'text-black' } mt-7 font-semibold`}>
             Aun no tienes cuenta?{" "}
             <a
               href="/register"
@@ -184,7 +184,7 @@ function Auth() {
               Registrate
             </a>
           </p>
-          <p className={`${ theme === 'dark' ? 'text-white' : 'text-black' } mt-7 font-semibold`}>
+          <p className={`${ theme === 'dark' ? 'text-[var(--color-dark)]' : 'text-black' } mt-7 font-semibold`}>
             Olvidaste la contraseña?{" "}
             <a
               href="/forgot"

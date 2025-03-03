@@ -19,7 +19,7 @@ import { Box } from "@mui/material";
 import { jwtDecode } from "jwt-decode";
 import NavBar from "../components/NavBar.jsx";
 import renderSection from "../components/Settings/RenderSection.jsx";
-import Swal from 'sweetalert2'
+import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
 
 export default function Ajustes() {
@@ -28,16 +28,21 @@ export default function Ajustes() {
   const username = decodedToken.nombre;
   const usertheme = decodedToken.theme;
 
-  const MySwal = withReactContent(Swal)
+  const MySwal = withReactContent(Swal);
   const navigate = useNavigate();
 
+  // Estados de modales
   const [showColorModal, setShowColorModal] = useState(false);
   const [showCerrarSesion, setShowCerrarSesion] = useState(false);
   const [showEditarPerfil, setShowEditarPerfil] = useState(false);
   const [showIdiomaModal, setShowIdiomaModal] = useState(false);
 
+  // Estado del tema y de notificaciones
   const [theme, setTheme] = useState(usertheme);
   const [notificationsEnabled, setNotificationsEnabled] = useState(false);
+
+  // Estado para la imagen de perfil
+  const [profileImage, setProfileImage] = useState(null);
 
   useEffect(() => {
     document.body.className = theme === "dark" ? "bg-[#000000]" : "bg-white";
@@ -93,7 +98,7 @@ export default function Ajustes() {
           theme === "dark" ? "bg-[#000000] border-[#333]" : "bg-white border-gray-300"
         }`}
       >
-      <div
+        <div
           className="absolute left-[10px] cursor-pointer hover:opacity-75 active:opacity-50"
           onClick={() => navigate("/")}
         >
@@ -109,26 +114,35 @@ export default function Ajustes() {
       </div>
 
       <div className="flex flex-col items-center mt-6">
-      <Box sx={{ position: "relative", display: "inline-block" }}>
-  {/* Icono de fondo (grande) */}
-  <LensIcon sx={{ color: getIconColor("gray", theme), fontSize: 200 }} />
-  <CreateIcon
-  sx={{
-    position: "absolute",
-    top: "50%",
-    left: "50%",
-    transform: "translate(-50%, -50%)",
-    fontSize: 80, // Tamaño del icono central
-    color: "white", // Color del icono central
-    cursor: "pointer", // Hace que el icono sea clickeable
-  }}
-  onClick={() => alert("Hello")}
-/>
-</Box>
+        <Box sx={{ position: "relative", display: "inline-block" }}>
+          {/* Si ya tenemos una imagen guardada, la mostramos; de lo contrario, LensIcon */}
+          {profileImage ? (
+            <img
+              src={profileImage}
+              alt="Perfil"
+              className="rounded-full object-cover"
+              style={{ width: "200px", height: "200px" }}
+            />
+          ) : (
+            <LensIcon sx={{ color: getIconColor("gray", theme), fontSize: 200 }} />
+          )}
+          <CreateIcon
+            sx={{
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              fontSize: 80,
+              color: "white",
+              cursor: "pointer",
+            }}
+            onClick={() => setShowEditarPerfil(true)}
+          />
+        </Box>
         <h2 className="mt-4 text-5xl font-normal font-['Roboto'] text-center w-full">
           {username}
         </h2>
-    </div>
+      </div>
 
       {/* Secciones */}
       <div className="flex-grow overflow-auto mb-[80px]">
@@ -151,7 +165,7 @@ export default function Ajustes() {
               onClick: () => handleLogOut(),
             },
           ],
-          theme,
+          theme
         )}
         {renderSection(
           "Preferencias",
@@ -174,7 +188,7 @@ export default function Ajustes() {
               onClick: () => setShowColorModal(true),
             },
           ],
-          theme,
+          theme
         )}
         {renderSection(
           "Seguridad y Soporte",
@@ -182,13 +196,13 @@ export default function Ajustes() {
             { icon: QuestionMarkIcon, label: "Preguntas Frecuentes" },
             { icon: SupportAgentIcon, label: "Soporte" },
           ],
-          theme,
+          theme
         )}
       </div>
 
-      <NavBar theme={theme}/>
-      
+      <NavBar theme={theme} />
 
+      {/* Modales */}
       {showColorModal && (
         <Color
           onClose={() => setShowColorModal(false)}
@@ -203,9 +217,13 @@ export default function Ajustes() {
         <EditarPerfil
           onClose={() => setShowEditarPerfil(false)}
           theme={theme}
+          // Función que recibe la URL de la imagen y la guarda en Ajustes
+          onImageUpdate={(newImageUrl) => setProfileImage(newImageUrl)}
         />
       )}
-      {showIdiomaModal && <Idioma onClose={() => setShowIdiomaModal(false)} theme={theme} />}
+      {showIdiomaModal && (
+        <Idioma onClose={() => setShowIdiomaModal(false)} theme={theme} />
+      )}
     </div>
   );
 }
