@@ -9,6 +9,9 @@ import SendOtp from './pages/SendOtp';
 import ForgotPassword from './pages/ForgotPassword';
 import Settings from './pages/Settings';
 import Unauthorized from './pages/unauthorized';
+import AdminDashboard from "./pages/AdminDashboard";
+import GestionOperadores from "./pages/GestionOperadores";
+import Auditoria from './pages/Auditoria';
 
 function App() {
   return (
@@ -18,18 +21,22 @@ function App() {
         <Routes>
           <Route path="/unauthorized" element={<Unauthorized />} />
           <Route path="/login" element={<Auth />} />
-          <Route path='/register' element={<RegisterAuth/>}/>
-          <Route path='/forgot' element={<ForgotPassword/>}/>
-          <Route path='/send-otp' element={<SendOtp/>}/>
-          <Route path='/reset' element={<ResetPassword/>}/>
-          <Route path='/settings' element={<Settings/>}/>
+          <Route path="/register" element={<RegisterAuth />} />
+          <Route path="/forgot" element={<ForgotPassword />} />
+          <Route path="/send-otp" element={<SendOtp />} />
+          <Route path="/reset" element={<ResetPassword />} />
+          <Route path="/settings" element={<Settings />} />
+          <Route path="/dashboard" element={<AdminDashboard />} />
+          <Route path="/gestionO" element={<GestionOperadores />} />
+          <Route path="/auditoria" element={<Auditoria />} />
           <Route 
-          path="/" 
-          element={
-          <ProtectedRoute allowedRoles={['Pasajero', 'Operador', 'Administrador']}>
-            <Home />
-          </ProtectedRoute>
-          } />
+            path="/" 
+            element={
+              <ProtectedRoute allowedRoles={['Pasajero', 'Operador', 'Administrador']}>
+                <Home />
+              </ProtectedRoute>
+            } 
+          />
         </Routes>
       </Router>
     </>
