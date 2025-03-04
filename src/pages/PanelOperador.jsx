@@ -8,6 +8,11 @@ export default function Operadores() {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [activeButton, setActiveButton] = useState("Dashboard");
   const [incidencias, setIncidencias] = useState([]);
+  const [autobuses, setAutobuses] = useState([]);
+  const [rutas, setRutas] = useState([]);
+
+  // Variable de entorno para la URL base de la API
+  const API_LINK = import.meta.env.VITE_API_LINK || "http://localhost:3001";
 
   const toggleSidebar = () => {
     setIsCollapsed(!isCollapsed);
@@ -20,11 +25,11 @@ export default function Operadores() {
   // Para pantallas md y mayores: si el menú está colapsado, el ancho es w-16, de lo contrario w-60
   const mainMargin = isCollapsed ? "md:ml-16" : "md:ml-60";
 
-  // Obtener las incidencias desde la API al cargar el componente
+  // Obtener incidencias desde la API
   useEffect(() => {
     const fetchIncidencias = async () => {
       try {
-        const response = await fetch("http://localhost:3001/incidencia/all");
+        const response = await fetch(`${API_LINK}/incidencia/all`);
         const data = await response.json();
         if (data.incidencias) {
           setIncidencias(data.incidencias);
@@ -33,9 +38,91 @@ export default function Operadores() {
         console.error("Error fetching incidencias:", error);
       }
     };
-
     fetchIncidencias();
-  }, []);
+  }, [API_LINK]);
+
+  // Obtener autobuses desde la API
+  useEffect(() => {
+    const fetchAutobuses = async () => {
+      try {
+        const response = await fetch(`${API_LINK}/autoBus/all`);
+        const data = await response.json();
+        if (data.autobuses) {
+          setAutobuses(data.autobuses);
+        }
+      } catch (error) {
+        console.error("Error fetching autobuses:", error);
+      }
+    };
+    fetchAutobuses();
+  }, [API_LINK]);
+
+  // Obtener rutas desde la API
+  useEffect(() => {
+    const fetchRutas = async () => {
+      try {
+        const response = await fetch(`${API_LINK}/ruta/all`);
+        const data = await response.json();
+        if (data.rutas) {
+          setRutas(data.rutas);
+        }
+      } catch (error) {
+        console.error("Error fetching rutas:", error);
+      }
+    };
+    fetchRutas();
+  }, [API_LINK]);
+
+  // Función para agregar una nueva incidencia
+  const addIncidencia = (newIncidencia) => {
+    setIncidencias([...incidencias, newIncidencia]);
+  };
+
+  // Función para actualizar una incidencia
+  const updateIncidencia = (updatedIncidencia) => {
+    const updatedIncidencias = incidencias.map((inc) =>
+      inc._id === updatedIncidencia._id ? updatedIncidencia : inc
+    );
+    setIncidencias(updatedIncidencias);
+  };
+
+  // Ejemplo: Simular agregar una nueva incidencia
+  const handleAddIncidencia = async () => {
+    const newIncidencia = {
+      _id: "new-id",
+      descripcion: "Nueva incidencia",
+      estado: "Pendiente",
+      fechaDeReporte: new Date().toISOString(),
+    };
+
+    // Llamada a la API para agregar la incidencia
+    await fetch(`${API_LINK}/incidencia/add`, {
+      method: "POST",
+      body: JSON.stringify(newIncidencia),
+      headers: { "Content-Type": "application/json" },
+    });
+
+    // Actualizar el estado
+    addIncidencia(newIncidencia);
+  };
+
+  // Ejemplo: Simular actualizar una incidencia
+  const handleUpdateIncidencia = async (id, newStatus) => {
+    const updatedIncidencia = {
+      _id: id,
+      estado: newStatus,
+    };
+
+    // Llamada a la API para actualizar la incidencia
+    await fetch(`${API_LINK}/incidencia/estado/${id}`, {
+      method: "PUT",
+      body: JSON.stringify({ estado: newStatus }),
+      headers: { "Content-Type": "application/json" },
+    });
+
+    // Actualizar el estado
+    updateIncidencia(updatedIncidencia);
+  };
 
   return (
     <div className="bg-[#f5f7fa] min-h-screen">
@@ -77,17 +164,19 @@ export default function Operadores() {
 
           {/* Tarjetas de estadísticas */}
           <section className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {/* Se renderiza el componente IncidenciasCard que muestra las incidencias obtenidas */}
+            {/* Incidencias */}
             <IncidenciasCard incidencias={incidencias} />
+            {/* Reportes */}
             <StatCard
               title="Reportes"
               value="18"
               percentage="-15%"
               color="text-red-500"
             />
+            {/* Autobuses activos */}
             <StatCard
               title="Autobuses activos"
-              value="39"
+              value={autobuses.length}
               percentage="-15%"
               color="text-red-500"
             />
@@ -109,12 +198,12 @@ export default function Operadores() {
               <CounterCard
                 icon={<DirectionsBus />}
                 label="Rutas asignadas"
-                value="42"
+                value={rutas.length}
               />
               <CounterCard
                 icon={<DirectionsBus />}
                 label="Autobuses"
-                value="49"
+                value={autobuses.length}
               />
             </div>
           </section>
@@ -145,7 +234,12 @@ function StatCard({ title, value, percentage, color }) {
 function IncidenciasCard({ incidencias }) {
   return (
     <div className="bg-white shadow-md rounded-lg p-4">
-      <h3 className="text-lg font-semibold text-[#6a62dc]">Incidencias</h3>
+      <div className="flex justify-between items-center">
+        <h3 className="text-lg font-semibold text-[#6a62dc]">Incidencias</h3>
+        <span className="text-gray-600 text-sm">
+          Total: {incidencias.length}
+        </span>
+      </div>
       {incidencias.length === 0 ? (
         <p className="text-gray-500 mt-2">No hay incidencias registradas.</p>
       ) : (
@@ -178,7 +272,6 @@ function IncidenciasCard({ incidencias }) {
 
 /**
  * CounterCard: Tarjeta para mostrar contadores (Rutas asignadas, Autobuses, etc.).
- * Se modificó para que el label tenga color morado y el número en rojo.
  */
 function CounterCard({ icon, label, value }) {
   return (

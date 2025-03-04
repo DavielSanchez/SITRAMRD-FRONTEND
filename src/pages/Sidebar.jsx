@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import {
   ClipboardList,
@@ -9,12 +9,7 @@ import {
   Menu,
 } from "lucide-react";
 
-function Sidebar({
-  isCollapsed,
-  toggleSidebar,
-  activeButton,
-  handleButtonClick,
-}) {
+function Sidebar({ isCollapsed, toggleSidebar, activeButton, handleButtonClick }) {
   const navItems = [
     { to: "/dashboard", icon: ClipboardList, name: "Dashboard" },
     { to: "/gestionU", icon: PenTool, name: "Gestión U." },
