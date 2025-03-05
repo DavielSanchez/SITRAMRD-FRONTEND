@@ -43,7 +43,7 @@ function Home() {
     <>
     <div className={`${ bgColor } flex justify-center items-center w-full min-h-screen`}>
       <div className={` ${ bgColor } w-[1440px] flex flex-col items-center text-center`}>
-        <h1 className={` ${ theme === 'dark' ? 'bg-[var(--color-dark)]' : 'bg-[var(--color-light)]' }font-bold text-5xl mb-4`}>
+        <h1 className={` ${ textColor } font-bold text-5xl mb-4`}>
           Bienvenidos a SITRAMRD {userName}!
         </h1>
         
