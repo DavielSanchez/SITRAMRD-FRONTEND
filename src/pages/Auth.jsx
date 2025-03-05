@@ -163,7 +163,7 @@ function Auth() {
               type='password' 
               name="fake-password-field"
               value={contraseña} 
-              onChange={(e) => setCorreo(e.target.value)} 
+              onChange={(e) => setContraseña(e.target.value)} 
               autoComplete="new-email"
               className={`p-2 border-b-1 w-xs lg:w-md font-semibold tracking-widest text-sm duration-1000 ease-in-out ${ theme === 'dark' ? 'text-white' : 'text-black' } placeholder-gray-500`}
               placeholder='Contraseña'

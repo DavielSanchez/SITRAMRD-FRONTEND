@@ -27,7 +27,7 @@ function App() {
           <Route path="/reset" element={<ResetPassword />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/dashboard" element={<AdminDashboard />} />
-          <Route path="/gestionO" element={<GestionOperadores />} />
+          <Route path="/gestion" element={<GestionOperadores />} />
           <Route path="/auditoria" element={<Auditoria />} />
           <Route 
             path="/" 

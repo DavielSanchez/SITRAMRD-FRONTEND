@@ -1,81 +1,101 @@
 import React, { useState, useEffect } from "react";
-import AdminLayout from "./AdminLayout";
+import Sidebar from "../components/Administrador/SideBar";
+import NotificationBell from "../components/Administrador/Dashboard/NotificationBell";
+import UserMenu from "../components/Administrador/Dashboard/UserMenu";
+import StatCard from "../components/Administrador/Dashboard/StatCard";
+import RoutesMapCard from "../components/Administrador/Dashboard/RoutesMapCard";
 
 function AdminDashboard() {
   const [activeUsers, setActiveUsers] = useState(0);
-  const [loading, setLoading] = useState(true);
+  const [incidencias, setIncidencias] = useState([]);
+  const [totalRutas, setTotalRutas] = useState(0);
+  const [totalParadas, setTotalParadas] = useState(0);
+  const [loadingUsers, setLoadingUsers] = useState(true);
+  const [loadingIncidencias, setLoadingIncidencias] = useState(true);
+  const [loadingRutas, setLoadingRutas] = useState(true);
 
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await fetch(`${import.meta.env.VITE_API_LINK}/users`);
+        const response = await fetch(`${import.meta.env.VITE_API_LINK}/auth/users`);
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         const data = await response.json();
-     
-        const activeCount = data.filter(user => user.estadoUsuario === "activo").length;
-        setActiveUsers(activeCount);
+        setActiveUsers(data.filter((user) => user.estadoUsuario === "activo").length);
       } catch (error) {
         console.error("Error fetching users:", error);
       } finally {
-        setLoading(false);
+        setLoadingUsers(false);
+      }
+    };
+
+    const fetchIncidencias = async () => {
+      try {
+        const response = await fetch(`${import.meta.env.VITE_API_LINK}/incidencia/all`);
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        const data = await response.json();
+        setIncidencias(data.incidencias);
+      } catch (error) {
+        console.error("Error fetching incidencias:", error);
+      } finally {
+        setLoadingIncidencias(false);
+      }
+    };
+
+    const fetchRutas = async () => {
+      try {
+        const response = await fetch(`${import.meta.env.VITE_API_LINK}/ruta/all`);
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        const data = await response.json();
+        setTotalRutas(data.length);
+        setTotalParadas(data.reduce((acc, ruta) => acc + (ruta.paradas ? ruta.paradas.length : 0), 0));
+      } catch (error) {
+        console.error("Error fetching rutas:", error);
+      } finally {
+        setLoadingRutas(false);
       }
     };
 
     fetchUsers();
+    fetchIncidencias();
+    fetchRutas();
   }, []);
 
   return (
-    <AdminLayout activePage="Dashboard">
-      <div className="space-y-4 mt-4">
-        {/* Mobile Layout */}
-        <div className="md:hidden space-y-4">
-          <StatCard title="Usuarios activos" value={loading ? "..." : activeUsers} percentage={0} />
-          <StatCard title="Incidencias" value="18" percentage={-15} />
-          <StatCard title="Reportes" value="35" />
-          <RoutesCard />
-          <StatCard title="Autobuses disp." value="82" />
-          <StatCard title="Paradas" value="200" />
-        </div>
-        {/* Desktop Layout */}
-        <div className="hidden md:grid grid-cols-3 gap-4">
-          {/* Fila superior */}
-          <StatCard title="Usuarios activos" value={loading ? "..." : activeUsers} percentage={0} />
-          <StatCard title="Incidencias" value="18" percentage={-15} />
-          <StatCard title="Reportes" value="35" />
-          {/* Fila inferior */}
-          <RoutesCard className="col-span-2" />
-          <div className="flex flex-col gap-4">
-            <StatCard title="Autobuses disp." value="82" />
-            <StatCard title="Paradas" value="200" />
+    <div className="flex h-screen overflow-hidden">
+      <Sidebar />
+
+      <div className="flex flex-col flex-1 ml-[120px] overflow-auto">
+        <header className="bg-white shadow-md p-4">
+          <div className="flex items-center justify-between">
+            <h1 className="text-[#6A62DC] text-xl font-semibold">Panel administrativo</h1>
+            <div className="flex items-center gap-3">
+              <NotificationBell />
+              <UserMenu />
+            </div>
           </div>
-        </div>
+        </header>
+
+        <main className="flex-1 p-4">
+          <div className="mt-4">
+            <div className="hidden md:flex md:flex-col gap-4">
+              <div className="grid grid-cols-3 gap-4">
+                <StatCard title="Usuarios activos" value={loadingUsers ? "..." : activeUsers} percentage={0} />
+                <StatCard title="Incidencias" value={loadingIncidencias ? "..." : incidencias.length} percentage={-15} />
+                <StatCard title="Rutas" value={loadingRutas ? "..." : totalRutas} />
+              </div>
+              <div className="grid grid-cols-3 gap-4">
+                <div className="col-span-2">
+                  <RoutesMapCard />
+                </div>
+                <div className="flex flex-col gap-4">
+                  <StatCard title="Paradas" value={loadingRutas ? "..." : totalParadas} />
+                  <StatCard title="Autobuses disp." value="82" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </main>
       </div>
-    </AdminLayout>
-  );
-}
-
-function StatCard({ title, value, percentage }) {
-  return (
-    <div className="w-[85%] mx-auto bg-[#f1f1ff] rounded-2xl shadow-md p-4 flex flex-col justify-center">
-      <h2 className="text-[#6A62DC] text-xl font-bold">{title}</h2>
-      <div className="mt-2 text-[#FF5353] text-2xl">{value}</div>
-      {percentage !== undefined && (
-        <div className={`mt-1 text-lg ${percentage > 0 ? "text-green-500" : "text-red-500"}`}>
-          {percentage > 0 ? `+${percentage}%` : `${percentage}%`}
-        </div>
-      )}
-    </div>
-  );
-}
-
-function RoutesCard({ className }) {
-  return (
-    <div className={`w-[85%] mx-auto bg-[#f1f1ff] rounded-2xl shadow-md p-2 md:h-80 overflow-hidden ${className}`}>
-      <h2 className="text-[#6A62DC] text-xl font-bold mb-2">Rutas</h2>
-      <img
-        className="w-full h-full rounded-xl object-cover"
-        src="https://placehold.co/663x422"
-        alt="Mapa de Rutas"
-      />
     </div>
   );
 }
