@@ -11,6 +11,7 @@ import Settings from './pages/Settings';
 import Unauthorized from './pages/unauthorized';
 import PanelOperador from './pages/PanelOperador';
 import Incidencias from './pages/Incidencias';
+import VistaAsignar from './pages/VistaAsignar';
 
 function App() {
   return (
@@ -27,6 +28,7 @@ function App() {
           <Route path='/settings' element={<Settings/>}/>
           <Route path="/operador" element={<PanelOperador />} />
           <Route path="/incidencias" element={<Incidencias />} />
+          <Route path="/asignar" element={<VistaAsignar />} />
       
           <Route 
           path="/" 
