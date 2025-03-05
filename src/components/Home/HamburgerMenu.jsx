@@ -37,16 +37,16 @@ function HamburgerMenu({}) {
     return (
         <div className="hidden xl:block">
             {/* Botón de hamburguesa */}
-            <button onClick={toggleMenu} className={`text-4xl ${textColor} p-2 focus:outline-none`}>
+            <button onClick={toggleMenu} className={`text-4xl ${textColor} p-2 focus:outline-none cursor-pointer`}>
                 {isOpen ? <CloseIcon sx={{ fontSize: 45 }} /> : <MenuIcon sx={{ fontSize: 45, color: iconColor }} />}
             </button>
 
             {/* Menú desplegable */}
             <div
-                className={`fixed top-0 left-0 w-96 h-full ${bgColor} shadow-lg transform transition-transform duration-300 ease-in-out ${isOpen ? "translate-x-0" : "-translate-x-full"
+                className={`fixed top-0 left-0 w-80 h-full ${bgColor} shadow-lg transform transition-transform duration-300 ease-in-out ${isOpen ? "translate-x-0" : "-translate-x-full"
                     }`}
             >
-                <button onClick={toggleMenu} className="absolute top-4 right-4 text-2xl">
+                <button onClick={toggleMenu} className="absolute top-4 right-4 text-2xl cursor-pointer">
                     <CloseIcon sx={{ fontSize: 45 }} />
                 </button>
 
