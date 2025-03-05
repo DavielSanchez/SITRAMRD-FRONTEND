@@ -27,7 +27,7 @@
     "react-toastify": "^11.0.3",
     "reactjs-otp-input": "^2.0.10",
     "sitramrd-frontend": "file:",
-    "sweetalert2": "^11.16.1",
+    "sweetalert2": "^11.17.2",
     "sweetalert2-react-content": "^5.1.0",
     "tailwindcss": "^4.0.4"
   },
