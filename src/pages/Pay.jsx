@@ -1,5 +1,5 @@
 import { CardElement, useStripe, useElements } from "@stripe/react-stripe-js";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { jwtDecode } from "jwt-decode";
 
 function Pay() {
@@ -12,6 +12,29 @@ function Pay() {
   const [loading, setLoading] = useState(false);
   const [clientSecret, setClientSecret] = useState("");
   const [error, setError] = useState("");
+  const [cardBalance, setCardBalance] = useState('')
+  const [cardNumber, setCardNumber] = useState('')
+
+  useEffect(() => {
+    GetCard()
+  }, [userId])
+
+  const GetCard = async () => {
+    const response = await fetch(`${import.meta.env.VITE_API_LINK}/wallet/user/tarjetas/virtuales/${userId}`)
+
+    const data = await response.json();
+      console.log("Client Secret recibido:", data);
+      setCardBalance(data[0].saldo)
+      setCardNumber(data[0].numeroTarjeta)
+
+      if (!data) {
+        throw new Error("No se recibió un Client Secret válido.");
+      }
+
+
+  }
+
+  
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -83,6 +106,17 @@ function Pay() {
 
   return (
     <div className="flex justify-center items-center h-screen bg-gray-100">
+
+<div className="w-[388px] h-[187px] relative">
+  <div className="w-[388px] h-[187px] left-0 top-0 absolute bg-[#6a62dc] rounded-[22px]" />
+  <div className="w-[228px] h-14 left-[18px] top-[92px] absolute text-white text-[34px] font-bold font-['Inter']">RD$ {cardBalance}.00</div>
+  <div className="w-[254px] left-[18px] top-[135px] absolute text-white text-[13px] font-normal font-['Inter']">Ultima recarga: 2/9/2025 </div>
+  <div className="w-[158px] left-[18px] top-[55px] absolute text-white text-[15px] font-normal font-['Inter']">{cardNumber}</div>
+  {/* <div className="w-[158px] left-[18px] top-[55px] absolute text-white text-[15px] font-normal font-['Inter']">**** **** **** 7479</div> */}
+  <div className="w-[289px] left-[18px] top-[155px] absolute text-white text-[13px] font-normal font-['Inter']">Ultimo viaje: 2/9/2025 10:25 AM</div>
+  <div className="left-[18px] top-[16px] absolute text-white text-[28px] font-bold font-['Inter']">Daviel Alexander Sanchez</div>
+</div>
+
       <div className="bg-white p-6 rounded-xl shadow-lg w-96">
         <h2 className="text-xl font-semibold mb-4 text-gray-700">Pago con Tarjeta</h2>
         {error && <p className="text-red-500 mb-2">{error}</p>}

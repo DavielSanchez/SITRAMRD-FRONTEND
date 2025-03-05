@@ -13,8 +13,7 @@ function Home() {
   const token = localStorage.getItem('token');
   const decodedToken = jwtDecode(token);
   const userName = decodedToken.nombre
-  const usertheme = decodedToken.theme;
-  const [theme, setTheme] = useState(usertheme);
+  const theme = decodedToken.theme;
   const bgColor = useBG(theme);
   const textColor = useText(theme);
 
@@ -85,6 +84,10 @@ function Home() {
 
           <a onClick={handleLogout} className="bg-[var(--primary-purple-color)] w-[181px] h-9 rounded-[10px] flex items-center justify-center text-[var(--color-dark)] text-base">
             logout
+          </a>
+
+          <a href="/chat" className="bg-[var(--primary-orange-color)] w-[181px] h-9 rounded-[10px] flex items-center justify-center text-[var(--color-dark)] text-base">
+            /chat
           </a>
 
           <a href='/pay' className="bg-[var(--primary-purple-color)] w-[181px] h-9 rounded-[10px] flex items-center justify-center text-[var(--color-dark)] text-base">
