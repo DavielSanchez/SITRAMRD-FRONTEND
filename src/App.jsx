@@ -8,7 +8,7 @@ import ResetPassword from './pages/ResetPassword';
 import SendOtp from './pages/SendOtp';
 import ForgotPassword from './pages/ForgotPassword';
 import Settings from './pages/Settings';
-import Unauthorized from './pages/unauthorized';
+import Unauthorized from './pages/Unauthorized';
 
 function App() {
   return (

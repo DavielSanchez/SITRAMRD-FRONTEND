@@ -5,8 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { jwtDecode } from 'jwt-decode'
 import PersonIcon from '@mui/icons-material/Person';
 import Button from "../components/Auth/Button";
-import { useBG, useText, useBGForButtons } from "../ColorClass";
-
+import { useBG, useText, useBGForButtons } from "../utils/ColorClass";
 
 export default function ForgotPassword() {
   const token = localStorage.getItem('token');
@@ -19,19 +18,20 @@ export default function ForgotPassword() {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  
   useEffect(() => {
-      if (token) {
-        const decodedToken = jwtDecode(token);
-        const usertheme = decodedToken.theme;
-        if (usertheme !== theme) {
-          setTheme(usertheme);
-        }
-      } else {
-        if (theme !== "white") {
-          setTheme("white");
-        }
+    if (token) {
+      const decodedToken = jwtDecode(token);
+      const usertheme = decodedToken.theme;
+      if (usertheme !== theme) {
+        setTheme(usertheme);
       }
-    }, [token, theme]); 
+    } else {
+      if (theme !== "white") {
+        setTheme("white");
+      }
+    }
+  }, [token, theme]);
 
   const handleForgotPassword = async () => {
     if (!email) {
@@ -43,14 +43,12 @@ export default function ForgotPassword() {
             pauseOnHover: true,
             draggable: true,
             theme: "colored",
-            });
+        });
       return;
     }
 
     setLoading(true);
     try {
-
-      // Hacer la solicitud al backend
       const response = await fetch(`${import.meta.env.VITE_API_LINK}/auth/send-otp`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -67,10 +65,10 @@ export default function ForgotPassword() {
             pauseOnHover: true,
             draggable: true,
             theme: "colored",
-          });
-          setTimeout(() => {
-            navigate(`/send-otp?correo=${encodeURIComponent(email)}`); // Pasar el correo como parámetro en la URL
-          }, 3000);
+        });
+        setTimeout(() => {
+          navigate(`/send-otp?correo=${encodeURIComponent(email)}`); // Pasar el correo como parámetro en la URL
+        }, 3000);
       } else {
         toast.error(data.message || "Ocurrió un error. Por favor, inténtalo de nuevo", {
             position: "bottom-center",
@@ -80,8 +78,7 @@ export default function ForgotPassword() {
             pauseOnHover: true,
             draggable: true,
             theme: "colored",
-          });
-        
+        });
       }
     } catch (error) {
         toast.error(`Ocurrió un error. Por favor, inténtalo de nuevo más tarde`, {
@@ -92,7 +89,7 @@ export default function ForgotPassword() {
             pauseOnHover: true,
             draggable: true,
             theme: "colored",
-          });
+        });
     } finally {
       setLoading(false);
     }
@@ -100,7 +97,7 @@ export default function ForgotPassword() {
 
   return (
     <div className={`min-h-screen flex items-center justify-center px-4 ${bgColor} overflow-hidden`}>
-      <div className={`w-full max-w-lg px-6 py-12 ${ theme === 'dark' ? 'bg-black border-[#ff5353]' : 'bg-white border-[#6A62DC]'} border-2 rounded-[20px] flex flex-col justify-center items-center gap-6`}>
+      <div className={`w-full max-w-lg px-6 py-12 ${ theme === 'dark' ? 'bg-black border-[var(--primary-orange-color)]' : 'bg-white border-[var(--primary-purple-color)]'} border-2 rounded-[20px] flex flex-col justify-center items-center gap-6`}>
         <h2 className={`text-center ${textColor} text-2xl sm:text-4xl font-semibold`}>
           Recuperar contraseña
         </h2>
@@ -113,7 +110,7 @@ export default function ForgotPassword() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="Ingresa tu correo electrónico..."
-            className={`w-full h-12 sm:h-[77px] ${ theme === 'dark' ? 'bg-black border-[#ff5353] text-[#ff5353]' : 'bg-white border-[#6a62dc] text-[#6a62dc]' } rounded-[10px] border-2 px-4 text-md sm:text-2xl font-semibold focus:outline-none`}
+            className={`w-full h-12 sm:h-[77px] ${ theme === 'dark' ? 'bg-black border-[var(--primary-orange-color)] text-[var(--primary-orange-color)]' : 'bg-white border-[var(--primary-purple-color)] text-[var(--primary-purple-color)]' } rounded-[10px] border-2 px-4 text-md sm:text-2xl font-semibold focus:outline-none`}
           />
         </div>
         <button
@@ -123,8 +120,8 @@ export default function ForgotPassword() {
         >
           {loading ? "Enviando..." : "Enviar correo"}
         </button>
-        </div>
-      <Toast/>
+      </div>
+      <Toast />
     </div>
   );
 }

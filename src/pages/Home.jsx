@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode'
 import { useState } from 'react';
 import NavBar from "../components/NavBar";
-import { useBG, useText } from "../ColorClass";
+import { useBG, useText } from "../utils/ColorClass.js";
 
 
 function Home() {

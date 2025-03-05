@@ -8,7 +8,7 @@ import usuario from "../assets/Auth/usuario.png"
 import { toast } from 'react-toastify';
 import { jwtDecode } from 'jwt-decode'
 import PersonIcon from '@mui/icons-material/Person';
-import { useBG, useText, usePrimaryColors, useColorsWithHover, useIconColor } from "../ColorClass";
+import { useBG, useText, usePrimaryColors, useColorsWithHover, useIconColor } from "../utils/ColorClass.js";
 
 function Auth() {
 

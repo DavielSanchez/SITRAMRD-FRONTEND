@@ -11,7 +11,7 @@ import withReactContent from 'sweetalert2-react-content'
 import { jwtDecode } from 'jwt-decode'
 import PersonIcon from '@mui/icons-material/Person';
 import '../../public/CSS/Auth.css'
-import { useBG, useText, useColorsWithHover, useIconColor } from "../ColorClass";
+import { useBG, useText, useColorsWithHover, useIconColor } from "../utils/ColorClass.js";
 
 function RegisterAuth() {
   const token = localStorage.getItem('token');

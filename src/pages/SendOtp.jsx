@@ -5,7 +5,7 @@ import Toast from "../components/Auth/Toast";
 import { toast } from 'react-toastify';
 import { useNavigate } from "react-router-dom";
 import { jwtDecode } from 'jwt-decode'
-import { useBG } from "../ColorClass";
+import { useBG } from "../utils/ColorClass.js";
 
 function SendOtp() {
     const [otp, setOtp] = useState('');

@@ -4,7 +4,7 @@ import Toast from "../components/Auth/Toast";
 import { useLocation } from "react-router-dom";
 import { useNavigate } from 'react-router-dom';
 import { jwtDecode } from 'jwt-decode';
-import { useBG, useText, useBGForButtons } from "../ColorClass";
+import { useBG, useText, useBGForButtons } from "../utils/ColorClass.js";
 
 function ResetPassword() {
     const [loading, setLoading] = useState(false);
@@ -129,7 +129,7 @@ function ResetPassword() {
     return (
         <>
             <div className={`min-h-screen flex items-center justify-center px-4 ${ bgColor } overflow-hidden`}>
-                <div className={`w-full max-w-lg px-6 py-12 ${ theme === 'dark' ? 'bg-[var(--bg-dark)] border-[var(--primary-orange-color)]' : 'bg-[var(--bg-light)] border-[#6A62DC]'} border-2 rounded-[20px] flex flex-col justify-center items-center gap-6`}>
+                <div className={`w-full max-w-lg px-6 py-12 ${ theme === 'dark' ? 'bg-[var(--bg-dark)] border-[var(--primary-orange-color)]' : 'bg-[var(--bg-light)] border-[var(--primary-purple-color)]'} border-2 rounded-[20px] flex flex-col justify-center items-center gap-6`}>
                     <h2 className={`text-center ${ textColor } text-3xl sm:text-4xl font-semibold`}>
                         Reset your password
                     </h2>
