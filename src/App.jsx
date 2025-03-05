@@ -12,6 +12,7 @@ import ForgotPassword from './pages/ForgotPassword';
 import Settings from './pages/Settings';
 import Unauthorized from './pages/unauthorized';
 import Pay from './pages/Pay';
+import HomeView from './pages/HomeView';
 
 const stripePromise = loadStripe(`${import.meta.env.VITE_STRIPE_SECRET_LINK}`);
 
@@ -30,6 +31,7 @@ function App() {
           <Route path='/reset' element={<ResetPassword/>}/>
           <Route path='/settings' element={<Settings/>}/>
           <Route path='/pay' element={<Pay/>}/>
+          <Route path='/HomeView' element={<HomeView/>}/>
           <Route 
           path="/" 
           element={
