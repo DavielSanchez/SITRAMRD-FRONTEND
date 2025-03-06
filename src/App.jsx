@@ -1,18 +1,16 @@
+import './App.css';
+import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import { ToastContainer } from "react-toastify";
-import Home from './pages/Home';
-import Auth from './pages/Auth';
-import RegisterAuth from './pages/RegisterAuth';
+import DashboardPage from './pages/DashboardPage';
+
 
 function App() {
   return (
     <>
       <Router>
-        <ToastContainer />
         <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/login" element={<Auth />} />
-          <Route path='/register' element={<RegisterAuth/>}/>
+          {/* Aquí debes pasar <Auth /> como elemento */}
+          <Route path="/" element={<DashboardPage />} />
         </Routes>
       </Router>
     </>
@@ -20,3 +18,5 @@ function App() {
 }
 
 export default App;
+
+
