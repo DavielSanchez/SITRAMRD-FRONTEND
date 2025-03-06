@@ -1,30 +1,40 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Sidebar from "../components/PanelOperador/Sidebar";
-import BarraSuperior from "../components/PanelOperador/BarraSuperior";
+import Sidebar from "../components/Sidebar";
+import TopBar from "../components/TopBar";
 import IncidenciasCard from "../components/PanelOperador/IncidenciasCard";
 import ReporteCard from "../components/PanelOperador/ReporteCard";
 import AutobusACard from "../components/PanelOperador/AutobusACard";
 import Mapa from "../components/PanelOperador/Mapa";
 import Rutas from "../components/PanelOperador/Rutas";
 import AutobusesCardCounter from "../components/PanelOperador/AutobusesCard";
+import { useBG, useBGForButtons, useText } from "../ColorClass";
 
 function PanelOperador() {
   const navigate = useNavigate();
   const [activeButton, setActiveButton] = useState("Dashboard");
+  
+  
+  const token = localStorage.getItem("token");
+  const theme = token ? JSON.parse(atob(token.split(".")[1])).theme : "light";
+
+ 
+  const bgColor = useBG(theme);
+  const buttonColor = useBGForButtons(theme);
+  const textColor = useText(theme);
 
   const handleButtonClick = (name) => {
     setActiveButton(name);
   };
 
   return (
-    <div className="flex h-screen overflow-hidden">
+    <div className={`flex h-screen overflow-hidden ${bgColor}`}>
       {/* Sidebar fijo */}
-      <Sidebar handleButtonClick={handleButtonClick} activeButton={activeButton} />
+      <Sidebar role="operador" handleButtonClick={handleButtonClick} activeButton={activeButton} />
 
       {/* Contenedor principal */}
       <div className="flex flex-col flex-1 overflow-auto ml-[120px]">
-        <BarraSuperior />
+        <TopBar title="Panel de Operadores" />
 
         {/* Contenido principal */}
         <main className="flex-1 p-4 md:p-8 mt-[122px] transition-all duration-300">
@@ -47,7 +57,7 @@ function PanelOperador() {
       </div>
 
       {/* Navegación inferior para móviles (opcional) */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-[#6A62DC] flex justify-around py-3 px-4 rounded-t-lg z-20">
+      <div className={`md:hidden fixed bottom-0 left-0 right-0 ${buttonColor} flex justify-around py-3 px-4 rounded-t-lg z-20`}>
         {/* Opciones móviles */}
       </div>
     </div>

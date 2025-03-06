@@ -26,6 +26,7 @@ function App() {
           <Route path='/send-otp' element={<SendOtp/>}/>
           <Route path='/reset' element={<ResetPassword/>}/>
           <Route path='/settings' element={<Settings/>}/>
+          
           <Route path="/operador" element={<PanelOperador />} />
           <Route path="/incidencias" element={<Incidencias />} />
           <Route path="/asignar" element={<VistaAsignar />} />

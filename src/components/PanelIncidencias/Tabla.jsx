@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from "react";
 import Swal from "sweetalert2";
+import ModalEditar from "./ModalEditar"; 
 
 function Tabla() {
   const [incidencias, setIncidencias] = useState([]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedIncidencia, setSelectedIncidencia] = useState(null);
   const API_LINK = import.meta.env.VITE_API_LINK || "http://localhost:3001";
 
   useEffect(() => {
@@ -13,21 +16,21 @@ function Tabla() {
         if (data.incidencias) {
           const incidenciasWithNombre = await Promise.all(
             data.incidencias.map(async (inc) => {
-              try {
-                const userResponse = await fetch(
-                  `${API_LINK}/auth/users/nombre/${inc.idUsuario}`
-                );
-                const userData = await userResponse.json();
-                const nombreUsuario = Array.isArray(userData)
-                  ? userData.length > 0
-                    ? userData[0].nombre
-                    : "N/A"
-                  : userData.nombre || "N/A";
-                return { ...inc, nombreUsuario };
-              } catch (err) {
-                console.error("Error fetching nombre for user", inc.idUsuario, err);
-                return { ...inc, nombreUsuario: "N/A" };
+              let nombreUsuario = "N/A";
+              if (inc.idUsuario && typeof inc.idUsuario === "object" && inc.idUsuario.nombre) {
+                nombreUsuario = inc.idUsuario.nombre;
+              } else if (inc.idUsuario && typeof inc.idUsuario === "string") {
+                try {
+                  const userResponse = await fetch(`${API_LINK}/auth/users/nombre/${inc.idUsuario}`);
+                  const userData = await userResponse.json();
+                  nombreUsuario = Array.isArray(userData)
+                    ? (userData.length > 0 ? userData[0].nombre : "N/A")
+                    : userData.nombre || "N/A";
+                } catch (err) {
+                  console.error("Error fetching nombre for user", inc.idUsuario, err);
+                }
               }
+              return { ...inc, nombreUsuario };
             })
           );
           setIncidencias(incidenciasWithNombre);
@@ -43,21 +46,16 @@ function Tabla() {
     const estadoNormalized = estado?.toLowerCase();
     switch (estadoNormalized) {
       case "pendiente":
-        return <span className="text-orange-500 text-lg font-bold">⦿</span>;
-      case "activo":
-        return <span className="text-green-500 text-lg font-bold">⦿</span>;
+        return <span className="text-red-500 text-lg font-bold">⦿</span>;
       case "en proceso":
-        return <span className="text-yellow-500 text-lg font-bold">⦿</span>;
+        return <span className="text-blue-500 text-lg font-bold">⦿</span>;
       case "resuelto":
-        return <span className="text-green-500 text-lg font-bold">✔</span>;
-      case "cancelado":
-        return <span className="text-red-500 text-lg font-bold">✖</span>;
+        return <span className="text-green-500 text-lg font-bold">⦿</span>;
       default:
         return <span>{estado}</span>;
     }
   };
 
-  // Función para eliminar incidencia usando SweetAlert2
   const handleDelete = (id) => {
     Swal.fire({
       title: "¿Desea eliminar incidencia?",
@@ -73,7 +71,6 @@ function Tabla() {
             method: "DELETE",
           });
           if (response.ok) {
-            // Se elimina la incidencia del estado local
             setIncidencias((prev) => prev.filter((inc) => inc._id !== id));
             Swal.fire("Eliminado", "La incidencia ha sido eliminada", "success");
           } else {
@@ -84,8 +81,23 @@ function Tabla() {
           Swal.fire("Error", "Error al eliminar la incidencia", "error");
         }
       }
-      // Si se cancela, no se realiza ninguna acción.
     });
+  };
+
+  const handleEditClick = (inc) => {
+    setSelectedIncidencia(inc);
+    setIsModalOpen(true);
+  };
+
+  const handleModalClose = () => {
+    setIsModalOpen(false);
+    setSelectedIncidencia(null);
+  };
+
+  const handleEstadoUpdated = (id, nuevoEstado) => {
+    setIncidencias((prev) =>
+      prev.map((inc) => (inc._id === id ? { ...inc, estado: nuevoEstado } : inc))
+    );
   };
 
   return (
@@ -112,27 +124,24 @@ function Tabla() {
           ) : (
             incidencias.map((inc, index) => (
               <tr key={inc._id} className="border-b">
-                <td className="px-4 py-2 text-center text-[#6a62dc] font-semibold">
-                  {index + 1}
-                </td>
-                <td className="px-4 py-2 text-center">
-                  {inc.nombreUsuario || "N/A"}
-                </td>
-                <td className="px-4 py-2 text-center">
-                  {inc.idAutoBus || "N/A"}
-                </td>
+                <td className="px-4 py-2 text-center text-[#6a62dc] font-semibold">{index + 1}</td>
+                <td className="px-4 py-2 text-center">{inc.nombreUsuario || "N/A"}</td>
+                <td className="px-4 py-2 text-center">{inc.idAutoBus || "N/A"}</td>
                 <td className="px-4 py-2 text-center">
                   {inc.fechaDeReporte
                     ? new Date(inc.fechaDeReporte).toLocaleString()
                     : "N/A"}
                 </td>
-                <td className="px-4 py-2 text-center">
-                  {renderEstadoIcon(inc.estado)}
-                </td>
+                <td className="px-4 py-2 text-center">{renderEstadoIcon(inc.estado)}</td>
                 <td className="px-4 py-2 text-center">{inc.descripcion}</td>
                 <td className="px-4 py-2 text-center">
                   <div className="flex items-center justify-center gap-2">
-                    <div data-svg-wrapper className="cursor-pointer">
+                    {/* Ícono de editar */}
+                    <div
+                      data-svg-wrapper
+                      className="cursor-pointer"
+                      onClick={() => handleEditClick(inc)}
+                    >
                       <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
                         <path
                           d="M10.5 2.82861L14.5 6.82861M1 16.3284H5L15.5 5.82843C15.7626 5.56578 15.971 5.25398 16.1131 4.91082C16.2553 4.56766 16.3284 4.19986 16.3284 3.82843C16.3284 3.45699 16.2553 3.0892 16.1131 2.74604C15.971 2.40287 15.7626 2.09107 15.5 1.82843C15.2374 1.56578 14.9256 1.35744 14.5824 1.2153C14.2392 1.07316 13.8714 1 13.5 1C13.1286 1 12.7608 1.07316 12.4176 1.2153C12.0744 1.35744 11.7626 1.56578 11.5 1.82843L1 12.3284V16.3284Z"
@@ -143,6 +152,7 @@ function Tabla() {
                         />
                       </svg>
                     </div>
+                    {/* Ícono de eliminar */}
                     <div
                       data-svg-wrapper
                       className="cursor-pointer"
@@ -165,6 +175,16 @@ function Tabla() {
           )}
         </tbody>
       </table>
+      {/* Modal para editar el estado */}
+      {selectedIncidencia && (
+        <ModalEditar
+          isOpen={isModalOpen}
+          onClose={handleModalClose}
+          incidencia={selectedIncidencia}
+          onEstadoUpdated={handleEstadoUpdated}
+          API_LINK={API_LINK}
+        />
+      )}
     </div>
   );
 }

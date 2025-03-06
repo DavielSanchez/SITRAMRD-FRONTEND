@@ -2,16 +2,22 @@ import React, { useState, useEffect } from "react";
 
 function ReporteCard() {
   const [reportes, setReportes] = useState([]);
-  // Configuración de API propio para Reportes
   const API_LINK = import.meta.env.VITE_API_LINK || "http://localhost:3001";
 
   useEffect(() => {
     const fetchReportes = async () => {
       try {
-        const response = await fetch(`${API_LINK}/incidencia/reporte`);
+        const response = await fetch(`${API_LINK}/incidencia/all`);
         const data = await response.json();
         if (data.incidencias) {
-          setReportes(data.incidencias);
+          // Filtra incidencias cuyo estado sea "pendiente" o "en proceso"
+          const pendientesReportes = data.incidencias.filter(
+            (inc) =>
+              inc.estado &&
+              (inc.estado.toLowerCase() === "pendiente" ||
+                inc.estado.toLowerCase() === "en proceso")
+          );
+          setReportes(pendientesReportes);
         }
       } catch (error) {
         console.error("Error fetching reportes:", error);
@@ -26,15 +32,11 @@ function ReporteCard() {
         <h3 className="text-[28px] font-bold text-[#6A62DC] font-['Inter']">
           Reportes
         </h3>
-        <span className="text-gray-600 text-xs">
-          Total: {reportes.length}
-        </span>
+        <span className="text-gray-600 text-xs">Total: {reportes.length}</span>
       </div>
       {reportes.length === 0 ? (
         <div className="flex-1 flex items-center justify-center">
-          <p className="text-gray-500 text-xs">
-            No hay reportes registrados.
-          </p>
+          <p className="text-gray-500 text-xs">No hay reportes registrados.</p>
         </div>
       ) : null}
     </div>

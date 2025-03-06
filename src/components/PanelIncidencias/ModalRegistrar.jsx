@@ -68,7 +68,7 @@ function ModalRegistrar({ isOpen, onClose, onIncidenciaAdded }) {
             className="w-full h-[40px] bg-[#eff3fe] rounded-[5px] px-2 text-black"
           />
 
-          {/* Campo Descripción (text area) */}
+          {/* Campo Descripción*/}
           <textarea
             placeholder="Descripcion"
             value={descripcion}
