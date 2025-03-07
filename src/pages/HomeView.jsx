@@ -7,9 +7,15 @@ import { useState } from "react";
 import LocationIcon from "../assets/Home/LocationIcon";
 import RefreshIcon from '../assets/Home/RefreshIcon'
 import HamburgerMenu from "../components/Home/HamburgerMenu";
+import TopBar from '../components/TopBar.jsx'
+import { toast } from 'react-toastify'
+import { colors } from "@mui/material";
 
 function HomeView() {
-    const [openModal, setOpenModal] = useState(false)
+    const [openModal, setOpenModal] = useState(false);
+    const [location, setLocation] = useState("");
+    const [destination, setDestination] = useState("");
+
 
     const token = localStorage.getItem('token');
     const decodedToken = jwtDecode(token)
@@ -31,29 +37,57 @@ function HomeView() {
         })
     }
 
+    const handleSubmit = () => {
+        if (!location.trim().length) {
+            toast.error(`El campo de ubicacion está vacío`, {
+                position: "bottom-center",
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                theme: "colored",
+            })
+        }
+        if (!destination.trim().length) {
+            toast.error(`El campo de destino está vacío`, {
+                position: "bottom-center",
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                theme: "colored",
+            })
+        }
+    }
+
     return (
         <>
 
             <div className={`flex flex-col items-center p-4 ${bgColor} min-h-screen relative`}>
-            <div className="w-full absolute top-0 h-96 bg-cover bg-center z-0" style={{ backgroundImage: "url('src/assets/home/1_2.png')" }}></div>
-
-                <div className={`flex ${textColor} font-semibold text-4xl w-max h-14">Sitramrd`}>
-                    <div className="absolute left-10">
+                <div className="w-full absolute top-0 h-96 bg-cover bg-center z-0" style={{ backgroundImage: "url('src/assets/home/1_2.png')" }}></div>
+                <TopBar nombre={'Sitramrd'} mostrarIcono={false} />
+                <div className={`flex ${textColor} font-semibold text-4xl w-max h-14">`}>
+                    <div className="absolute left-10 top-2">
                         <HamburgerMenu />
-                    </div> Sitramrd</div>
-                    
+                    </div>
+                </div>
+
                 <div className={`${ButtonColor}  text-white rounded-2xl p-9 shadow-lg mt-12 z-10 w-full max-w-xl`}>
                     <p className="font-semibold text-2xl">Daviel Alexander Sanchez</p>
                     <p className="text-xl mt-2">RD$ 1000.00</p>
-                    <p className="mt-2 text-sm">Última recarga: 2/9/2025</p>
+                    <p className="mt-2 text-sm">Última recarga: 3/9/2025</p>
                     <p className="text-sm">Último viaje: 2/9/2025 10:25 AM</p>
                 </div>
-                            
+
 
                 <div className="flex gap-4 mt-4">
                     <button onClick={handleAlert} className={`${ButtonColor}  text-white px-6 z-10 py-4 rounded-lg shadow cursor-pointer`}>Recargar Balance</button>
                 </div>
                 <div className="mt-32 w-full max-w-2xl">
+
+                    <p className={`${textColor} text-2xl font-semibold mb-3`}>Para donde vas?</p>
                     <div className="flex items-center mb-4">
                         <input onClick={() => setOpenModal(true)} type="text" placeholder="A donde vas?" className={`w-full p-3 border rounded-md ${textColor} `} />
                     </div>
@@ -71,15 +105,17 @@ function HomeView() {
                             <h2 className="text-xl font-semibold text-center">Selecciona tu destino</h2>
                             <input
                                 type="text"
+                                onChange={(e) => setLocation(e.target.value)}
                                 placeholder="Escribe tu ubicación actual"
                                 className={`w-full p-3 border rounded-md ${textColor}`}
                             />
                             <input
                                 type="text"
+                                onChange={(e) => setDestination(e.target.value)}
                                 placeholder="Escribe tu destino"
                                 className={`w-full p-3 border rounded-md ${textColor}`}
                             />
-                            <button className={`${ButtonColor} text-white px-4 py-2 rounded-lg w-full`}>Enviar</button>
+                            <button onClick={handleSubmit} className={`${ButtonColor} cursor-pointer text-white px-4 py-2 rounded-lg w-full`}>Enviar</button>
                             <img className="w-full h-auto max-h-64 object-cover" src="https://upload.wikimedia.org/wikipedia/commons/c/c0/Dominican_Republic_location_map.svg" alt="Mapa" />
                             <div className="flex justify-end">
                                 <button

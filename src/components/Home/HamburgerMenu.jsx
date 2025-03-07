@@ -7,59 +7,59 @@ import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
 import HomeIcon from "@mui/icons-material/Home";
 import MenuIcon from "@mui/icons-material/Menu";
 import CloseIcon from "@mui/icons-material/Close";
-import { useBG, useText, useIconColor } from "../../ColorClass";
+import SitramLogo from '../../assets/Home/SitramLogo.svg'
+import { useText, useIconColor, useBGForButtons } from "../../ColorClass";
 
-function HamburgerMenu({}) {
+function HamburgerMenu() {
     const navigate = useNavigate();
     const [isOpen, setIsOpen] = useState(false);
 
     const toggleMenu = () => setIsOpen(!isOpen);
 
-    const token = localStorage.getItem('token');
-    const decodedToken = jwtDecode(token)
-    const theme = decodedToken.theme
-    const iconColor = useIconColor(theme)
-    const textColor = useText(theme)
-    const bgColor = useBG(theme)
+    const token = localStorage.getItem("token");
+    const decodedToken = jwtDecode(token);
+    const theme = decodedToken.theme;
+    const iconColor = useIconColor(theme);
+    const textColor = useText(theme);
+    const bgColor = useBGForButtons(theme)
 
-    const renderNavItem = (Icon, label, isActive, theme, variant, onClick) => {
+    const renderNavItem = (Icon, label, isActive, onClick) => {
         return (
             <div
                 onClick={onClick}
-                className={`flex items-center space-x-4 cursor-pointer ${isActive ? 'text-blue-500' : ''}`}
+                className={`flex flex-col items-center space-y-2 cursor-pointer ${isActive ? "text-blue-500" : ""}`}
             >
-                <Icon sx={{ fontSize: 24, color: iconColor }} />
-                <span className={`text-3xl ${textColor}`}>{label}</span>
+                <div className={`bg-white p-4 rounded-xl shadow-md`}>
+                    <Icon sx={{ fontSize: 55, color: iconColor }} />
+                </div>
+                <span className={`text-xl text-white`}>{label}</span>
             </div>
         );
     };
 
     return (
         <div className="hidden xl:block">
-            {/* Botón de hamburguesa */}
             <button onClick={toggleMenu} className={`text-4xl ${textColor} p-2 focus:outline-none cursor-pointer`}>
                 {isOpen ? <CloseIcon sx={{ fontSize: 45 }} /> : <MenuIcon sx={{ fontSize: 45, color: iconColor }} />}
             </button>
 
-            {/* Menú desplegable */}
             <div
-                className={`fixed top-0 left-0 w-80 h-full ${bgColor} shadow-lg transform transition-transform duration-300 ease-in-out ${isOpen ? "translate-x-0" : "-translate-x-full"
+                className={`fixed top-0 left-0 w-62 h-full ${bgColor} shadow-lg transform transition-transform duration-300 ease-in-out ${isOpen ? "translate-x-0" : "-translate-x-full"
                     }`}
             >
                 <button onClick={toggleMenu} className="absolute top-4 right-4 text-2xl cursor-pointer">
-                    <CloseIcon sx={{ fontSize: 45 }} />
+                    <CloseIcon sx={{ fontSize: 45, color: 'white' }} />
                 </button>
 
-                <nav className={`flex flex-col items-start mt-16 p-6 space-y-6`}>
-                    {renderNavItem(HomeIcon, "Inicio", false, theme, "default", () => navigate("/HomeView"))}
-                    {renderNavItem(AttachMoneyIcon, "Billetera", false, theme, "default", () => navigate("/billetera"))}
-                    {renderNavItem(AccessTimeIcon, "Actividad", false, theme, "default", () => navigate("/actividad"))}
-                    {renderNavItem(PersonOutlineIcon, "Mi cuenta", true, theme, "default", () => navigate("/settings"))}
+                <nav className="flex flex-col items-center mt-10 p-6 space-y-8">
+
+                    <img className="h-25 mb-15" src={SitramLogo} alt="" />
+                    {renderNavItem(HomeIcon, "Inicio", false, () => navigate("/HomeView"))}
+                    {renderNavItem(AttachMoneyIcon, "Billetera", false, () => navigate("/billetera"))}
+                    {renderNavItem(AccessTimeIcon, "Actividad", false, () => navigate("/actividad"))}
+                    {renderNavItem(PersonOutlineIcon, "Mi cuenta", true, () => navigate("/settings"))}
                 </nav>
             </div>
-
-            {/* Overlay para cerrar el menú al hacer clic fuera */}
-            {/* {isOpen && <div className={`fixed inset-0 opacity-50`} onClick={toggleMenu}></div>} */}
         </div>
     );
 }
