@@ -17,15 +17,15 @@ function Tabla() {
           const incidenciasWithNombre = await Promise.all(
             data.incidencias.map(async (inc) => {
               let nombreUsuario = "N/A";
+              // Si idUsuario es un objeto y tiene la propiedad nombre, se usa ese valor.
               if (inc.idUsuario && typeof inc.idUsuario === "object" && inc.idUsuario.nombre) {
                 nombreUsuario = inc.idUsuario.nombre;
               } else if (inc.idUsuario && typeof inc.idUsuario === "string") {
+                // Si idUsuario es un string, se realiza un fetch para obtener el usuario.
                 try {
-                  const userResponse = await fetch(`${API_LINK}/auth/users/nombre/${inc.idUsuario}`);
+                  const userResponse = await fetch(`${API_LINK}/auth/users/id/${inc.idUsuario}`);
                   const userData = await userResponse.json();
-                  nombreUsuario = Array.isArray(userData)
-                    ? (userData.length > 0 ? userData[0].nombre : "N/A")
-                    : userData.nombre || "N/A";
+                  nombreUsuario = userData.nombre || "N/A";
                 } catch (err) {
                   console.error("Error fetching nombre for user", inc.idUsuario, err);
                 }
@@ -46,7 +46,7 @@ function Tabla() {
     const estadoNormalized = estado?.toLowerCase();
     switch (estadoNormalized) {
       case "pendiente":
-        return <span className="text-red-500 text-lg font-bold">⦿</span>;
+        return <span className="text-orange-500 text-lg font-bold">⦿</span>;
       case "en proceso":
         return <span className="text-blue-500 text-lg font-bold">⦿</span>;
       case "resuelto":

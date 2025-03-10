@@ -8,7 +8,7 @@ function AutobusesCard() {
   useEffect(() => {
     const fetchAutobuses = async () => {
       try {
-        const response = await fetch(`${API_LINK}/autoBus/all`);
+        const response = await fetch(`${API_LINK}/autobus/all`);
         const data = await response.json();
         if (data.autobuses) {
           setAutobuses(data.autobuses);

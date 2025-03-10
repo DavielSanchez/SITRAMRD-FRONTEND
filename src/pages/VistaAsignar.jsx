@@ -15,6 +15,8 @@ function VistaAsignar() {
   const ButtonColor = useBGForButtons(theme);
   const textColor = useText(theme);
 
+  const [showModal, setShowModal] = React.useState(false);
+
   return (
     <div className={`flex h-screen overflow-hidden ${bgColor}`}>
       {/* Sidebar fijo */}
@@ -29,11 +31,12 @@ function VistaAsignar() {
           <div className="flex flex-col gap-6 items-center">
             <SelectAutobus />
             <SelectRuta />
-            <div className={`w-[239px] h-[53px] ${ButtonColor} rounded-[20px] flex items-center justify-center cursor-pointer`}>
-              <div className={`${textColor} text-2xl font-semibold font-['Inter']`}>
-                Asignar
-              </div>
-            </div>
+            <button
+              onClick={() => setShowModal(true)}
+              className={`${ButtonColor} text-white font-semibold px-4 py-2 rounded-md w-48 hover:opacity-90 transition-colors`}
+            >
+              Asignar
+            </button>
           </div>
 
           {/* Tabla (ya configurada según otros requerimientos) */}
