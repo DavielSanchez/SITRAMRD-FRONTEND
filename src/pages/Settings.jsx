@@ -117,7 +117,8 @@ export default function Ajustes() {
         theme === "dark" ? "bg-[#000000] text-[var(--color-dark)]" : "bg-white text-black"
       }`}
     >
-      <TopBar nombre='Mi Cuenta' ruta='/' theme={theme}/>
+      <TopBar nombre='Mi Cuenta' ruta='/HomeView' theme={theme}/>
+      
 
       <div className="flex flex-col items-center mt-6">
       <div className="flex justify-center mb-4 relative">

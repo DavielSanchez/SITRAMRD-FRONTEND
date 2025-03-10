@@ -46,7 +46,7 @@ function NavBar({ }) {
     <div
       className={`${textColor} ${bgColor} w-full md:max-w-full h-[77px] shadow-md flex justify-around items-center border-t fixed bottom-0 left-0 "}`}
     >
-      {renderNavItem(HomeIcon, "Inicio", false,  "default", () => navigate("/"))}
+      {renderNavItem(HomeIcon, "Inicio", false,  "default", () => navigate("/HomeView"))}
       {renderNavItem(AttachMoneyIcon, "Billetera", false,  "default", () => navigate("/billetera"))}
       {renderNavItem(AccessTimeIcon, "Actividad", false,  "default", () => navigate("/actividad"))}
       {renderNavItem(PersonOutlineIcon, "Mi cuenta", true,  "default", () => navigate("/settings"))}
