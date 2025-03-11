@@ -12,6 +12,7 @@ import Unauthorized from './pages/unauthorized';
 import AdminDashboard from "./pages/AdminDashboard";
 import GestionOperadores from "./pages/GestionOperadores";
 import Auditoria from './pages/Auditoria';
+import ChoferesView from './pages/ChoferesView';
 
 function App() {
   return (
@@ -29,6 +30,7 @@ function App() {
           <Route path="/dashboard" element={<AdminDashboard />} />
           <Route path="/gestion" element={<GestionOperadores />} />
           <Route path="/auditoria" element={<Auditoria />} />
+          <Route path="/choferes" element={<ChoferesView />} />
           <Route 
             path="/" 
             element={
