@@ -57,7 +57,8 @@ function RegisterAuth() {
         nombre: formData.nombre,
         correo: formData.correo,
         contraseña: formData.contraseña,
-        userImage: formData.userImage
+        userImage: formData.userImage,
+        userRole: 'Pasajero'
       }
 
     // Validaciones
