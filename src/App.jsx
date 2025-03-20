@@ -12,9 +12,13 @@ import ForgotPassword from './pages/ForgotPassword';
 import Settings from './pages/Settings';
 import Unauthorized from './pages/unauthorized';
 import Pay from './pages/Pay';
+import Chat from './pages/Chat';
+import AdminDashboard from "./pages/AdminDashboard";
+import GestionOperadores from "./pages/GestionOperadores";
+import Auditoria from './pages/Auditoria';
+import HomeView from './pages/HomeView';
 
 const stripePromise = loadStripe(`${import.meta.env.VITE_STRIPE_SECRET_LINK}`);
-
 function App() {
   return (
     <>
@@ -29,14 +33,20 @@ function App() {
           <Route path='/send-otp' element={<SendOtp/>}/>
           <Route path='/reset' element={<ResetPassword/>}/>
           <Route path='/settings' element={<Settings/>}/>
+          <Route path='/chat' element={<Chat/>}/>
           <Route path='/pay' element={<Pay/>}/>
+          <Route path="/dashboard" element={<AdminDashboard />} />
+          <Route path="/gestion" element={<GestionOperadores />} />
+          <Route path="/auditoria" element={<Auditoria />} />
+          <Route path='/HomeView' element={<HomeView/>}/>
           <Route 
-          path="/" 
-          element={
-          <ProtectedRoute allowedRoles={['Pasajero', 'Operador', 'Administrador']}>
-            <Home />
-          </ProtectedRoute>
-          } />
+            path="/" 
+            element={
+              <ProtectedRoute allowedRoles={['Pasajero', 'Operador', 'Administrador']}>
+                <Home />
+              </ProtectedRoute>
+            } 
+          />
         </Routes>
         </Elements>
       </Router>

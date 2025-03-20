@@ -6,12 +6,12 @@ export default function renderSection(title, items, theme) {
     function getIconColor(variant, theme) {
         if (theme === "dark") {
           if (variant === "chevronRight") return "white";
-          return "#ff5353";
+          return "var(--primary-orange-color)";
         } else {
           if (variant === "chevron") return "black";
           if (variant === "chevronRight") return "black";
           if (variant === "gray") return "gray";
-          return "#6a62dc";
+          return "var(--primary-purple-color)";
         }
       }
 
