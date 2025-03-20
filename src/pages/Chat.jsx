@@ -299,6 +299,19 @@ function Chat() {
         }
     }, [chatsUsuario, userId]);
 
+    useEffect(() => {
+        if (chatsUsuario.length > 0) {
+            const nuevosMensajesNoLeidos = {};
+    
+            chatsUsuario.forEach(chat => {
+                nuevosMensajesNoLeidos[chat._id] = contarMensajesNoLeidos(chat.mensajes, userId);
+            });
+    
+            setMensajesNoLeidos(nuevosMensajesNoLeidos);
+        }
+    }, [chatsUsuario, userId]);
+    
+
     return (
         <div className="flex h-screen">
             <div className="flex flex-col w-full ml-[10vw] h-full">

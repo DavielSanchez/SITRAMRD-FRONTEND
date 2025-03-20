@@ -19,6 +19,7 @@ import Swal from 'sweetalert2'
 import withReactContent from 'sweetalert2-react-content';
 import TopBar from "../components/TopBar.jsx";
 import { useBG, useText, usePrimaryColors, useColorsWithHover, useIconColor } from "../ColorClass";
+import HamburgerMenu from "../components/Home/HamburgerMenu.jsx";
 
 export default function Ajustes() {
   const token = localStorage.getItem('token');
@@ -127,7 +128,12 @@ export default function Ajustes() {
         theme === "dark" ? `${bgColor} text-[var(--color-dark)]` : "bg-white text-black"
       }`}
     >
-      <TopBar nombre='Mi Cuenta' ruta='/HomeView' theme={theme}/>
+      <TopBar nombre={'Sitramrd'} mostrarIcono={false} />
+                      <div className={`flex ${textColor} font-semibold text-4xl w-max h-14">`}>
+                          <div className="absolute left-10 top-2">
+                              <HamburgerMenu />
+                          </div>
+                      </div>
       
 
       <div className="flex flex-col items-center mt-6">

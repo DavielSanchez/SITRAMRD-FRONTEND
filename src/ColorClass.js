@@ -43,3 +43,8 @@ export const useIconColor = (theme, variant) => {
         return 'var(--primary-purple-color)';
     }
 };
+
+
+export const useBorderColor = (theme) => {
+    return theme === 'dark' ? 'border-[var(--primary-orange-color)]' : 'border-[var(--primary-purple-color)]';
+};

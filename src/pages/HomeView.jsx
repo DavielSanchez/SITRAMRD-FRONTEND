@@ -1,5 +1,5 @@
 import { jwtDecode } from "jwt-decode";
-import { useBG, usePrimaryColors, useBGForButtons, useText, useIconColor } from "../ColorClass";
+import { useBG, usePrimaryColors, useBGForButtons, useText, useIconColor, useBorderColor } from "../ColorClass";
 import NavBar from "../components/NavBar";
 import withReactContent from 'sweetalert2-react-content'
 import Swal from "sweetalert2";
@@ -25,6 +25,7 @@ function HomeView() {
     const ButtonColor = useBGForButtons(theme)
     const textColor = useText(theme)
     const iconColor = useIconColor(theme)
+    const BorderColor = useBorderColor(theme)
     console.log(decodedToken)
 
     const MySwal = withReactContent(Swal)
@@ -87,33 +88,33 @@ function HomeView() {
                 </div>
                 <div className="mt-32 w-full max-w-2xl">
 
-                    <p className={`${textColor} text-2xl font-semibold mb-3`}>Para donde vas?</p>
+                    <p className={`${textColor} text-2xl font-semibold mb-3 `}>Para donde vas?</p>
                     <div className="flex items-center mb-4">
-                        <input onClick={() => setOpenModal(true)} type="text" placeholder="A donde vas?" className={`w-full p-3 border rounded-md ${textColor} `} />
+                        <input onClick={() => setOpenModal(true)} type="text" placeholder="A donde vas?" className={`w-full p-3 border rounded-md ${textColor} ${BorderColor}`} />
                     </div>
                     <div className="sm:grid grid-cols-1 p-2 gap-4 xl:grid-cols-3">
-                        <div className={`w-full flex gap-3 p-3 border rounded-md ${textColor}`}><RefreshIcon color={iconColor} /><p>Viaje 1</p></div>
-                        <div className={`w-full flex gap-3 p-3 border rounded-md ${textColor}`}><LocationIcon color={iconColor} /><p>Viaje 2</p></div>
-                        <div className={`w-full flex gap-3 p-3 border rounded-md ${textColor}`}><LocationIcon color={iconColor} /><p>Viaje 3</p></div>
+                        <div className={`w-full flex gap-3 p-3 border rounded-md ${textColor} ${BorderColor}`}><RefreshIcon color={iconColor} /><p>Viaje 1</p></div>
+                        <div className={`w-full flex gap-3 p-3 border rounded-md ${textColor} ${BorderColor}`}><LocationIcon color={iconColor} /><p>Viaje 2</p></div>
+                        <div className={`w-full flex gap-3 p-3 border rounded-md ${textColor} ${BorderColor}`}><LocationIcon color={iconColor} /><p>Viaje 3</p></div>
                     </div>
                 </div>
 
                 {/*modal*/}
                 {openModal && (
                     <div className="fixed inset-0 flex items-center justify-center z-10 p-4 sm:p-6">
-                        <div className={`${bgColor} p-6 rounded-lg shadow-lg w-full max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl flex flex-col gap-4`}>
-                            <h2 className="text-xl font-semibold text-center">Selecciona tu destino</h2>
+                        <div className={`${bgColor} p-6 rounded-lg shadow-lg w-full max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl flex flex-col gap-4 border-2 ${BorderColor}`}>
+                            <h2 className={` ${textColor} text-3xl font-semibold my-4 text-center`}>Selecciona tu destino</h2>
                             <input
                                 type="text"
                                 onChange={(e) => setLocation(e.target.value)}
                                 placeholder="Escribe tu ubicación actual"
-                                className={`w-full p-3 border rounded-md ${textColor}`}
+                                className={`w-full p-3 border rounded-md ${textColor} ${BorderColor}`}
                             />
                             <input
                                 type="text"
                                 onChange={(e) => setDestination(e.target.value)}
                                 placeholder="Escribe tu destino"
-                                className={`w-full p-3 border rounded-md ${textColor}`}
+                                className={`w-full p-3 border rounded-md ${textColor} ${BorderColor}`}
                             />
                             <button onClick={handleSubmit} className={`${ButtonColor} cursor-pointer text-white px-4 py-2 rounded-lg w-full`}>Enviar</button>
                             <img className="w-full h-auto max-h-64 object-cover" src="https://upload.wikimedia.org/wikipedia/commons/c/c0/Dominican_Republic_location_map.svg" alt="Mapa" />
@@ -130,7 +131,7 @@ function HomeView() {
                 )}
 
                 <div>
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/c/c0/Dominican_Republic_location_map.svg" alt="" />
+                    <img src="https://upload.wikimedia.org/wikipedia/commons/c/c0/Dominican_Republic_location_map.svg" alt="" className="w-full h-auto max-h-150" />
                 </div>
 
             </div>

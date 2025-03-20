@@ -44,22 +44,21 @@ function HamburgerMenu() {
             </button>
 
             <div
-                className={`fixed top-0 left-0 w-62 h-full ${bgColor} shadow-lg transform transition-transform duration-300 ease-in-out ${isOpen ? "translate-x-0" : "-translate-x-full"
-                    }`}
+                className={`fixed top-0 left-0 w-45 md:w-50 h-screen max-h-screen ${bgColor} shadow-lg transform transition-transform duration-300 ease-in-out ${isOpen ? "translate-x-0" : "-translate-x-full"}`}
             >
-                <button onClick={toggleMenu} className="absolute top-4 right-4 text-2xl cursor-pointer">
-                    <CloseIcon sx={{ fontSize: 45, color: 'white' }} />
+                <button onClick={toggleMenu} className="absolute top-2 right-2 text-lg md:text-xl cursor-pointer">
+                    <CloseIcon sx={{ fontSize: 28, color: 'white' }} className="md:!text-35" />
                 </button>
 
-                <nav className="flex flex-col items-center mt-10 p-6 space-y-8">
-
-                    <img className="h-25 mb-15" src={SitramLogo} alt="" />
+                <nav className="flex flex-col items-center mt-4 md:mt-6 p-3 md:p-5 space-y-3 md:space-y-6 text-sm md:text-base">
+                    <img className="max-h-12 md:max-h-20 mb-6 md:mb-10" src={SitramLogo} alt="" />
                     {renderNavItem(HomeIcon, "Inicio", false, () => navigate("/HomeView"))}
                     {renderNavItem(AttachMoneyIcon, "Billetera", false, () => navigate("/billetera"))}
                     {renderNavItem(AccessTimeIcon, "Actividad", false, () => navigate("/actividad"))}
                     {renderNavItem(PersonOutlineIcon, "Mi cuenta", true, () => navigate("/settings"))}
                 </nav>
             </div>
+
         </div>
     );
 }
