@@ -29,14 +29,14 @@ const Billetera = () => {
   const BorderColor = useBorderColor(theme);
 
   return (
-    <div className="bg-[var(--bg-light)] min-h-screen pb-[80px]">
-      {/* Barra Superior */}
-      <TopBar nombre={"Sitramrd"} mostrarIcono={false} />
-      <div className={'flex ${textColor} font-semibold text-4xl w-max h-14">'}>
-        <div className="absolute left-10 top-2">
-          <HamburgerMenu />
-        </div>
-      </div>
+    <div className={`flex flex-col items-center p-4 ${bgColor} min-h-screen relative`}>
+                <div className="w-full absolute top-0 h-96 bg-cover bg-center" style={{ backgroundImage: "url('src/assets/home/1_2.png')" }}></div>
+                <TopBar nombre={'Sitramrd'} mostrarIcono={false} />
+                <div className={`flex ${textColor} font-semibold text-4xl w-max h-14`}>
+                    <div className="absolute left-10 top-2">
+                        <HamburgerMenu />
+                    </div>
+                </div>
 
       {/* Contenido de la Billetera */}
       <div className="p-4">
