@@ -206,7 +206,10 @@ export default function Ajustes() {
         )}
       </div>
 
-      <NavBar theme={theme}/>
+      <div className="md:block xl:hidden">
+                <NavBar theme={bgColor} />
+            </div>
+
       
 
       {showColorModal && (
