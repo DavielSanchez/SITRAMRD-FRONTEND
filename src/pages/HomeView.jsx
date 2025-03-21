@@ -69,7 +69,7 @@ function HomeView() {
             <div className={`flex flex-col items-center p-4 ${bgColor} min-h-screen relative`}>
                 <div className="w-full absolute top-0 h-96 bg-cover bg-center z-0" style={{ backgroundImage: "url('src/assets/home/1_2.png')" }}></div>
                 <TopBar nombre={'Sitramrd'} mostrarIcono={false} />
-                <div className={`flex ${textColor} font-semibold text-4xl w-max h-14">`}>
+                <div className={`flex ${textColor} font-semibold text-4xl w-max h-14`}>
                     <div className="absolute left-10 top-2">
                         <HamburgerMenu />
                     </div>
