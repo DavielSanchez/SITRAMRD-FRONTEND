@@ -1,19 +1,48 @@
 import Button from "../components/Auth/Button";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import background from "../assets/Auth/Q1A9065.png";
 import arrow from "../assets/Auth/flecha-derecha.png";
 import Toast from "../components/Auth/Toast";
-import usuario from "../assets/Auth/usuario.png"
 import { toast } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
+import Swal from 'sweetalert2'
+import withReactContent from 'sweetalert2-react-content'
+import { jwtDecode } from 'jwt-decode'
+import PersonIcon from '@mui/icons-material/Person';
+import '../../public/CSS/Auth.css'
+import { useBG, useText, useColorsWithHover, useIconColor } from "../ColorClass";
 
 function RegisterAuth() {
-    // Estados para las validaciones
-    const [showToast, setShowToast] = useState(false);
+  const token = localStorage.getItem('token');
+  const [theme, setTheme] = useState('');
+  const MySwal = withReactContent(Swal)
+  const navigate = useNavigate();
+  const [setShowToast] = useState(false);
+  const bgColor = useBG(theme);
+  const textColor = useText(theme);
+  const primaryHover = useColorsWithHover(theme);
+  const getIconColor = useIconColor(theme, 'black')
+
+
+  useEffect(() => {
+    if (token) {
+      const decodedToken = jwtDecode(token);
+      const usertheme = decodedToken.theme;
+      if (usertheme !== theme) {
+        setTheme(usertheme);
+      }
+    } else {
+      if (theme !== "white") {
+        setTheme("white");
+      }
+    }
+  }, [token, theme]); 
 
     const [formData, setFormData] = useState({
         nombre: "",
         correo: "",
         contraseña: "",
+        userImage: "https://res.cloudinary.com/dv4wfetu1/image/upload/v1740610245/avatar_qspfc1.svg",
       });
 
     const url = `${import.meta.env.VITE_API_LINK}/auth/users/add`
@@ -28,6 +57,8 @@ function RegisterAuth() {
         nombre: formData.nombre,
         correo: formData.correo,
         contraseña: formData.contraseña,
+        userImage: formData.userImage,
+        userRole: 'Pasajero'
       }
 
     // Validaciones
@@ -103,8 +134,20 @@ function RegisterAuth() {
                 const userData = await response.json();
     
                 if (userData.token) {
-                localStorage.setItem('token', userData.token);
-                window.location.href = '/';
+                    MySwal.fire({
+                        icon: "success",
+                        title: "Muy bien!",
+                        text: "Te has registrado correctamente",
+                        timer: 1000,
+                        showConfirmButton: false,
+                        allowOutsideClick: false, 
+                        didOpen: () => {
+                          setTimeout(() => {
+                            localStorage.setItem("token", userData.token);
+                            navigate('/');
+                          }, 3000);
+                        }
+                      });
                 } else {
                 toast.error(`Error al iniciar sesión`, {
                     position: "bottom-center",
@@ -137,45 +180,59 @@ function RegisterAuth() {
     return (
         <div className="h-screen w-screen flex overflow-hidden">
             {/* Lado izquierdo */}
-            <div className="w-full lg:w-[45%] bg-white flex justify-center items-center transition-all duration-1000 ease-in-out">
+            <div className={`w-full lg:w-[45%] ${bgColor} flex justify-center items-center transition-all duration-1000 ease-in-out`}>
                 <div className="text-center">
-                    <img src={usuario} alt="" className="mx-auto size-10" />
-                    <h3 className="text-black my-7 font-semibold tracking-widest">Welcome to SITRAMrd!</h3>
+                <PersonIcon sx={{ color: getIconColor, fontSize: 200 }}/>
+                    <h3 className={`${ textColor } my-7 font-semibold tracking-widest`}>Welcome to SITRAMrd!</h3>
                     {/* Formulario */}
-                    <form onSubmit={handleRegister}>
-                        <div className="flex flex-col gap-8 mt-5 mb-10">
-                            <input 
-                            type='text' 
-                            id='nombre'
-                            value={formData.nombre} 
-                            onChange={handleChange} 
-                            className='text-black p-2 border-b-1 w-xs lg:w-md font-semibold tracking-widest text-sm outline-none duration-1000 ease-in-out' 
-                            placeholder='Nombre'></input>
+                    <form onSubmit={handleRegister} autoComplete="off" className={theme === 'dark' ? 'dark' : ''}>
+                      <div className="flex flex-col gap-8 mt-5 mb-10">
+                          <input 
+                              type="text"
+                              id="nombre"
+                              value={formData.nombre}
+                              onChange={handleChange}
+                              className={` ${textColor} p-2 border-b border-gray-300 light:text-black dark:border-gray-600 w-xs lg:w-md font-semibold tracking-widest text-sm outline-none bg-transparent`}
+                              placeholder="Nombre"
+                              autoComplete="off"
+                          />
 
-                            <input 
-                            type='text' 
-                            id='correo'
-                            value={formData.correo} 
-                            onChange={handleChange} 
-                            className='text-black p-2 border-b-1 w-xs lg:w-md font-semibold tracking-widest text-sm outline-none duration-1000 ease-in-out' 
-                            placeholder='Correo'></input>
+                          <input 
+                              type="email"
+                              id="correo"
+                              value={formData.correo}
+                              onChange={handleChange}
+                              className={`${textColor} p-2 border-b border-gray-300 dark:border-gray-600 w-xs lg:w-md font-semibold tracking-widest text-sm outline-none bg-transparent`}
+                              placeholder="Correo"
+                              autoComplete="off"
+                          />
 
-                            <input 
-                            type='password' 
-                            id='contraseña'
-                            value={formData.contraseña} 
-                            onChange={handleChange} 
-                            className='text-black p-2 border-b-1 w-xs lg:w-md font-semibold tracking-widest text-sm outline-none duration-1000 ease-in-out' 
-                            placeholder='Contraseña'></input>
-                        </div>
-                        <Button placeholder="Register" type="submit" icon={arrow} />
-                    </form>
-
+                          <input 
+                              type="password"
+                              id="contraseña"
+                              value={formData.contraseña}
+                              onChange={handleChange}
+                              className={`${textColor} p-2 border-b border-gray-300 dark:border-gray-600 w-xs lg:w-md font-semibold tracking-widest text-sm outline-none bg-transparent`}
+                              placeholder="Contraseña"
+                              autoComplete="new-password"
+                          />
+                      </div>
+                      <Button placeholder="Register" type="submit" icon={arrow} theme={theme} />
+                  </form>
+                    <p className={`${ textColor } mt-7 font-semibold`}>
+                    Ya tienes una cuenta?{" "}
+                    <a
+                      href="/login"
+                      className={`${ primaryHover } border-b-1 border-transparent duration-300 ease-in-out`}
+                    >
+                      Inicia sesion
+                    </a>
+                  </p>
                 </div>
             </div>
 
             {/* Lado derecho */}
-            <div className="w-0 lg:w-[55%] bg-black transition-all duration-1000 ease-in-out">
+            <div className="w-0 lg:w-[55%] var(--bg-dark) transition-all duration-1000 ease-in-out">
                 <img
                     src={background}
                     alt="Background Image"

@@ -68,5 +68,4 @@ Este proyecto está bajo la licencia **MIT**.
 
 ## 🚀 ¡Contribuye!
 
-Si tienes ideas para mejorar el proyecto, revisa los **issues** o abre un
-
+Si tienes ideas para mejorar el proyecto, revisa los **issues** o abre una PR
