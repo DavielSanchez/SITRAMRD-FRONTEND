@@ -1,6 +1,6 @@
 
 
-function Button({ placeholder, onChange, icon, onClick, theme }) {
+function Button({ placeholder, onChange, icon, onClick, theme, margin = "m-2" }) {
   return (
     <button
       onChange={onChange}
