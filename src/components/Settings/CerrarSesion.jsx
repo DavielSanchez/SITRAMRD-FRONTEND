@@ -1,4 +1,3 @@
-import React from "react";
 import { useNavigate } from "react-router-dom";
 
 export default function CerrarSesion({ onClose, theme }) {
@@ -20,7 +19,7 @@ export default function CerrarSesion({ onClose, theme }) {
       <div
         className={`w-full max-w-xs sm:max-w-sm md:max-w-md p-6 rounded-lg border-2 shadow-xl ${
           theme === "dark"
-            ? "bg-[#1E1E1E] text-white border-[#ff5353]"
+            ? "bg-[#1E1E1E] text-[var(--color-dark)] border-[#ff5353]"
             : "bg-white text-black border-[#6a62dc]"
         }`}
         onClick={(e) => e.stopPropagation()}
@@ -37,7 +36,7 @@ export default function CerrarSesion({ onClose, theme }) {
         </p>
         <div className="flex justify-center gap-2">
           <button
-            className={`px-4 py-2 rounded text-white ${
+            className={`px-4 py-2 rounded text-[var(--color-dark)] ${
               theme === "dark" ? "bg-[#ff5353]" : "bg-red-500"
             }`}
             onClick={onClose}
@@ -45,7 +44,7 @@ export default function CerrarSesion({ onClose, theme }) {
             No
           </button>
           <button
-            className={`px-4 py-2 rounded text-white ${
+            className={`px-4 py-2 rounded text-[var(--color-dark)] ${
               theme === "dark" ? "bg-[#ff5353]" : "bg-[#6a62dc]"
             }`}
             onClick={handleConfirm}

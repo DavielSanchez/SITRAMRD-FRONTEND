@@ -3,8 +3,16 @@ import PersonOutlineIcon from "@mui/icons-material/PersonOutline";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
 import HomeIcon from "@mui/icons-material/Home";
+import { jwtDecode } from "jwt-decode";
+import { useBG, usePrimaryColors, useBGForButtons, useText, useIconColor } from "../ColorClass";
 
-function renderNavItem(IconComponent, label, isActive, theme, variant, onClick) {
+function renderNavItem(IconComponent, label, isActive, variant, onClick) {
+  const token = localStorage.getItem('token');
+  const decodedToken = jwtDecode(token)
+  const theme = decodedToken.theme
+  const bgColor = useBG(theme)
+  const textColor = useText(theme)
+
   function getIconColor(variant, theme) {
     if (theme === "dark") {
       return variant === "chevronRight" ? "white" : "#ff5353";
@@ -17,27 +25,31 @@ function renderNavItem(IconComponent, label, isActive, theme, variant, onClick) 
 
   return (
     <div
-      className="flex flex-col items-center cursor-pointer hover:text-[#6a62dc]"
+      className={`flex flex-col items-center cursor-pointer hover:text-[#6a62dc]`}
       onClick={onClick}
     >
       <IconComponent sx={{ color: getIconColor(variant, theme), fontSize: 24 }} />
-      <span className={theme === "dark" ? "text-[#E0E0E0]" : "text-black"}>{label}</span>
+      <span className={`${textColor}`}>{label}</span>
     </div>
   );
 }
 
-function NavBar({ theme }) {
+function NavBar({ }) {
   const navigate = useNavigate();
+  const token = localStorage.getItem('token');
+  const decodedToken = jwtDecode(token)
+  const theme = decodedToken.theme
+  const bgColor = useBG(theme)
+  const textColor = useText(theme)
 
   return (
     <div
-      className={`w-full md:max-w-full h-[77px] shadow-md flex justify-around items-center border-t fixed bottom-0 left-0 
-        ${theme === "dark" ? "bg-[#000000] border-[#ff5353]" : "bg-white border-[#6a62dc]"}`}
+      className={`${textColor} ${bgColor} w-full md:max-w-full h-[77px] shadow-md flex justify-around items-center border-t fixed bottom-0 left-0 "}`}
     >
-      {renderNavItem(HomeIcon, "Inicio", false, theme, "default", () => navigate("/"))}
-      {renderNavItem(AttachMoneyIcon, "Billetera", false, theme, "default", () => navigate("/billetera"))}
-      {renderNavItem(AccessTimeIcon, "Actividad", false, theme, "default", () => navigate("/actividad"))}
-      {renderNavItem(PersonOutlineIcon, "Mi cuenta", true, theme, "default", () => navigate("/settings"))}
+      {renderNavItem(HomeIcon, "Inicio", false,  "default", () => navigate("/HomeView"))}
+      {renderNavItem(AttachMoneyIcon, "Billetera", false,  "default", () => navigate("/billetera"))}
+      {renderNavItem(AccessTimeIcon, "Actividad", false,  "default", () => navigate("/actividad"))}
+      {renderNavItem(PersonOutlineIcon, "Mi cuenta", true,  "default", () => navigate("/settings"))}
     </div>
   );
 }

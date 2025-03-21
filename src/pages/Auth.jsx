@@ -1,20 +1,34 @@
-import Input from "../components/Auth/Input";
+
 import Button from "../components/Auth/Button";
 import { useState, useEffect } from "react";
 import background from "../assets/Auth/Q1A9065.png";
 import arrow from "../assets/Auth/flecha-derecha.png";
 import Toast from "../components/Auth/Toast";
-import usuario from "../assets/Auth/usuario.png"
 import { toast } from 'react-toastify';
 import { jwtDecode } from 'jwt-decode'
 import PersonIcon from '@mui/icons-material/Person';
+import { useBG, useText, usePrimaryColors, useColorsWithHover, useIconColor } from "../ColorClass";
 
 function Auth() {
-  const token = localStorage.getItem('token');
+  const Lasttoken = localStorage.getItem('token');
   const [theme, setTheme] = useState('');
+
+  //colores 
+
+  const bgColor = useBG(theme);
+  const textColor = useText(theme);
+  const primaryColors = usePrimaryColors(theme);
+  const primaryHover = useColorsWithHover(theme);
+  const getIconColor = useIconColor(theme, 'black')
+
+  const [showToast, setShowToast] = useState(false);
+  const [correo, setCorreo] = useState("");
+  const [contraseña, setContraseña] = useState("");
+  const url = `${import.meta.env.VITE_API_LINK}/auth/login`
+
   useEffect(() => {
-    if (token) {
-      const decodedToken = jwtDecode(token);
+    if (Lasttoken) {
+      const decodedToken = jwtDecode(Lasttoken);
       const usertheme = decodedToken.theme;
       if (usertheme !== theme) {
         setTheme(usertheme);
@@ -24,24 +38,8 @@ function Auth() {
         setTheme("white");
       }
     }
-  }, [token, theme]); 
+  }, [Lasttoken, theme]); 
   
-  const [showToast, setShowToast] = useState(false);
-  const [correo, setCorreo] = useState("");
-  const [contraseña, setContraseña] = useState("");
-  const url = `${import.meta.env.VITE_API_LINK}/auth/login`
-
-  function getIconColor(variant, theme) {
-    if (theme === "dark") {
-      if (variant === "chevronRight") return "white";
-      return "#ff5353";
-    } else {
-      if (variant === "chevron") return "black";
-      if (variant === "chevronRight") return "black";
-      if (variant === "gray") return "gray";
-      return "#6a62dc";
-    }
-  }
 
   // // Validaciones
   const validateSignIn = () => {
@@ -81,6 +79,7 @@ function Auth() {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
+            // 'Authorization': `Bearer ${token}`
           },
           body: JSON.stringify({ correo, contraseña }),
         });
@@ -137,13 +136,13 @@ function Auth() {
   return (
     <div className="h-screen w-screen flex overflow-hidden">
       {/* Lado izquierdo */}
-      <div className={`w-full lg:w-[45%] ${ theme === 'dark' ? 'bg-[var(--bg-dark)]' : 'bg-[var(--bg-light)]' } flex justify-center items-center transition-all duration-1000 ease-in-out`}>
+      <div className={`w-full lg:w-[45%] ${bgColor} flex justify-center items-center transition-all duration-1000 ease-in-out`}>
         <div className="text-center">
-          <PersonIcon sx={{ color: getIconColor("black", theme), fontSize: 200 }}/>
+          <PersonIcon sx={{ color: getIconColor, fontSize: 200 }}/>
           {/* <img src={usuario} alt="" className="mx-auto size-10" /> */}
-          <h3 className={`${ theme === 'dark' ? 'text-[var(--color-dark)]' : 'text-[var(--color-light)]' } my-7 font-semibold tracking-widest`}>Bienvenido a SITRAMRD!</h3>
+          <h3 className={`${textColor} my-7 font-semibold tracking-widest`}>Bienvenido a SITRAMRD!</h3>
           {/* Formulario */}
-          <form onSubmit={handleLogin}>
+          <form onSubmit={handleLogin} autoComplete="off">
             <div className="flex flex-col gap-8 mt-5 mb-10">
             <input 
               type='email' 
@@ -163,9 +162,9 @@ function Auth() {
               type='password' 
               name="fake-password-field"
               value={contraseña} 
-              onChange={(e) => setCorreo(e.target.value)} 
+              onChange={(e) => setContraseña(e.target.value)} 
               autoComplete="new-email"
-              className={`p-2 border-b-1 w-xs lg:w-md font-semibold tracking-widest text-sm duration-1000 ease-in-out ${ theme === 'dark' ? 'text-white' : 'text-black' } placeholder-gray-500`}
+              className={`p-2 border-b-1 w-xs lg:w-md font-semibold tracking-widest text-sm duration-1000 ease-in-out ${ theme === 'dark' ? 'text-[var(--color-dark)]' : 'text-black' } placeholder-gray-500`}
               placeholder='Contraseña'
               style={{
                 color: theme === 'dark' ? 'white' : 'black',
@@ -175,20 +174,20 @@ function Auth() {
             </div>
             <Button placeholder="Entra" type="submit" icon={arrow} theme={theme} />
           </form>
-          <p className={`${ theme === 'dark' ? 'text-white' : 'text-black' } mt-7 font-semibold`}>
+          <p className={`${textColor} mt-7 font-semibold`}>
             Aun no tienes cuenta?{" "}
             <a
               href="/register"
-              className={`${ theme === 'dark' ? 'text-[#ff5353]' : 'text-[#6a62dc]' } border-b-1 border-transparent hover:border-[#6A62DC] duration-300 ease-in-out`}
+              className={`${primaryHover} border-b-1 border-transparent hover:border-[var(--primary-purple-color)] duration-300 ease-in-out`}
             >
               Registrate
             </a>
           </p>
-          <p className={`${ theme === 'dark' ? 'text-white' : 'text-black' } mt-7 font-semibold`}>
+          <p className={`${textColor } mt-7 font-semibold`}>
             Olvidaste la contraseña?{" "}
             <a
               href="/forgot"
-              className={`${ theme === 'dark' ? 'text-[#ff5353]' : 'text-[#6a62dc]' } border-b-1 border-transparent hover:border-[#6A62DC] duration-300 ease-in-out`}
+              className={`${primaryHover} border-b-1 border-transparent duration-300 ease-in-out`}
             >
               Cambiar
             </a>
@@ -197,7 +196,7 @@ function Auth() {
       </div>
 
       {/* Lado derecho */}
-      <div className={`w-0 lg:w-[55%] ${ theme === 'dark' ? 'bg-black' : 'bg-white' } transition-all duration-1000 ease-in-out`}>
+      <div className={`w-0 lg:w-[55%] ${bgColor} transition-all duration-1000 ease-in-out`}>
         <img
           src={background}
           alt="Background Image"
