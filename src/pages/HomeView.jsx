@@ -3,20 +3,23 @@ import { useBG, usePrimaryColors, useBGForButtons, useText, useIconColor, useBor
 import NavBar from "../components/NavBar";
 import withReactContent from 'sweetalert2-react-content'
 import Swal from "sweetalert2";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import LocationIcon from "../assets/Home/LocationIcon";
 import RefreshIcon from '../assets/Home/RefreshIcon'
 import HamburgerMenu from "../components/Home/HamburgerMenu";
 import TopBar from '../components/TopBar.jsx'
 import { toast } from 'react-toastify'
 import { colors } from "@mui/material";
+import MapView from '../components/Map/MapView.jsx';
+import useActividadStore from "../components/Map/store/useActividadStore.js";
 
 function HomeView() {
     const [openModal, setOpenModal] = useState(false);
     const [location, setLocation] = useState("");
     const [destination, setDestination] = useState("");
-
-
+    const [showViajesModal, setViajesShowModal] = useState(false);
+    const [viajeObjetivo, setViajeObjetivo] = useState();
+    const { actividades } = useActividadStore();
     const token = localStorage.getItem('token');
     const decodedToken = jwtDecode(token)
     const theme = decodedToken.theme
@@ -26,7 +29,9 @@ function HomeView() {
     const textColor = useText(theme)
     const iconColor = useIconColor(theme)
     const BorderColor = useBorderColor(theme)
+    const [refresh, setRefresh] = useState(false);
     console.log(decodedToken)
+    
 
     const MySwal = withReactContent(Swal)
 
@@ -36,7 +41,19 @@ function HomeView() {
             icon: 'error',
             draggable: true,
         })
-    }
+    }   
+
+    
+    // En HomeView.jsx
+useEffect(() => {
+    const handler = () => setRefresh(prev => !prev);
+    window.addEventListener("actividadActualizada", handler);
+    return () => window.removeEventListener("actividadActualizada", handler);
+  }, []);
+  
+
+    const viajesRecientes = actividades.slice((actividades.length - 3));
+    viajesRecientes.reverse();
 
     const handleSubmit = () => {
         if (!location.trim().length) {
@@ -62,6 +79,14 @@ function HomeView() {
             })
         }
     }
+
+    const imagenStatica = (lat, lng) =>{
+            return(
+                <img src={`https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/pin-l+000(${lng},${lat})/${lng},${lat},14.20,0,0/600x400?access_token=pk.eyJ1IjoibmVvZGV2IiwiYSI6ImNtOGQ4ZmIxMzBtc2kybHBzdzNxa3U4eDcifQ.1Oa8lXU045VvFUul26Kwkg`} alt="Imagen Estatica" />
+            );
+        }
+
+
 
     return (
         <>
@@ -92,12 +117,52 @@ function HomeView() {
                     <div className="flex items-center mb-4">
                         <input onClick={() => setOpenModal(true)} type="text" placeholder="A donde vas?" className={`w-full p-3 border rounded-md ${textColor} ${BorderColor}`} />
                     </div>
-                    <div className="sm:grid grid-cols-1 p-2 gap-4 xl:grid-cols-3">
-                        <div className={`w-full flex gap-3 p-3 border rounded-md ${textColor} ${BorderColor}`}><RefreshIcon color={iconColor} /><p>Viaje 1</p></div>
-                        <div className={`w-full flex gap-3 p-3 border rounded-md ${textColor} ${BorderColor}`}><LocationIcon color={iconColor} /><p>Viaje 2</p></div>
-                        <div className={`w-full flex gap-3 p-3 border rounded-md ${textColor} ${BorderColor}`}><LocationIcon color={iconColor} /><p>Viaje 3</p></div>
+                    <div className="sm:grid grid-cols-1 p-2 gap-5 xl:grid-cols-3">
+                    {viajesRecientes.map((viaje, index) =>{
+                        return(
+                            
+                        <div onClick={() =>{
+                            setViajesShowModal(true)
+                            setLocation(viaje.coordenadas.latitud, viaje.coordenadas.longitud)
+                            setDestination(viaje.viaje)
+                            setViajeObjetivo(viaje)
+                        }} className={`w-full flex items-center gap-4 p-3 border rounded-md cursor-pointer hover:scale-110 ease-in-out duration-300 ${textColor} ${BorderColor}`}>
+                            <RefreshIcon className="flex items-center" color={iconColor} />
+                            <p>{viaje.viaje}</p>
+                            </div>
+
+                        );
+                    })}
                     </div>
                 </div>
+
+                {showViajesModal && (
+                    <div className="fixed inset-0 flex items-center justify-center z-10 p-4 sm:p-6">
+                        <div className={`${bgColor} p-6 rounded-lg shadow-lg w-full max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl flex flex-col gap-4 border-2 ${BorderColor}`}>
+                            <h2 className={` ${textColor} text-3xl font-semibold my-4 text-center`}>Viaje Reciente</h2>
+
+                            {viajeObjetivo && (
+                                <div className="flex flex-col gap-4">
+                                    <p className={` ${textColor} text-xl font-semibold`}>Viaje: {viajeObjetivo.viaje}</p>
+                                    <p className={` ${textColor} text-xl font-semibold`}>Fecha: {viajeObjetivo.fecha}</p>
+                                    <p className={` ${textColor} text-xl font-semibold`}>Hora: {viajeObjetivo.hora}</p>
+                                    <p className={` ${textColor} text-xl font-semibold`}>Precio: {viajeObjetivo.precio}</p>
+                                    <p className={` ${textColor} text-xl font-semibold`}>Estado: {viajeObjetivo.estado}</p>
+                                    {imagenStatica(viajesRecientes[0].coordenadas.latitud, viajesRecientes[0].coordenadas.longitud)}
+                                </div>
+                            )}
+
+                            <div className="flex justify-between w-full">
+                            <button onClick={() => setViajesShowModal(false)} className={`${ButtonColor} text-white w-[45%] px-4 py-2 rounded-lg cursor-pointer`}>
+                                Cerrar
+                            </button>
+                            <button onClick={() => setViajesShowModal(false)} className={`${ButtonColor} text-white w-[45%] px-4 py-2 rounded-lg cursor-pointer`}>
+                                Ver en actividad
+                            </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
 
                 {/*modal*/}
                 {openModal && (
@@ -131,7 +196,7 @@ function HomeView() {
                 )}
 
                 <div>
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/c/c0/Dominican_Republic_location_map.svg" alt="" className="w-full h-auto max-h-150" />
+                    <MapView location={location} destination={destination} />
                 </div>
 
             </div>
