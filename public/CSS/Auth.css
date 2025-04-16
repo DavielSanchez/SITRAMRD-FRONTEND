@@ -1,0 +1,24 @@
+/* Estilos para input autofill en modo claro */
+
+input:-webkit-autofill {
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: black !important;
+    /* Texto negro en modo claro */
+    transition: background-color 5000s ease-in-out 0s;
+    box-shadow: inset 0 0 20px 20px transparent;
+    border-bottom: 1px solid #000 !important;
+    font-weight: bold;
+    color: black !important;
+}
+
+
+/* Estilos para input autofill en modo oscuro */
+
+.dark input:-webkit-autofill {
+    -webkit-text-fill-color: white !important;
+    /* Texto blanco en modo oscuro */
+    -webkit-box-shadow: 0 0 0px 1000px transparent inset !important;
+    /* Evita que el fondo cambie */
+    background-color: transparent !important;
+    color: white !important;
+}
