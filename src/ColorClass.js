@@ -2,6 +2,14 @@
 
 // (useBG) Clase Creada para alternar entre el color del fondo de acuerdo al tema seleccionado
 
+export const usePrimaryColor = (theme) => {
+    return theme === 'dark' ? 'var(--primary-orange-color)' : 'var(--primary-purple-color)';
+}
+
+export const useTextPrimaryColor = (theme) => {
+    return theme === 'dark' ? 'text-[var(--primary-orange-color)]' : 'text-[var(--primary-purple-color)]';
+}
+
 export const useBG = (theme) => {
     return theme === 'dark' ? 'bg-[var(--bg-dark)]' : 'bg-[var(--bg-light)]';
 };
@@ -10,6 +18,10 @@ export const useBG = (theme) => {
 
 export const useBGForButtons = (theme) => {
     return theme === 'dark' ? 'bg-[var(--primary-orange-color)]' : 'bg-[var(--primary-purple-color)]';
+};
+
+export const useBGForSecondaryButtons = (theme) => {
+    return theme === 'dark' ? 'bg-[var(--primary-purple-color)]' : 'bg-[var(--primary-orange-color)]';
 };
 
 // (useText) Clase Creada para alternar entre los textos blanco y negro de acuerdo al tema

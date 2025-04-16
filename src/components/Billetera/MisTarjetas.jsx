@@ -1,97 +1,117 @@
-import React, { useState } from "react";
+import { useState, useEffect } from 'react';
+import { CreditCard as CardIcon } from '@mui/icons-material';
+import AddIcon from '@mui/icons-material/Add';
+import ModalAñadirTarjeta from './ModalAñadirTarjeta';
+import { jwtDecode } from 'jwt-decode';
 import {
-  Visibility as EyeIcon,
-  LockOpen as LockIcon,
-  Delete as TrashIcon,
-  CreditCard as CardIcon,
-} from "@mui/icons-material";
-import AddIcon from "@mui/icons-material/Add";
-import ModalAñadirTarjeta from "./ModalAñadirTarjeta";
+  useBG,
+  useText,
+  useBGForButtons,
+  useBorderColor,
+  useTextPrimaryColor,
+  usePrimaryColor,
+} from '../../ColorClass';
+import BloquearTarjetaSecundaria from './BloquearTarjetaSecundaria';
+import SetPrincipal from './SetPrincipal';
+import DeleteCard from './DeleteCard';
 
 const MisTarjetas = () => {
-  // Estado para manejar la visibilidad del modal
+  const token = localStorage.getItem('token');
+  const decodedToken = jwtDecode(token);
+  const theme = decodedToken.theme;
+  const userId = decodedToken.id;
+  const bgColor = useBG(theme);
+  const bgPrimary = useBGForButtons(theme);
+  const textColor = useText(theme);
+  const BorderColor = useBorderColor(theme);
+  const textPrimary = useTextPrimaryColor(theme);
+  const primaryColor = usePrimaryColor(theme);
+
   const [openModal, setOpenModal] = useState(false);
+  const [cards, setCards] = useState([]);
+  const [error, setError] = useState(null);
 
-  // Datos hardcodeados de las tarjetas
-  const tarjetas = [
-    { id: 1, numero: "**** **** **** 1234", titular: "Juan Pérez" },
-    { id: 2, numero: "**** **** **** 5678", titular: "María López" },
-  ];
-
-  // Función para abrir el modal
   const handleOpenModal = () => {
     setOpenModal(true);
   };
 
-  // Función para cerrar el modal
   const handleCloseModal = () => {
     setOpenModal(false);
   };
 
+  useEffect(() => {
+    GetCard();
+  }, [userId]);
+
+  const GetCard = async () => {
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_API_LINK}/wallet/user/tarjetas/virtuales/${userId}`,
+      );
+
+      if (!response.ok) throw new Error('Error al obtener las tarjetas');
+
+      const data = await response.json();
+
+      if (!data || data.length === 0) {
+        throw new Error('No se encontraron tarjetas.');
+      }
+
+      setCards(data);
+    } catch (error) {
+      console.error('Error al obtener datos:', error);
+      setError(error.message);
+    }
+  };
+
   return (
     <div>
-      <div className="flex items-center gap-4 mb-10">
-        {/* Título "Mis Tarjetas" más grande y en negrita */}
-        <h2 className="text-black text-3xl font-bold font-['Inter'] mr-10">
+      <div className="flex items-center justify-between gap-4 mb-10">
+        <h2 className={` ${textColor} lg:text-3xl text-xl font-bold font-['Inter'] mr-10`}>
           Mis Tarjetas
         </h2>
-
-        {/* Botón con solo el icono */}
         <button
-          className="w-8 h-8 flex items-center justify-center bg-[#6a62dc] rounded-full text-white hover:bg-[#5a52c2] transition"
-          onClick={handleOpenModal}
-        >
-          <AddIcon className="w-5 h-5" />
-        </button>
-
-        {/* Texto separado del botón de agregar tarjeta */}
-        <p className="text-black text-lg font-medium">Ó</p>
-
-        {/* Botón para agregar tarjetas con estilos personalizados */}
-        <button
-          className="p-2 bg-[#6a62dc] rounded-[5px] flex items-center justify-center text-white hover:bg-[#5a52c2] transition"
-          onClick={handleOpenModal}
-        >
-          <AddIcon className="w-4 h-4 mr-1" />
+          className={`relative z-10 p-1 text-xs ${bgPrimary} rounded-[5px] flex items-center justify-center text-white hover:bg-[#5a52c2] transition`}
+          onClick={handleOpenModal}>
+          <AddIcon className="w-2 h-2 mr-1" />
           Agregar Tarjeta
         </button>
       </div>
 
       {/* Lista de tarjetas */}
       <div className="space-y-4">
-        {tarjetas.map((tarjeta) => (
+        {cards.map((tarjeta) => (
           <div
-            key={tarjeta.id}
-            className="flex justify-between items-center bg-white text-black border border-[#6A62DC] rounded-2xl p-5 shadow-lg transition-all hover:bg-[#6A62DC] hover:text-white cursor-pointer"
-          >
+            key={tarjeta._id}
+            className={`flex justify-between items-center 
+            ${tarjeta.principal ? `${bgPrimary} text-white` : `${bgColor} ${textPrimary}`} 
+            border ${BorderColor} rounded-lg p-2 shadow-lg transition-all`}>
             <div className="flex items-center gap-3">
               {/* Icono de tarjeta antes del nombre */}
-              <CardIcon className="w-6 h-6 text-[#6A62DC] hover:text-white transition" />
+              <CardIcon
+                className={`w-6 h-6 transition ${tarjeta.principal ? bgPrimary : 'text-[#6A62DC]'}`}
+                sx={{ color: tarjeta.principal ? textColor : primaryColor }}
+              />
+
               <div className="flex flex-col">
-                <span className="text-lg font-semibold">{tarjeta.titular}</span>
-                <span className="text-gray-600 hover:text-white">
-                  {tarjeta.numero}
+                <span className="text-lg font-semibold">
+                  {tarjeta.nombre} - {tarjeta.numeroTarjeta.slice(-4)}
                 </span>
               </div>
             </div>
-            <div className="flex gap-4">
-              {/* Icono de Ver */}
-              <EyeIcon
-                className="w-6 h-6 text-[#6A62DC] hover:text-white transition"
-                titleAccess="Ver"
-              />
+            <div className="flex gap-2">
+              <SetPrincipal tarjetaId={tarjeta._id} esPrincipal={tarjeta.principal} />
 
               {/* Icono de Bloquear */}
-              <LockIcon
-                className="w-6 h-6 text-[#6A62DC] hover:text-white transition"
-                titleAccess="Bloquear"
+              <BloquearTarjetaSecundaria
+                tarjetaId={tarjeta._id}
+                principal={tarjeta.principal}
+                estadoUsuario={tarjeta.estadoUsuario}
+                theme={theme}
               />
 
               {/* Icono de Eliminar */}
-              <TrashIcon
-                className="w-6 h-6 text-[#6A62DC] hover:text-white transition"
-                titleAccess="Eliminar"
-              />
+              <DeleteCard principal={tarjeta.principal} cardId={tarjeta._id} theme={theme} />
             </div>
           </div>
         ))}

@@ -66,7 +66,7 @@ function Pay() {
             userId,
             amount: 50, // 💰 Ajusta esto dinámicamente según tu lógica
             currency: "usd",
-            tarjetaId: "67b4d510d88625d024edf5f7",
+            tarjetaId: "67dd8e5ab0b643e667cd3b86",
           }),
         }
       );

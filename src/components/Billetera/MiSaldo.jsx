@@ -8,7 +8,7 @@ const MiSaldo = ({ nombre, numeroTarjeta, saldo, ultimaRecarga, ultimoViaje }) =
   const [modalCambiarTarjetaOpen, setModalCambiarTarjetaOpen] = useState(false);
 
   return (
-    <div>
+    <>
       <div className="bg-[var(--primary-purple-color)] text-white rounded-2xl p-4 shadow-md">
         <h2 className="text-lg font-semibold">{nombre}</h2>
         <p className="text-sm">**** **** **** {numeroTarjeta.slice(-4)}</p>
@@ -43,7 +43,7 @@ const MiSaldo = ({ nombre, numeroTarjeta, saldo, ultimaRecarga, ultimoViaje }) =
 
       {/* Modal Cambiar Tarjeta */}
       <ModalCambiarTarjeta open={modalCambiarTarjetaOpen} onClose={() => setModalCambiarTarjetaOpen(false)} />
-    </div>
+    </>
   );
 };
 
