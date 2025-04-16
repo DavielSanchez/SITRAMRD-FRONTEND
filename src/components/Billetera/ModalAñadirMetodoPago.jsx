@@ -1,17 +1,56 @@
 import React, { useState } from "react";
-import { Modal, Backdrop, Fade, Box, Typography, TextField, Button } from "@mui/material";
+import { Modal, Backdrop, Fade, Box, Typography, Button, TextField } from "@mui/material";
+import { useStripe, useElements, CardElement } from "@stripe/react-stripe-js";
+import Swal from "sweetalert2";
 
-function ModalAñadirMetodoPago({ open, onClose }) {
-  const [nombre, setNombre] = useState('');
-  const [numeroTarjeta, setNumeroTarjeta] = useState('');
-  const [fechaVencimiento, setFechaVencimiento] = useState('');
-  const [cvv, setCvv] = useState('');
+function ModalAñadirMetodoPago({ open, onClose, userId }) {
+  const stripe = useStripe();
+  const elements = useElements();
+  const [loading, setLoading] = useState(false);
+  const [Apodo, setApodo] = useState(""); // Estado para el apodo
 
-  // Función para manejar el envío de los datos
-  const handleSubmit = () => {
-    // Aquí puedes hacer la lógica para enviar los datos
-    console.log({ nombre, numeroTarjeta, fechaVencimiento, cvv });
-    onClose(); // Cerrar el modal después de enviar
+  const handleSubmit = async () => {
+    if (!stripe || !elements) return;
+
+    if (!Apodo.trim()) {
+      Swal.fire("Error", "El apodo es obligatorio", "error");
+      return;
+    }
+
+    setLoading(true);
+
+    const { paymentMethod, error } = await stripe.createPaymentMethod({
+      type: "card",
+      card: elements.getElement(CardElement),
+    });
+
+    if (error) {
+      Swal.fire("Error", error.message, "error");
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_LINK}/wallet/guardar-metodo-pago`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId, Apodo, paymentMethodId: paymentMethod.id }),
+      });
+
+
+      const data = await response.json();
+
+      if (response.ok) {
+        Swal.fire("Éxito", "Método de pago agregado correctamente", "success");
+        onClose();
+      } else {
+        Swal.fire("Error", data.error || "No se pudo guardar el método de pago", "error");
+      }
+    } catch (err) {
+      Swal.fire("Error", "Ocurrió un problema al conectar con el servidor", "error");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -20,9 +59,7 @@ function ModalAñadirMetodoPago({ open, onClose }) {
       onClose={onClose}
       closeAfterTransition
       BackdropComponent={Backdrop}
-      BackdropProps={{
-        sx: { backdropFilter: "blur(5px)" }, // Fondo borroso
-      }}
+      BackdropProps={{ sx: { backdropFilter: "blur(5px)" } }}
     >
       <Fade in={open}>
         <Box
@@ -36,62 +73,28 @@ function ModalAñadirMetodoPago({ open, onClose }) {
             boxShadow: 24,
             p: 4,
             borderRadius: 2,
-            border: "2px solid #6a62dc", // Borde morado
+            border: "2px solid #6a62dc",
           }}
         >
-          {/* Título en color morado */}
           <Typography variant="h6" align="center" fontWeight="bold" sx={{ color: "#6a62dc" }}>
             Agregar Método de Pago
           </Typography>
 
-          {/* Nombre o Apodo */}
+          {/* Apodo */}
           <Box mt={2}>
-            <Typography fontWeight="500">Nombre o Apodo</Typography>
+            <Typography fontWeight="500">Apodo</Typography>
             <TextField
               fullWidth
               variant="outlined"
-              placeholder="Ingrese nombre o apodo"
-              value={nombre}
-              onChange={(e) => setNombre(e.target.value)}
+              placeholder="Ingrese un apodo"
+              value={Apodo}
+              onChange={(e) => setApodo(e.target.value)}
             />
           </Box>
 
-          {/* Número de Tarjeta */}
-          <Box mt={2}>
-            <Typography fontWeight="500">Número de Tarjeta</Typography>
-            <TextField
-              fullWidth
-              variant="outlined"
-              type="number"
-              placeholder="Ingrese número de tarjeta"
-              value={numeroTarjeta}
-              onChange={(e) => setNumeroTarjeta(e.target.value)}
-            />
-          </Box>
-
-          {/* Fecha de Vencimiento */}
-          <Box mt={2}>
-            <Typography fontWeight="500">Fecha de Vencimiento</Typography>
-            <TextField
-              fullWidth
-              variant="outlined"
-              placeholder="MM/AA"
-              value={fechaVencimiento}
-              onChange={(e) => setFechaVencimiento(e.target.value)}
-            />
-          </Box>
-
-          {/* CVV */}
-          <Box mt={2}>
-            <Typography fontWeight="500">CVV</Typography>
-            <TextField
-              fullWidth
-              variant="outlined"
-              type="password"
-              placeholder="Ingrese CVV"
-              value={cvv}
-              onChange={(e) => setCvv(e.target.value)}
-            />
+          {/* Campo de tarjeta de Stripe */}
+          <Box mt={3} p={2} sx={{ border: "1px solid #ccc", borderRadius: "5px" }}>
+            <CardElement options={{ hidePostalCode: true }} />
           </Box>
 
           {/* Botones */}
@@ -101,26 +104,27 @@ function ModalAñadirMetodoPago({ open, onClose }) {
               sx={{
                 width: "90px",
                 height: "35px",
-                backgroundColor: "#d32f2f", // Rojo para Cancelar
+                backgroundColor: "#d32f2f",
                 borderRadius: "10px",
                 color: "white",
-                "&:hover": { backgroundColor: "#b71c1c" }, // Rojo más oscuro en hover
+                "&:hover": { backgroundColor: "#b71c1c" },
               }}
             >
               Cancelar
             </Button>
             <Button
               onClick={handleSubmit}
+              disabled={loading}
               sx={{
                 width: "90px",
                 height: "35px",
-                backgroundColor: "#6a62dc", // Morado para Agregar
+                backgroundColor: "#6a62dc",
                 borderRadius: "10px",
                 color: "white",
-                "&:hover": { backgroundColor: "#5a52c9" }, // Morado más oscuro en hover
+                "&:hover": { backgroundColor: "#5a52c9" },
               }}
             >
-              Agregar
+              {loading ? "Guardando..." : "Agregar"}
             </Button>
           </Box>
         </Box>

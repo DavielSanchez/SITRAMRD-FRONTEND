@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Paper from "@mui/material/Paper";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -12,41 +12,50 @@ import { TextField, Button } from "@mui/material";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import AccessTimeIcon from "@mui/icons-material/AccessTime";
 import CancelIcon from "@mui/icons-material/Cancel";
+import { jwtDecode } from "jwt-decode";
+import { useBG, useText  } from "../../ColorClass";
 
 const columns = [
-  { id: "id", label: "#", minWidth: 100 },
-  { id: "monto", label: "Monto", minWidth: 100 },
-  { id: "metodo", label: "Método", minWidth: 150 },
+  { id: "index", label: "#", minWidth: 50 },
+  { id: "monto", label: "Monto", minWidth: 50 },
   { id: "fecha", label: "Fecha", minWidth: 150 },
-  { id: "tarjeta", label: "Tarjeta", minWidth: 150 },
+  { id: "tarjetaVirtual", label: "Tarjeta", minWidth: 150 },
   { id: "estado", label: "Estado", minWidth: 100 },
-  { id: "acciones", label: "Acciones", minWidth: 100 },
-];
-
-function createData(id, monto, metodo, fecha, tarjeta, estado) {
-  return { id, monto, metodo, fecha, tarjeta, estado };
-}
-
-const rows = [
-  createData(1, "RD$500", "Tarjeta", "2025-03-01", "Visa 1234", "Completado"),
-  createData(2, "RD$1500", "Efectivo", "2025-03-02", "-", "Pendiente"),
-  createData(
-    3,
-    "RD$2000",
-    "Tarjeta",
-    "2025-03-03",
-    "Mastercard 5678",
-    "Fallido"
-  ),
-  createData(4, "RD$1200", "Efectivo", "2025-03-04", "-", "Completado"),
-  createData(5, "RD$800", "Tarjeta", "2025-03-05", "Visa 4321", "Pendiente"),
 ];
 
 function HistorialRecarga() {
+  const [recargas, setRecargas] = useState([]);
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(10);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+
+  const token = localStorage.getItem("token");
+  const decodedToken = jwtDecode(token);
+  const userId = decodedToken.id;
+  const theme = decodedToken.theme;
+
+  const bgColor = useBG(theme);
+  const textColor = useText(theme);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch(
+          `${import.meta.env.VITE_API_LINK}/wallet/recargas/user/${userId}`
+        );
+        if (!response.ok) {
+          throw new Error("Error al obtener los datos");
+        }
+        const data = await response.json();
+        console.log(data)
+        setRecargas(data);
+      } catch (error) {
+        console.error("Error al obtener datos:", error);
+      }
+    };
+    fetchData();
+  }, [userId]);
 
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
@@ -58,7 +67,7 @@ function HistorialRecarga() {
   };
 
   const handleFilter = () => {
-    return rows.filter((row) => {
+    return recargas.filter((row) => {
       const rowDate = new Date(row.fecha);
       const start = startDate ? new Date(startDate) : null;
       const end = endDate ? new Date(endDate) : null;
@@ -97,62 +106,61 @@ function HistorialRecarga() {
     }
   };
 
-  return (
-    <div>
-      <div className="flex items-center gap-4 mb-10">
-        <h2 className="text-black text-3xl font-bold font-['Inter'] mr-10">
-          Historial de Recargas
-        </h2>
-      </div>
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat("es-DO", {
+      style: "currency",
+      currency: "DOP",
+    }).format(amount);
+  };
 
-      {/* Filtros de fecha */}
-      <div className="flex gap-4 mb-6">
+  return (
+    <div className="w-full max-w-4xl mb-20">
+      <h2 className={` ${textColor} lg:text-3xl mb-4 text-xl font-bold font-['Inter'] mr-10`}>
+      Historial de Recargas
+        </h2>
+
+      <div className="flex flex-wrap gap-4 mb-6">
         <TextField
           label="Desde"
           type="date"
+          color="secondary"
           value={startDate}
           onChange={(e) => setStartDate(e.target.value)}
-          InputLabelProps={{
-            shrink: true,
-          }}
+          InputLabelProps={{ shrink: true }}
+          className="w-full sm:w-48"
         />
         <TextField
           label="Hasta"
           type="date"
+          color="secondary"
           value={endDate}
           onChange={(e) => setEndDate(e.target.value)}
-          InputLabelProps={{
-            shrink: true,
-          }}
+          InputLabelProps={{ shrink: true }}
+          className="w-full sm:w-48"
         />
         <Button
           variant="contained"
           onClick={handleFilter}
-          sx={{
-            backgroundColor: "#6a62dc", // Color morado
-            color: "white", // Texto blanco
-          }}
+          sx={{ backgroundColor: "#6a62dc", color: "white" }}
+          className="w-full sm:w-auto"
         >
           Filtrar
         </Button>
       </div>
 
-      {/* Tabla de Recargas */}
-      <Paper sx={{ width: "100%", overflow: "hidden" }}>
-        <TableContainer sx={{ maxHeight: 440 }}>
-          <Table stickyHeader aria-label="sticky table">
+      <Paper sx={{ width: "100%", overflowX: "auto" }}>
+        <TableContainer>
+          <Table stickyHeader>
             <TableHead>
               <TableRow>
                 {columns.map((column) => (
                   <TableCell
                     key={column.id}
-                    align={column.align}
                     style={{
                       minWidth: column.minWidth,
-                      color: "white", // Texto blanco
-                      fontWeight: "bold", // Para hacerlo más destacado
-                      borderBottom: "2px solid #6a62dc", // Borde inferior morado para la fila
-                      backgroundColor: "#6a62dc", // Aseguramos que no haya fondo por defecto
+                      color: "white",
+                      fontWeight: "bold",
+                      backgroundColor: "#6a62dc",
                     }}
                   >
                     {column.label}
@@ -163,27 +171,24 @@ function HistorialRecarga() {
             <TableBody>
               {handleFilter()
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                .map((row) => (
-                  <TableRow hover role="checkbox" tabIndex={-1} key={row.id}>
+                .map((row, index) => (
+                  <TableRow hover role="checkbox" tabIndex={-1} key={index}>
                     {columns.map((column) => {
-                      const value = row[column.id];
+                      let value;
+                      if (column.id === "index") {
+                        value = page * rowsPerPage + index + 1;
+                      } else if (column.id === "fecha") {
+                        value = new Date(row.fecha).toLocaleDateString();
+                      } else if (column.id === "monto") {
+                        value = formatCurrency(row.monto);
+                      }else if (column.id === "tarjetaVirtual"){
+                        value = row.nombreTarjeta
+                      } else {
+                        value = row[column.id];
+                      }
                       return (
-                        <TableCell
-                          key={column.id}
-                          align={column.align}
-                          style={{
-                            color: "#6a62dc", // Color morado para los datos
-                          }}
-                        >
-                          {column.id === "acciones" ? (
-                            <VisibilityIcon sx={{ color: "#6a62dc" }} />
-                          ) : column.id === "estado" ? (
-                            getEstadoIcon(value)
-                          ) : column.id === "monto" ? (
-                            <span>{value}</span>
-                          ) : (
-                            value
-                          )}
+                        <TableCell key={column.id} style={{ color: "#6a62dc" }}>
+                          {column.id === "estado" ? getEstadoIcon(value) : value}
                         </TableCell>
                       );
                     })}
@@ -193,19 +198,16 @@ function HistorialRecarga() {
           </Table>
         </TableContainer>
 
-        {/* Paginación de la tabla */}
+        {/* Paginación */}
         <TablePagination
-          rowsPerPageOptions={[10, 25, 100]}
+          rowsPerPageOptions={[5, 10, 25, 100]}
           component="div"
           count={handleFilter().length}
           rowsPerPage={rowsPerPage}
           page={page}
           onPageChange={handleChangePage}
           onRowsPerPageChange={handleChangeRowsPerPage}
-          sx={{
-            backgroundColor: "#6a62dc", // Color morado
-            color: "white", // Texto blanco
-          }}
+          sx={{ backgroundColor: "#6a62dc", color: "white" }}
         />
       </Paper>
     </div>

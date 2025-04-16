@@ -18,7 +18,7 @@ import renderSection from "../components/Settings/RenderSection.jsx";
 import Swal from 'sweetalert2'
 import withReactContent from 'sweetalert2-react-content';
 import TopBar from "../components/TopBar.jsx";
-import { useBG, useText, usePrimaryColors, useColorsWithHover, useIconColor } from "../ColorClass";
+import { useBG, useText  } from "../ColorClass";
 import HamburgerMenu from "../components/Home/HamburgerMenu.jsx";
 
 export default function Ajustes() {
@@ -44,10 +44,7 @@ export default function Ajustes() {
 
     const bgColor = useBG(theme);
     const textColor = useText(theme);
-    const primaryColors = usePrimaryColors(theme);
-    const primaryHover = useColorsWithHover(theme);
-    const getIconColor = useIconColor(theme, 'gray')
-    const getChevronIconColor = useIconColor(theme, 'chevron')
+    
 
   useEffect(() => {
     document.body.className = theme === "dark" ? "bg-[#000000]" : "bg-white";
@@ -123,20 +120,18 @@ export default function Ajustes() {
   };
 
   return (
-    <div
-      className={`w-full min-h-screen mx-auto p-4 md:p-8 flex flex-col ${
-        theme === "dark" ? `${bgColor} text-[var(--color-dark)]` : "bg-white text-black"
-      }`}
-    >
-      <TopBar nombre={'Sitramrd'} mostrarIcono={false} />
-                      <div className={`flex ${textColor} font-semibold text-4xl w-max h-14">`}>
-                          <div className="absolute left-10 top-2">
-                              <HamburgerMenu />
-                          </div>
-                      </div>
+    <div className={`flex flex-col items-center px-5 ${bgColor} min-h-screen relative`}>
+    {/* <div className={`flex flex-col items-center px-5 ${bgColor} min-h-screen relative`}> */}
+                {/* <div className="w-full absolute top-0 h-96 bg-cover bg-center z-0" style={{ backgroundImage: "url('src/assets/home/1_2.png')" }}></div> */}
+                <TopBar nombre={'Mi cuenta'} mostrarIcono={false} />
+                <div className={`flex ${textColor} font-semibold text-4xl w-max`}>
+                <div className="absolute left-10 z-49">
+                    <HamburgerMenu />
+                </div>
+                </div>
       
 
-      <div className="flex flex-col items-center mt-6">
+      <div className="flex flex-col w-full items-center mt-15 lg:mt-18">
       <div className="flex justify-center mb-4 relative">
       <img
               src={userImage || 'https://res.cloudinary.com/dv4wfetu1/image/upload/v1740610245/avatar_qspfc1.svg'}
@@ -146,12 +141,12 @@ export default function Ajustes() {
               // sx={{ fontSize: 200 }}
             />
       </div>
-        <h2 className="mt-4 text-5xl font-normal font-['Roboto'] text-center w-full">
+        <h2 className={`mt-4 text-4xl ${textColor} font-normal font-['Roboto'] text-center w-full`}>
           {username}
         </h2>
     </div>
 
-      <div className="flex-grow overflow-auto mb-[80px]">
+      <div className="flex-grow w-full max-w-4xl overflow-auto mb-[80px]">
         {renderSection(
           "Cuenta",
           [
@@ -206,9 +201,9 @@ export default function Ajustes() {
         )}
       </div>
 
-      <div className="md:block xl:hidden">
-                <NavBar theme={bgColor} />
-            </div>
+      <div className="block md:hidden">
+  <NavBar theme={bgColor} />
+</div>
 
       
 

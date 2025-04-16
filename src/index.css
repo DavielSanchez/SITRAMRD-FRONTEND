@@ -10,7 +10,9 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     --primary-orange-color: #ff5353;
+    --primary-orange-color-hover: #df4747;
     --primary-purple-color: #6a62dc;
+    --primary-purple-color-hover: #5c55c7;
     --color-dark: #fff;
     --color-light: #161616;
     --color-gray: #6a7282;

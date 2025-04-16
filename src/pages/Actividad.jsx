@@ -1,14 +1,12 @@
 import NavBar from '../components/NavBar';
-import MisTarjetas from '../components/Billetera/MisTarjetas';
-import MetodosPago from '../components/Billetera/MetodosPago';
 import { jwtDecode } from 'jwt-decode';
 import { useBG, useText } from '../ColorClass';
-import HistorialRecarga from '../components/Billetera/HistorialRecarga';
 import TopBar from '../components/TopBar';
 import HamburgerMenu from '../components/Home/HamburgerMenu';
-import PrincipalCard from '../components/Billetera/PrincipalCard';
+import HistorialViajes from '../components/Actividad/HistorialViajes';
+import LastViaje from '../components/Actividad/LastViaje';
 
-const Billetera = () => {
+function Actividad() {
   const token = localStorage.getItem('token');
   const decodedToken = jwtDecode(token);
   const theme = decodedToken.theme;
@@ -20,26 +18,27 @@ const Billetera = () => {
       <div
         className="w-full absolute top-0 h-96 bg-cover bg-center z-0"
         style={{ backgroundImage: "url('src/assets/home/1_2.png')" }}></div>
-      <TopBar nombre={'Billetera'} mostrarIcono={false} />
+      <TopBar nombre={'Actividad'} mostrarIcono={false} />
       <div className={`flex ${textColor} font-semibold text-4xl w-max`}>
         <div className="absolute left-10 z-49">
           <HamburgerMenu />
         </div>
       </div>
 
-      <PrincipalCard />
-
-      <div className="mt-10 mb-10 w-full max-w-4xl">
-        <MisTarjetas />
-        <MetodosPago />
+      <div className="mt-15 mb-5 z-10 w-full max-w-4xl">
+        <div className="flex justify-start w-full mt-5 sm:px-40">
+          <p className={`${textColor} font-medium text-3xl`}>Ultimo viaje</p>
+        </div>
+        <div className="flex justify-center w-full">
+          <LastViaje theme={theme} />
+        </div>
+        <HistorialViajes theme={theme} />
       </div>
-
-      <HistorialRecarga />
       <div className="block md:hidden z-20">
         <NavBar theme={bgColor} />
       </div>
     </div>
   );
-};
+}
 
-export default Billetera;
+export default Actividad;
