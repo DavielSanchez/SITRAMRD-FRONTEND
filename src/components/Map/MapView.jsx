@@ -3,8 +3,11 @@ import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import RouteModal from './modal/RouteModal';
 import DirectionModal from './modal/DirectionModal';
-import actividad from './utils/actividad';
 import useActividadStore from './store/useActividadStore.js';
+import Toast from '../Auth/Toast.jsx';
+import { problemaDeRetraso, llegada, busCerca, rutaFinalizada } from './utils/Notifications.js';
+import ConfirmationModal from './modal/ConfirmationModal.jsx';
+import ubicacion from "../../assets/Map/ubicacion.png"
 
 function MapView() {
   const mapContainerRef = useRef(null);
@@ -14,10 +17,12 @@ function MapView() {
   const [destinationlat, setDestinationLat] = useState(null);
   const [destinationlng, setDestinationLng] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isConfirmationModalOpen, setConfirmationModal] = useState(false);
   const [activeMarkers, setActiveMarkers] = useState([]);
   const [direcciones, setDirecciones] = useState([]);
   const [nombreLugar, setNombreLugar] = useState(null);  // Nuevo estado para el nombre del lugar
   const { agregarActividad } = useActividadStore();
+  const [isTripStarted, setIsStripStarted] = useState(false);
 
   // Función para obtener el nombre del lugar
   const obtenerNombreLugar = (lat, lng) => {
@@ -49,6 +54,7 @@ function MapView() {
       setDestinationLng(e.lngLat.lng);
       setDestinationLat(e.lngLat.lat);
       setIsModalOpen(true);
+      setConfirmationModal(false);
 
       // Llamar a la función de geocoding para obtener el nombre del lugar
       obtenerNombreLugar(e.lngLat.lat, e.lngLat.lng);
@@ -61,6 +67,11 @@ function MapView() {
     };
   }, []);
 
+  const startTrip = () =>{
+    setIsStripStarted(true);
+  }
+
+  // Función para manejar la ubicación del usuario
   const handleLocateMe = () => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
@@ -74,7 +85,31 @@ function MapView() {
               zoom: 14,
             });
 
-            new mapboxgl.Marker().setLngLat([longitude, latitude]).addTo(map);
+            // Limpiar marcadores anteriores de ubicación
+            activeMarkers.forEach(marker => {
+              if (marker._element.classList.contains('user-location')) {
+                marker.remove();
+              }
+            });
+
+            // Crear elemento para el marcador de usuario
+            const el = document.createElement('div');
+            el.className = 'marker user-location';
+            el.style.backgroundColor = '#3498db';
+            el.style.width = '20px';
+            el.style.height = '20px';
+            el.style.borderRadius = '50%';
+            el.style.border = '3px solid white';
+            el.style.boxShadow = '0 0 10px rgba(0,0,0,0.5)';
+
+            // Añadir nuevo marcador de usuario
+            const marker = new mapboxgl.Marker(el)
+              .setLngLat([longitude, latitude])
+              .setPopup(new mapboxgl.Popup({ offset: 25 })
+                .setHTML('<strong>Tu ubicación</strong>'))
+              .addTo(map);
+
+            setActiveMarkers(prev => [...prev, marker]);
           }
         },
         (error) => {
@@ -87,8 +122,10 @@ function MapView() {
   };
 
   const handleModalConfirm = () => {
+    setConfirmationModal(true);
     if (!userLocation || !destination) {
       console.warn("Faltan datos: ubicación del usuario o destino.");
+      
       setIsModalOpen(false);
       return;
     }
@@ -112,8 +149,6 @@ function MapView() {
     window.dispatchEvent(new Event("actividadActualizada")); // 🟢 Emitir evento
 
     // Limpiar estados
-    activeMarkers.forEach((marker) => marker.remove());
-    setActiveMarkers([]);
     setDirecciones([]);
     setIsModalOpen(false);
   };
@@ -122,19 +157,43 @@ function MapView() {
     setIsModalOpen(false);
   };
 
+  const handleConfirmModalClose = () => {
+    setConfirmationModal(false);
+  };
+
   return (
     <div>
-      <button onClick={handleLocateMe} style={{ position: 'absolute', top: '10px', left: '10px', zIndex: 80 }}>
-        Localízame
-      </button>
 
       <button style={{ position: 'absolute', top: '10px', left: '150px', zIndex: 80 }}>Mostrar rutas de autobús</button>
 
       <button style={{ position: 'absolute', top: '10px', left: '400px', zIndex: 80 }}>Mostrar rutas de metro</button>
 
-      <DirectionModal directions={direcciones} />
+     
 
-      {isModalOpen && destination && (
+      
+
+
+<div className="duv relative">
+  {/* Botón posicionado arriba del mapa */}
+  <div onClick={handleLocateMe} className="button absolute top-0 left-0 bg-black text-white p-2 m-5 z-10 rounded-full shadow-black shadow-md">
+    <img src={ubicacion} alt="" className='size-9'/>
+  </div>
+
+
+    {isTripStarted && (
+        <DirectionModal 
+        directions={direcciones} 
+        latitud={userLocation?.latitude || 0}
+        longitud={userLocation?.longitude || 0}
+        destinoLat={destination?.lat || 0}  // Changed from destination?.latitude
+        destinoLng={destination?.lng || 0}  // Changed from destination?.longitude
+        style="absolute top-0 right-0 mt-5 mr-5 shadow-black bg-gray-800 text-white p-4 rounded-lg shadow-lg w-80 max-w-sm z-50"
+        onClose={() => {/* Add your close handler here */}}
+      />
+    )}
+
+
+    {isModalOpen && destination &&  (
         <RouteModal
           destination={destination}
           userLocation={userLocation}
@@ -144,7 +203,52 @@ function MapView() {
       )}
 
 
-      <div ref={mapContainerRef} style={{ width: '70vw', height: '80vh' }} />
+
+  {/* Mapa */}
+  <div
+    ref={mapContainerRef}
+    style={{
+      width: '70vw',
+      height: '80vh',
+    }}
+  />
+  <div className="button absolute bottom-0 left-0 w-full z-20">
+  {isConfirmationModalOpen && (
+        <ConfirmationModal onClose={handleConfirmModalClose}
+        lat={userLocation.latitude}
+        lng={userLocation.longitude}
+        destinoLat={destinationlat}
+        destinoLng={destinationlng}
+        start={startTrip}
+        map={map}
+        />
+      )}
+  </div>
+</div>
+
+      
+      <h3 className='text-xl font-semibold mt-5'>Notificaciones de prueba del usuario</h3>
+
+      <div className="flex gap-5">
+      <button onClick={() =>{
+        problemaDeRetraso("Hubieron Problemas");
+      }} className='p-5 bg-gray-700/50 text-white font-semibold mt-3 rounded-lg tracking-widest'>Retraso</button>
+
+      <button onClick={() =>{
+        llegada();
+      }} className='p-5 bg-gray-700/50 text-white font-semibold mt-3 rounded-lg tracking-widest '>Llegada</button>
+
+      <button onClick={() =>{
+        busCerca("5");
+      }} className='p-5 bg-gray-700/50 text-white font-semibold mt-3 rounded-lg tracking-widest '>Bus Cerca</button>
+
+      <button onClick={() =>{
+        rutaFinalizada("5");
+      }} className='p-5 bg-gray-700/50 text-white font-semibold mt-3 rounded-lg tracking-widest '>Final de viaje</button>
+      </div>
+
+
+      <Toast/>
     </div>
   );
 }
