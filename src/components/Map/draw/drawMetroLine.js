@@ -1,9 +1,3 @@
-/**
- * Dibuja toda la red de transporte público en el mapa, mostrando todas las líneas simultáneamente
- * @param {Object} map - Instancia del mapa de Mapbox
- * @param {Boolean} showStops - Indica si se deben mostrar las paradas/estaciones
- * @returns {Promise<void>}
- */
 const drawTransportNetwork = async (map, showStops = true) => {
   try {
     // Obtener todas las rutas del sistema de transporte

@@ -164,14 +164,6 @@ function MapView() {
   return (
     <div>
 
-      <button style={{ position: 'absolute', top: '10px', left: '150px', zIndex: 80 }}>Mostrar rutas de autobús</button>
-
-      <button style={{ position: 'absolute', top: '10px', left: '400px', zIndex: 80 }}>Mostrar rutas de metro</button>
-
-     
-
-      
-
 
 <div className="duv relative">
   {/* Botón posicionado arriba del mapa */}
