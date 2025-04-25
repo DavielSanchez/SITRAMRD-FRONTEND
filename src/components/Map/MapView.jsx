@@ -7,7 +7,8 @@ import useActividadStore from './store/useActividadStore.js';
 import Toast from '../Auth/Toast.jsx';
 import { problemaDeRetraso, llegada, busCerca, rutaFinalizada } from './utils/Notifications.js';
 import ConfirmationModal from './modal/ConfirmationModal.jsx';
-import ubicacion from "../../assets/Map/ubicacion.png"
+import ubicacion from "../../assets/Map/ubicacion.png";
+import { postViaje, getRecentTripsFromAll } from './utils/ApiCall.js';
 
 function MapView() {
   const mapContainerRef = useRef(null);
@@ -20,9 +21,46 @@ function MapView() {
   const [isConfirmationModalOpen, setConfirmationModal] = useState(false);
   const [activeMarkers, setActiveMarkers] = useState([]);
   const [direcciones, setDirecciones] = useState([]);
-  const [nombreLugar, setNombreLugar] = useState(null);  // Nuevo estado para el nombre del lugar
+  const [nombreLugar, setNombreLugar] = useState(null);
   const { agregarActividad } = useActividadStore();
   const [isTripStarted, setIsStripStarted] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [recentTrips, setRecentTrips] = useState([]);
+  const [isLoadingTrips, setIsLoadingTrips] = useState(false);
+
+  // Función para obtener viajes recientes
+  const fetchRecentTrips = async () => {
+    setIsLoadingTrips(true);
+    try {
+      const trips = await getRecentTripsFromAll(3);
+      setRecentTrips(trips);
+    } catch (err) {
+      console.error("Error al cargar viajes recientes:", err);
+      Toast.error("No se pudieron cargar los viajes recientes");
+    } finally {
+      setIsLoadingTrips(false);
+    }
+  };
+
+  // Cargar viajes recientes al montar el componente
+  useEffect(() => {
+    fetchRecentTrips();
+  }, []);
+
+  // Función para actualizar los viajes recientes después de crear uno nuevo
+  useEffect(() => {
+    // Escuchar el evento personalizado
+    const handleActividadActualizada = () => {
+      fetchRecentTrips();
+    };
+
+    window.addEventListener('actividadActualizada', handleActividadActualizada);
+
+    return () => {
+      window.removeEventListener('actividadActualizada', handleActividadActualizada);
+    };
+  }, []);
 
   // Función para obtener el nombre del lugar
   const obtenerNombreLugar = (lat, lng) => {
@@ -31,7 +69,7 @@ function MapView() {
       .then(data => {
         console.log(data);
         if (data.features.length > 0) {
-          setNombreLugar(data.features[0].text);  // Guardamos el nombre del lugar en el estado
+          setNombreLugar(data.features[0].text);
         }
       })
       .catch(error => console.error('Error al obtener el nombre del lugar:', error));
@@ -60,6 +98,19 @@ function MapView() {
       obtenerNombreLugar(e.lngLat.lat, e.lngLat.lng);
     });
 
+    // Obtenemos la ubicación del usuario automáticamente al cargar el componente
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          setUserLocation({ latitude, longitude });
+        },
+        (error) => {
+          console.error('Error al obtener la ubicación inicial:', error);
+        }
+      );
+    }
+
     return () => {
       if (initialMap) {
         initialMap.remove();
@@ -67,7 +118,38 @@ function MapView() {
     };
   }, []);
 
-  const startTrip = () =>{
+  // Efecto para añadir el marcador de usuario cuando cambia la ubicación
+  useEffect(() => {
+    if (map && userLocation) {
+      // Limpiar marcadores anteriores de ubicación
+      activeMarkers.forEach(marker => {
+        if (marker._element.classList.contains('user-location')) {
+          marker.remove();
+        }
+      });
+
+      // Crear elemento para el marcador de usuario
+      const el = document.createElement('div');
+      el.className = 'marker user-location';
+      el.style.backgroundColor = '#3498db';
+      el.style.width = '20px';
+      el.style.height = '20px';
+      el.style.borderRadius = '50%';
+      el.style.border = '3px solid white';
+      el.style.boxShadow = '0 0 10px rgba(0,0,0,0.5)';
+
+      // Añadir nuevo marcador de usuario
+      const marker = new mapboxgl.Marker(el)
+        .setLngLat([userLocation.longitude, userLocation.latitude])
+        .setPopup(new mapboxgl.Popup({ offset: 25 })
+          .setHTML('<strong>Tu ubicación</strong>'))
+        .addTo(map);
+
+      setActiveMarkers(prev => [...prev.filter(m => !m._element.classList.contains('user-location')), marker]);
+    }
+  }, [map, userLocation]);
+
+  const startTrip = () => {
     setIsStripStarted(true);
   }
 
@@ -84,32 +166,6 @@ function MapView() {
               center: [longitude, latitude],
               zoom: 14,
             });
-
-            // Limpiar marcadores anteriores de ubicación
-            activeMarkers.forEach(marker => {
-              if (marker._element.classList.contains('user-location')) {
-                marker.remove();
-              }
-            });
-
-            // Crear elemento para el marcador de usuario
-            const el = document.createElement('div');
-            el.className = 'marker user-location';
-            el.style.backgroundColor = '#3498db';
-            el.style.width = '20px';
-            el.style.height = '20px';
-            el.style.borderRadius = '50%';
-            el.style.border = '3px solid white';
-            el.style.boxShadow = '0 0 10px rgba(0,0,0,0.5)';
-
-            // Añadir nuevo marcador de usuario
-            const marker = new mapboxgl.Marker(el)
-              .setLngLat([longitude, latitude])
-              .setPopup(new mapboxgl.Popup({ offset: 25 })
-                .setHTML('<strong>Tu ubicación</strong>'))
-              .addTo(map);
-
-            setActiveMarkers(prev => [...prev, marker]);
           }
         },
         (error) => {
@@ -121,36 +177,89 @@ function MapView() {
     }
   };
 
-  const handleModalConfirm = () => {
+  // Función para guardar la actividad en la base de datos
+  const guardarActividadEnBaseDeDatos = async (actividad) => {
+    setIsLoading(true);
+    setError(null);
+    
+    try {
+      // Usar la nueva función de utilidad para guardar el viaje
+      const precioNumerico = parseFloat(actividad.precio.replace('RD$ ', '')) || 0;
+      
+      const viajeData = {
+        nombreLugar: actividad.viaje,
+        destinoLat: actividad.coordenadas.latitud,
+        destinoLng: actividad.coordenadas.longitud,
+        lat: userLocation?.latitude || 0,
+        lng: userLocation?.longitude || 0,
+        precio: precioNumerico,
+        url: `${`https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/pin-l+000(${actividad.coordenadas.longitud},${actividad.coordenadas.latitud})/${actividad.coordenadas.longitud},${actividad.coordenadas.latitud},14.20,0,0/600x400?access_token=pk.eyJ1IjoibmVvZGV2IiwiYSI6ImNtOGQ4ZmIxMzBtc2kybHBzdzNxa3U4eDcifQ.1Oa8lXU045VvFUul26Kwkg`}`
+      };
+      
+      // Llamar a la función de utilidad
+      const resultado = await postViaje(viajeData);
+      
+      console.log('Actividad guardada con éxito:', resultado);
+      
+      // También actualizar el estado local a través del store
+      agregarActividad(actividad);
+      
+      // Disparar evento para que otros componentes se actualicen
+      window.dispatchEvent(new Event("actividadActualizada"));
+      
+      // Mostrar notificación de éxito
+      Toast.success('Actividad guardada correctamente');
+      
+      return resultado;
+    } catch (error) {
+      console.error('Error al guardar la actividad:', error);
+      setError(error.message);
+      Toast.error(`Error al guardar la actividad: ${error.message}`);
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleModalConfirm = async () => {
     setConfirmationModal(true);
     if (!userLocation || !destination) {
       console.warn("Faltan datos: ubicación del usuario o destino.");
-      
+      Toast.error("Faltan datos para crear la actividad");
       setIsModalOpen(false);
       return;
     }
 
     // Usar el nombre del lugar en la actividad
     const nombreDeActividadViaje = nombreLugar || 'Lugar desconocido';
+    
+    // Extraer precio aleatorio entre 50 y 200 pesos
+    const precioAleatorio = Math.floor(Math.random() * 150) + 50;
 
-    // Agregar actividad si todo está bien
-    agregarActividad({
-      viaje: `${nombreDeActividadViaje}`,
-      fecha: '2025-09-03',
-      hora: '10:25 AM',
-      precio: 'RD$ 75.00',
-      estado: 'Pendiente',
+    // Crear objeto de actividad
+    const nuevaActividad = {
+      viaje: nombreDeActividadViaje,
+      fecha: new Date().toISOString().split('T')[0],
+      hora: new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' }),
+      precio: `RD$ ${precioAleatorio.toFixed(2)}`,
+      estado: 'Iniciado',
       coordenadas: {
         latitud: destinationlat,
         longitud: destinationlng,
       },
-    });
+    };
 
-    window.dispatchEvent(new Event("actividadActualizada")); // 🟢 Emitir evento
-
-    // Limpiar estados
-    setDirecciones([]);
-    setIsModalOpen(false);
+    try {
+      // Guardar la actividad en la base de datos
+      await guardarActividadEnBaseDeDatos(nuevaActividad);
+      
+      // Limpiar estados
+      setDirecciones([]);
+      setIsModalOpen(false);
+    } catch (error) {
+      console.error("Error al guardar la actividad:", error);
+      // El error ya se maneja en guardarActividadEnBaseDeDatos
+    }
   };
 
   const handleModalCancel = () => {
@@ -161,86 +270,144 @@ function MapView() {
     setConfirmationModal(false);
   };
 
+  // Función para manejar clic en un viaje reciente
+  const handleRecentTripClick = (trip) => {
+    if (map) {
+      // Establecer el destino basado en las coordenadas del viaje
+      const tripLngLat = {
+        lng: trip.destinoLng,
+        lat: trip.destinoLat
+      };
+      
+      setDestination(tripLngLat);
+      setDestinationLng(trip.destinoLng);
+      setDestinationLat(trip.destinoLat);
+      setNombreLugar(trip.calle);
+      
+      // Centrar el mapa en un punto medio entre ubicación actual y destino
+      if (userLocation) {
+        const bounds = new mapboxgl.LngLatBounds();
+        bounds.extend([userLocation.longitude, userLocation.latitude]);
+        bounds.extend([trip.destinoLng, trip.destinoLat]);
+        
+        map.fitBounds(bounds, {
+          padding: 100,
+          maxZoom: 15
+        });
+      }
+      
+      // Abrir el modal de confirmación
+      setIsModalOpen(true);
+    }
+  };
+
   return (
     <div>
+      <div className="relative">
+        {/* Botón posicionado arriba del mapa */}
+        <div onClick={handleLocateMe} className="button absolute top-0 left-0 bg-black text-white p-2 m-5 z-10 rounded-full shadow-black shadow-md">
+          <img src={ubicacion} alt="" className='size-9'/>
+        </div>
 
+        {isTripStarted && (
+          <DirectionModal 
+            directions={direcciones} 
+            latitud={userLocation?.latitude || 0}
+            longitud={userLocation?.longitude || 0}
+            destinoLat={destination?.lat || 0}
+            destinoLng={destination?.lng || 0}
+            style="absolute top-0 right-0 mt-5 mr-5 shadow-black bg-gray-800 text-white p-4 rounded-lg shadow-lg w-80 max-w-sm z-50"
+            onClose={() => {/* Add your close handler here */}}
+          />
+        )}
 
-<div className="duv relative">
-  {/* Botón posicionado arriba del mapa */}
-  <div onClick={handleLocateMe} className="button absolute top-0 left-0 bg-black text-white p-2 m-5 z-10 rounded-full shadow-black shadow-md">
-    <img src={ubicacion} alt="" className='size-9'/>
-  </div>
+        {isModalOpen && destination && (
+          <RouteModal
+            destination={destination}
+            userLocation={userLocation}
+            onConfirm={handleModalConfirm}
+            onCancel={handleModalCancel}
+            isLoading={isLoading}
+          />
+        )}
 
-
-    {isTripStarted && (
-        <DirectionModal 
-        directions={direcciones} 
-        latitud={userLocation?.latitude || 0}
-        longitud={userLocation?.longitude || 0}
-        destinoLat={destination?.lat || 0}  // Changed from destination?.latitude
-        destinoLng={destination?.lng || 0}  // Changed from destination?.longitude
-        style="absolute top-0 right-0 mt-5 mr-5 shadow-black bg-gray-800 text-white p-4 rounded-lg shadow-lg w-80 max-w-sm z-50"
-        onClose={() => {/* Add your close handler here */}}
-      />
-    )}
-
-
-    {isModalOpen && destination &&  (
-        <RouteModal
-          destination={destination}
-          userLocation={userLocation}
-          onConfirm={handleModalConfirm}
-          onCancel={handleModalCancel}
+        {/* Mapa */}
+        <div
+          ref={mapContainerRef}
+          style={{
+            width: '70vw',
+            height: '80vh',
+          }}
         />
-      )}
-
-
-
-  {/* Mapa */}
-  <div
-    ref={mapContainerRef}
-    style={{
-      width: '70vw',
-      height: '80vh',
-    }}
-  />
-  <div className="button absolute bottom-0 left-0 w-full z-20">
-  {isConfirmationModalOpen && (
-        <ConfirmationModal onClose={handleConfirmModalClose}
-        lat={userLocation.latitude}
-        lng={userLocation.longitude}
-        destinoLat={destinationlat}
-        destinoLng={destinationlng}
-        start={startTrip}
-        map={map}
-        />
-      )}
-  </div>
-</div>
-
+        <div className="button absolute bottom-0 left-0 w-full z-20">
+          {isConfirmationModalOpen && userLocation && (
+            <ConfirmationModal 
+              onClose={handleConfirmModalClose}
+              lat={userLocation.latitude}
+              lng={userLocation.longitude}
+              destinoLat={destinationlat}
+              destinoLng={destinationlng}
+              start={startTrip}
+              map={map}
+            />
+          )}
+        </div>
+      </div>
+      
+      {/* Viajes recientes */}
+      <div className="mt-5 mb-5">
+        <h3 className='text-xl font-semibold'>Viajes Recientes</h3>
+        {isLoadingTrips ? (
+          <p className="text-gray-500 italic">Cargando viajes recientes...</p>
+        ) : recentTrips.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-3">
+            {recentTrips.map((trip, index) => (
+              <div 
+                key={trip._id || index}
+                onClick={() => handleRecentTripClick(trip)}
+                className="bg-white rounded-lg shadow-md p-4 cursor-pointer hover:bg-gray-50 transition-colors"
+              >
+                <h4 className="font-medium">{trip.calle || 'Destino sin nombre'}</h4>
+                <div className="text-sm text-gray-500 mt-1">
+                  <p>Fecha: {new Date(trip.fecha).toLocaleDateString()}</p>
+                  <p>Hora: {trip.hora}</p>
+                  <p>Precio: RD$ {trip.precio?.toFixed(2) || '0.00'}</p>
+                  <p className="mt-1">
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium
+                      ${trip.estado === 'Finalizado' ? 'bg-green-100 text-green-800' : 
+                        trip.estado === 'Iniciado' ? 'bg-blue-100 text-blue-800' : 
+                        'bg-yellow-100 text-yellow-800'}`}>
+                      {trip.estado || 'En proceso'}
+                    </span>
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <p className="text-gray-500 italic mt-2">No hay viajes recientes</p>
+        )}
+      </div>
       
       <h3 className='text-xl font-semibold mt-5'>Notificaciones de prueba del usuario</h3>
 
       <div className="flex gap-5">
-      <button onClick={() =>{
-        problemaDeRetraso("Hubieron Problemas");
-      }} className='p-5 bg-gray-700/50 text-white font-semibold mt-3 rounded-lg tracking-widest'>Retraso</button>
+        <button onClick={() => {
+          problemaDeRetraso("Hubieron Problemas");
+        }} className='p-5 bg-gray-700/50 text-white font-semibold mt-3 rounded-lg tracking-widest'>Retraso</button>
 
-      <button onClick={() =>{
-        llegada();
-      }} className='p-5 bg-gray-700/50 text-white font-semibold mt-3 rounded-lg tracking-widest '>Llegada</button>
+        <button onClick={() => {
+          llegada();
+        }} className='p-5 bg-gray-700/50 text-white font-semibold mt-3 rounded-lg tracking-widest '>Llegada</button>
 
-      <button onClick={() =>{
-        busCerca("5");
-      }} className='p-5 bg-gray-700/50 text-white font-semibold mt-3 rounded-lg tracking-widest '>Bus Cerca</button>
+        <button onClick={() => {
+          busCerca("5");
+        }} className='p-5 bg-gray-700/50 text-white font-semibold mt-3 rounded-lg tracking-widest '>Bus Cerca</button>
 
-      <button onClick={() =>{
-        rutaFinalizada("5");
-      }} className='p-5 bg-gray-700/50 text-white font-semibold mt-3 rounded-lg tracking-widest '>Final de viaje</button>
+        <button onClick={() => {
+          rutaFinalizada("5");
+        }} className='p-5 bg-gray-700/50 text-white font-semibold mt-3 rounded-lg tracking-widest '>Final de viaje</button>
       </div>
-
-
-      <Toast/>
     </div>
   );
 }

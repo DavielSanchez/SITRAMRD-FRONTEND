@@ -6,6 +6,7 @@ import drawRouteLines, {
   clearAllRoutes 
 } from "../draw/drawRouteLines";
 
+import { jwtDecode } from 'jwt-decode';
 
 //Esto llama a la api y devuelve el viaje recomendado
 
@@ -47,6 +48,7 @@ export const getViaje = (lat, lng, destinoLat, destinoLng, map) => {
       lng: lng,
       destinoLat: destinoLat,
       destinoLng: destinoLng,
+      tipo: "Metro"
     }
   }).then(async (response) => {
     const data = response.data;
@@ -179,5 +181,162 @@ export const getDirecciones = async (userLat, userLng, stopLat, stopLng, mapboxT
   } catch (error) {
     console.error("Error al obtener direcciones de Mapbox:", error);
     throw new Error(`Error al obtener direcciones: ${error.message}`);
+  }
+};
+
+
+
+export const getUserIdFromToken = () => {
+  try {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      console.warn('No token found in localStorage');
+      return null;
+    }
+    
+    const decodedToken = jwtDecode(token);
+    console.log('Decoded token:', decodedToken); // Debug log
+    
+    // Try to get user ID from various possible properties in the token
+    const userId = decodedToken._id || decodedToken.id || decodedToken.userId || decodedToken.sub;
+    
+    if (!userId) {
+      console.error('User ID not found in token. Token structure:', decodedToken);
+      return null;
+    }
+    
+    return userId;
+  } catch (error) {
+    console.error('Error decoding token:', error);
+    return null;
+  }
+};
+
+
+export const getAuthHeaders = () => {
+  const token = localStorage.getItem('token');
+  return token ? { Authorization: `Bearer ${token}` } : {};
+};
+
+
+export const postViaje = async ({ nombreLugar, destinoLat, destinoLng, lat, lng, precio, tipo, url = "Metro" }) => {
+  const userId = getUserIdFromToken();
+  
+  if (!userId) {
+    throw new Error('No hay ID de usuario disponible');
+  }
+  
+  const ahora = new Date();
+  const hora = ahora.getHours().toString().padStart(2, '0') + ':' + 
+              ahora.getMinutes().toString().padStart(2, '0');
+  
+  try {
+    const response = await axios.post('http://localhost:3001/actividad/add', {
+      idUsuario: userId,
+      calle: nombreLugar || 'Lugar desconocido',
+      fecha: new Date().toISOString(),
+      hora: hora,
+      precio: precio || 0,
+      coordinates: [lng, lat],
+      destinoLat: destinoLat,
+      destinoLng: destinoLng,
+      fotoUrl: url,
+      tipo: tipo,
+      estado: "Iniciado"
+    }, {
+      headers: {
+        ...getAuthHeaders(),
+        'Content-Type': 'application/json'
+      }
+    });
+    
+    return response.data;
+  } catch (error) {
+    console.error('Error al guardar el viaje:', error);
+    
+    // Extraer el mensaje de error de la respuesta si está disponible
+    const errorMsg = error.response?.data?.message || error.message || 'Error desconocido al guardar el viaje';
+    
+    throw new Error(errorMsg);
+  }
+};
+
+
+export const getViajes = async () => {
+  const userId = getUserIdFromToken();
+  
+  if (!userId) {
+    throw new Error('No hay ID de usuario disponible');
+  }
+  
+  try {
+    const response = await axios.get('http://localhost:3001/actividad/:id', {
+      params: { idUsuario: userId },
+      headers: getAuthHeaders()
+    });
+    
+    return response.data;
+  } catch (error) {
+    console.error('Error al obtener viajes:', error);
+    throw new Error(error.response?.data?.message || error.message || 'Error desconocido al obtener viajes');
+  }
+};
+
+
+export const actualizarEstadoViaje = async (actividadId, nuevoEstado) => {
+  try {
+    const response = await axios.put(`http://localhost:3001/actividad/:${actividadId}`, {
+      estado: nuevoEstado
+    }, {
+      headers: {
+        ...getAuthHeaders(),
+        'Content-Type': 'application/json'
+      }
+    });
+    
+    return response.data;
+  } catch (error) {
+    console.error(`Error al actualizar estado de viaje a ${nuevoEstado}:`, error);
+    throw new Error(error.response?.data?.message || error.message || 'Error desconocido al actualizar estado');
+  }
+};
+
+// Add this function to your ApiCall.js file
+export const getRecentViajes = async (limit = 3) => {
+  const userId = getUserIdFromToken();
+  
+  if (!userId) {
+    throw new Error('No hay ID de usuario disponible');
+  }
+  
+  try {
+    const response = await axios.get('http://localhost:3001/actividad/:id', {
+      params: { 
+        idUsuario: userId,
+        limit: limit 
+      },
+      headers: getAuthHeaders()
+    });
+    
+    return response.data;
+  } catch (error) {
+    console.error('Error al obtener viajes recientes:', error);
+    throw new Error(error.response?.data?.message || error.message || 'Error desconocido al obtener viajes recientes');
+  }
+};
+
+// Alternative approach using the existing getViajes function
+export const getRecentTripsFromAll = async (limit = 3) => {
+  try {
+    // Get all trips
+    const allTrips = await getViajes();
+    
+    // Sort by date (newest first) and slice to get only the most recent ones
+    return allTrips
+      .sort((a, b) => new Date(b.fecha) - new Date(a.fecha))
+      .slice(0, limit);
+  } catch (error) {
+    console.error('Error al obtener viajes recientes:', error);
+    throw new Error('Error al obtener viajes recientes: ' + error.message);
   }
 };
