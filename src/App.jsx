@@ -17,7 +17,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import GestionOperadores from "./pages/GestionOperadores";
 import Auditoria from './pages/Auditoria';
 import HomeView from './pages/HomeView';
-import ActividadLogica from "./pages/ActividadLogica"
+import ActividadLogica from "./pages/Actividad"
 
 const stripePromise = loadStripe(`${import.meta.env.VITE_STRIPE_SECRET_LINK}`);
 function App() {
@@ -40,7 +40,7 @@ function App() {
           <Route path="/gestion" element={<GestionOperadores />} />
           <Route path="/auditoria" element={<Auditoria />} />
           <Route path='/HomeView' element={<HomeView/>}/>
-          <Route path='/actividadExample' element={<ActividadLogica/>}/>
+          <Route path='/actividad' element={<ActividadLogica/>}/>
           <Route 
             path="/" 
             element={

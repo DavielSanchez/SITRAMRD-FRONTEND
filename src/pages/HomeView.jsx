@@ -12,6 +12,7 @@ import { toast } from 'react-toastify';
 import MapView from '../components/Map/MapView.jsx';
 import useActividadStore from "../components/Map/store/useActividadStore.js";
 import { getRecentTripsFromAll } from "../components/Map/utils/ApiCall.js";
+import { useNavigate } from 'react-router-dom';
 
 function HomeView() {
     const [openModal, setOpenModal] = useState(false);
@@ -41,6 +42,7 @@ function HomeView() {
     const [refresh, setRefresh] = useState(false);
     const [recentTrips, setRecentTrips] = useState([]);
     const [isLoadingTrips, setIsLoadingTrips] = useState(false);
+    const navigate = useNavigate();
     
     const MySwal = withReactContent(Swal);
 
@@ -345,7 +347,7 @@ const handleRecentTripClick = (trip) => {
                                     Cerrar
                                 </button>
                                 <button 
-                                    onClick={() => setViajesShowModal(false)} 
+                                    onClick={() => navigate('/actividad')} 
                                     className={`${ButtonColor} text-white w-[45%] px-4 py-3 rounded-lg cursor-pointer hover:opacity-90 transition-all font-medium`}
                                 >
                                     Ver en actividad
