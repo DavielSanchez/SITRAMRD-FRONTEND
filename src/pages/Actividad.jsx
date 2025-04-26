@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import NavBar from '../components/NavBar';
@@ -13,6 +14,7 @@ import { reiniciarViaje } from '../components/Map/utils/Events';
 
 function Actividad() {
   const navigate = useNavigate();
+
   const token = localStorage.getItem('token');
   const decodedToken = jwtDecode(token);
   const theme = decodedToken.theme;
@@ -370,6 +372,7 @@ function Actividad() {
           {renderLastViaje()}
         </div>
         {renderHistorialViajes()}
+
       </div>
       <div className="block md:hidden z-20">
         <NavBar theme={bgColor} />
@@ -379,3 +382,4 @@ function Actividad() {
 }
 
 export default Actividad;
+

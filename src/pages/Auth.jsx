@@ -7,17 +7,16 @@ import Toast from "../components/Auth/Toast";
 import { toast } from 'react-toastify';
 import { jwtDecode } from 'jwt-decode'
 import PersonIcon from '@mui/icons-material/Person';
-import { useBG, useText, usePrimaryColors, useColorsWithHover, useIconColor } from "../ColorClass";
+import { useBG, useText, useColorsWithHover, useIconColor } from "../ColorClass";
 
 function Auth() {
   const Lasttoken = localStorage.getItem('token');
-  const [theme, setTheme] = useState('');
+  const [theme, setTheme] = useState('Light');
 
   //colores 
 
   const bgColor = useBG(theme);
   const textColor = useText(theme);
-  const primaryColors = usePrimaryColors(theme);
   const primaryHover = useColorsWithHover(theme);
   const getIconColor = useIconColor(theme, 'black')
 
@@ -31,11 +30,11 @@ function Auth() {
       const decodedToken = jwtDecode(Lasttoken);
       const usertheme = decodedToken.theme;
       if (usertheme !== theme) {
-        setTheme(usertheme);
+        setTheme('light');
       }
     } else {
       if (theme !== "white") {
-        setTheme("white");
+        setTheme("light");
       }
     }
   }, [Lasttoken, theme]); 

@@ -14,7 +14,7 @@ import { useBG, useText, useColorsWithHover, useIconColor } from "../ColorClass"
 
 function RegisterAuth() {
   const token = localStorage.getItem('token');
-  const [theme, setTheme] = useState('');
+  const [theme, setTheme] = useState('light');
   const MySwal = withReactContent(Swal)
   const navigate = useNavigate();
   const [setShowToast] = useState(false);
@@ -29,11 +29,11 @@ function RegisterAuth() {
       const decodedToken = jwtDecode(token);
       const usertheme = decodedToken.theme;
       if (usertheme !== theme) {
-        setTheme(usertheme);
+        setTheme('light');
       }
     } else {
-      if (theme !== "white") {
-        setTheme("white");
+      if (theme !== "light") {
+        setTheme("light");
       }
     }
   }, [token, theme]); 

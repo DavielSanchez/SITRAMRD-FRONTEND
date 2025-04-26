@@ -1,5 +1,5 @@
 import { jwtDecode } from "jwt-decode";
-import { useBG, usePrimaryColors, useBGForButtons, useText, useIconColor, useBorderColor } from "../ColorClass";
+import { useBG, useBGForButtons, useText, useIconColor, useBorderColor } from "../ColorClass";
 import NavBar from "../components/NavBar";
 import withReactContent from 'sweetalert2-react-content';
 import Swal from "sweetalert2";
@@ -13,6 +13,7 @@ import MapView from '../components/Map/MapView.jsx';
 import useActividadStore from "../components/Map/store/useActividadStore.js";
 import { getRecentTripsFromAll } from "../components/Map/utils/ApiCall.js";
 import { useNavigate } from 'react-router-dom';
+
 
 function HomeView() {
     const [openModal, setOpenModal] = useState(false);
@@ -250,12 +251,12 @@ const handleRecentTripClick = (trip) => {
     return (
         <>
             <div className={`flex flex-col items-center p-4 ${bgColor} min-h-screen relative`}>
+
                 <div className="w-full absolute top-0 h-96 bg-cover bg-center z-0" style={{ backgroundImage: "url('src/assets/home/1_2.png')" }}></div>
                 <TopBar nombre={'Sitramrd'} mostrarIcono={false} />
-                <div className={`flex ${textColor} font-semibold text-4xl w-max h-14">`}>
-                    <div className="absolute left-10 top-2">
-                        <HamburgerMenu />
-                    </div>
+                <div className={`flex ${textColor} font-semibold text-4xl w-max`}>
+                <div className="absolute left-10 z-49">
+                    <HamburgerMenu />
                 </div>
 
                 <div className={`${ButtonColor} text-white rounded-2xl p-9 shadow-lg mt-12 z-10 w-full max-w-xl bg-opacity-95 backdrop-filter backdrop-blur-sm`}>
@@ -301,6 +302,7 @@ const handleRecentTripClick = (trip) => {
                                 </div>
                             </div>
                         ))}
+
                     </div>
                 </div>
 
@@ -465,6 +467,7 @@ const handleRecentTripClick = (trip) => {
                             </div>
                             
                             <div className="flex justify-between mt-4">
+
                                 <button
                                     onClick={() => setOpenModal(false)}
                                     className={`px-6 py-3 rounded-lg border ${BorderColor} ${textColor} hover:bg-gray-100 transition-all font-medium`}
@@ -490,7 +493,7 @@ const handleRecentTripClick = (trip) => {
                 </div>
             </div>
 
-            <div className="md:block xl:hidden">
+            <div className="block sm:hidden">
                 <NavBar theme={bgColor} />
             </div>
         </>
