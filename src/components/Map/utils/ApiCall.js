@@ -40,7 +40,7 @@ export const getViaje = (lat, lng, destinoLat, destinoLng, map) => {
       lng: lng,
       destinoLat: destinoLat,
       destinoLng: destinoLng,
-      tipo: "Metro" // <-- Este tipo es el que podrías hacer dinámico si quieres también
+      tipo: "Metro"
     }
   }).then(async (response) => {
     const data = response.data;

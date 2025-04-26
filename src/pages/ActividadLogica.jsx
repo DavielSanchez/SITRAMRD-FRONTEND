@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import NavBar from '../components/NavBar';
 import { jwtDecode } from 'jwt-decode';
 import { useBG, useText, useBGForButtons, useBorderColor, usePrimaryColors } from '../ColorClass';
@@ -7,9 +8,11 @@ import HamburgerMenu from '../components/Home/HamburgerMenu';
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import ForkLeftIcon from '@mui/icons-material/ForkLeft';
 import DirectionsBusIcon from '@mui/icons-material/DirectionsBus';
-import RefreshIcon from '@mui/icons-material/Refresh'; // Agregado icono de reinicio
+import RefreshIcon from '@mui/icons-material/Refresh';
+import { reiniciarViaje } from '../components/Map/utils/Events';
 
 function Actividad() {
+  const navigate = useNavigate();
   const token = localStorage.getItem('token');
   const decodedToken = jwtDecode(token);
   const theme = decodedToken.theme;
@@ -36,10 +39,115 @@ function Actividad() {
     });
   };
 
-  // Función para manejar el reinicio (puedes añadir la lógica que necesites)
-  const handleReset = () => {
-    // Aquí puedes implementar la lógica de reinicio
-    console.log('Reinicio solicitado');
+  // Function to handle trip reset
+  const handleReset = async (actividad) => {
+    console.log("Activity selected for reset:", JSON.stringify(actividad, null, 2));
+    
+    // Clear any existing trip
+    reiniciarViaje();
+    
+    // Get origin coordinates properly
+    let origen;
+    
+    try {
+      // Try to get current position using a Promise-based approach
+      origen = await getCurrentPosition();
+      console.log("Successfully obtained current position:", origen);
+    } catch (error) {
+      console.error("Error getting location:", error);
+      // Use default coordinates if geolocation fails
+      origen = { lat: 18.479794498094996, lng: -69.93504763767407 }; // Default Santo Domingo coordinates
+      console.log("Using default coordinates:", origen);
+    }
+    
+    // Extract destination coordinates from activity data
+    let destino = extractDestinationCoordinates(actividad);
+    
+    // Proceed with trip configuration using the obtained coordinates
+    configurarYGuardarViaje(origen, destino, actividad);
+  };
+
+  // Helper function to get current position as a Promise
+  const getCurrentPosition = () => {
+    return new Promise((resolve, reject) => {
+      if (!navigator.geolocation) {
+        reject(new Error("Geolocation not supported"));
+        return;
+      }
+      
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          resolve({
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
+          });
+        },
+        (error) => {
+          reject(error);
+        },
+        { timeout: 10000, enableHighAccuracy: true }
+      );
+    });
+  };
+
+  // Helper function to extract destination coordinates from activity data
+  const extractDestinationCoordinates = (actividad) => {
+    let destino = { lat: 0, lng: 0 };
+    
+    // Check all possible coordinate locations in the activity object
+    if (actividad.destinoLat !== undefined && actividad.destinoLng !== undefined) {
+      destino.lat = parseFloat(actividad.destinoLat);
+      destino.lng = parseFloat(actividad.destinoLng);
+    } else if (actividad.coordenadas) {
+      if (typeof actividad.coordenadas === 'object') {
+        // Handle object with latitud/longitud properties
+        destino.lat = parseFloat(actividad.coordenadas.latitud || 0);
+        destino.lng = parseFloat(actividad.coordenadas.longitud || 0);
+      } else if (Array.isArray(actividad.coordenadas) && actividad.coordenadas.length >= 2) {
+        // Handle array format [lng, lat]
+        destino.lng = parseFloat(actividad.coordenadas[0]);
+        destino.lat = parseFloat(actividad.coordenadas[1]);
+      }
+    } else if (actividad.latitud !== undefined && actividad.longitud !== undefined) {
+      destino.lat = parseFloat(actividad.latitud);
+      destino.lng = parseFloat(actividad.longitud);
+    } else if (actividad.calle_latitud !== undefined && actividad.calle_longitud !== undefined) {
+      destino.lat = parseFloat(actividad.calle_latitud);
+      destino.lng = parseFloat(actividad.calle_longitud);
+    }
+    
+    // Log for debugging
+    console.log("Extracted coordinates:", destino);
+    
+    return destino;
+  };
+
+  // Helper function to configure and save trip data
+  const configurarYGuardarViaje = (origen, destino, actividad) => {
+    // Verify that we have valid destination coordinates
+    if (destino.lat === 0 && destino.lng === 0) {
+      console.error("Could not obtain valid destination coordinates from:", actividad);
+      alert("No se pudieron obtener las coordenadas del destino");
+      return;
+    }
+    
+    console.log("Trip data to save:", {
+      origen: origen,
+      destino: destino
+    });
+    
+    // Save basic data in localStorage for the new trip
+    localStorage.setItem('viaje_origen', JSON.stringify(origen));
+    localStorage.setItem('viaje_destino', JSON.stringify(destino));
+    localStorage.setItem('viaje_estado', 'activo');
+    localStorage.setItem('viaje_tiempo_inicio', Date.now().toString());
+    localStorage.setItem('viaje_ultimo_paso', 'inicio');
+    
+    // Save additional information that might be useful
+    localStorage.setItem('viaje_destino_nombre', actividad.calle || actividad.nombreLugar || 'Destino');
+    
+    // Redirect user to the map
+    navigate('/homeview');
   };
 
   useEffect(() => {
@@ -57,6 +165,11 @@ function Actividad() {
         const actividadesOrdenadas = data.data.sort((a, b) => 
           new Date(b.fecha) - new Date(a.fecha)
         );
+        
+        // Examinar la estructura de datos para depuración
+        if (actividadesOrdenadas.length > 0) {
+          console.log("Estructura de una actividad:", actividadesOrdenadas[0]);
+        }
         
         // Aqui se van a tomar solo 10 de la respuesta
         const actividadesRecientes = actividadesOrdenadas.slice(0, 10);
@@ -104,7 +217,7 @@ function Actividad() {
           className={`bottom-0 left-0 w-full h-15 ${bgColor} shadow-md border ${borderColor} flex items-center px-6 transition-all duration-300 ease-in-out ${
             isMainImageVisible ? 'rounded-b-md' : 'rounded-md'
           }`}>
-          <ForkLeftIcon sx={{ color: `${primaryColor}` }} /> {/* Actualizado para usar color primario */}
+          <ForkLeftIcon sx={{ color: `${primaryColor}` }} />
 
           <div className="ml-4">
             <p className={`${textColor} text-md font-normal`}>Viaje a {actividadMasReciente.calle}</p>
@@ -113,14 +226,14 @@ function Actividad() {
             </p>
           </div>
 
-          <div className="ml-auto flex flex-row items-center gap-3 rounded"> {/* Cambiado a flex-row para alinear horizontalmente */}
+          <div className="ml-auto flex flex-row items-center gap-3 rounded">
             <RemoveRedEyeIcon
               sx={{ color: `${primaryColor}`, cursor: 'pointer' }}
               onClick={toggleMainImageVisibility}
             />
             <RefreshIcon 
               sx={{ color: `${primaryColor}`, cursor: 'pointer' }}
-              onClick={handleReset}
+              onClick={() => handleReset(actividadMasReciente)}
             />
           </div>
         </div>
@@ -177,7 +290,7 @@ function Actividad() {
                 className={`w-full h-15 relative mb-2 flex items-center ${bgColor} shadow-md border ${borderColor} px-6 transition-all duration-300 ease-in-out ${
                   visibleImages[actividad._id] ? 'rounded-b-md' : 'rounded-md'
                 }`}>
-                <DirectionsBusIcon sx={{ color: `${primaryColor}` }} /> {/* Actualizado para usar color primario */}
+                <DirectionsBusIcon sx={{ color: `${primaryColor}` }} />
 
                 <div className="flex flex-col flex-grow ml-4">
                   <span className={`${textColor} text-md font-normal font-['Inter']`}>
@@ -188,14 +301,14 @@ function Actividad() {
                   </span>
                 </div>
 
-                <div className="ml-auto flex flex-row items-center gap-3 rounded"> {/* Cambiado a flex-row para alinear horizontalmente */}
+                <div className="ml-auto flex flex-row items-center gap-3 rounded">
                   <RemoveRedEyeIcon
                     sx={{ color: `${primaryColor}`, cursor: 'pointer' }}
                     onClick={() => toggleImageVisibility(actividad._id)}
                   />
                   <RefreshIcon 
                     sx={{ color: `${primaryColor}`, cursor: 'pointer' }}
-                    onClick={() => handleReset(actividad._id)}
+                    onClick={() => handleReset(actividad)}
                   />
                 </div>
               </div>

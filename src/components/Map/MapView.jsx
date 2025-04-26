@@ -8,7 +8,8 @@ import Toast from '../Auth/Toast.jsx';
 import { problemaDeRetraso, llegada, busCerca, rutaFinalizada } from './utils/Notifications.js';
 import ConfirmationModal from './modal/ConfirmationModal.jsx';
 import ubicacion from "../../assets/Map/ubicacion.png";
-import { postViaje, getRecentTripsFromAll } from './utils/ApiCall.js';
+import { postViaje, getRecentTripsFromAll, getDirecciones } from './utils/ApiCall.js';
+import { restaurarViaje, obtenerDatosViaje, hayViajeActivo, cancelarViaje, reiniciarViaje } from './utils/Events.js';
 
 function MapView() {
   const mapContainerRef = useRef(null);
@@ -26,10 +27,8 @@ function MapView() {
   const [isTripStarted, setIsStripStarted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [actividadPendiente, setActividadPendiente] = useState(null);
+  const [mapLoaded, setMapLoaded] = useState(false);
 
-
-  // Función para obtener el nombre del lugar
   const obtenerNombreLugar = (lat, lng) => {
     fetch(`https://api.mapbox.com/geocoding/v5/mapbox.places/${lng},${lat}.json?access_token=pk.eyJ1IjoibmVvZGV2IiwiYSI6ImNtOGQ4ZmIxMzBtc2kybHBzdzNxa3U4eDcifQ.1Oa8lXU045VvFUul26Kwkg`)
       .then(response => response.json())
@@ -42,6 +41,7 @@ function MapView() {
       .catch(error => console.error('Error al obtener el nombre del lugar:', error));
   };
 
+  // Inicialización del mapa
   useEffect(() => {
     mapboxgl.accessToken = 'pk.eyJ1IjoibmVvZGV2IiwiYSI6ImNtOGQ4ZmIxMzBtc2kybHBzdzNxa3U4eDcifQ.1Oa8lXU045VvFUul26Kwkg';
 
@@ -50,6 +50,11 @@ function MapView() {
       style: 'mapbox://styles/mapbox/streets-v11',
       center: [-69.93504763767407, 18.479794498094996],
       zoom: 12,
+    });
+
+    initialMap.on('load', () => {
+      console.log("Mapa cargado completamente");
+      setMapLoaded(true);
     });
 
     setMap(initialMap);
@@ -85,12 +90,75 @@ function MapView() {
     };
   }, []);
 
+  // Efecto para restaurar el viaje una vez que el mapa y la ubicación del usuario estén disponibles
+  useEffect(() => {
+    const checkAndRestoreTrip = async () => {
+      console.log("Verificando condiciones para restaurar viaje:", {
+        mapLoaded,
+        userLocation: !!userLocation,
+        hayViajeActivo: hayViajeActivo()
+      });
+
+      if (mapLoaded && userLocation && map && hayViajeActivo()) {
+        try {
+          console.log("Intentando restaurar viaje...");
+          const datosViaje = obtenerDatosViaje();
+          
+          if (datosViaje) {
+            console.log("Datos de viaje encontrados:", datosViaje);
+            setDestination({
+              lng: datosViaje.destino.lng,
+              lat: datosViaje.destino.lat
+            });
+            setDestinationLng(datosViaje.destino.lng);
+            setDestinationLat(datosViaje.destino.lat);
+            
+            // Actualizar direcciones si hay datos de ruta disponibles
+            if (datosViaje.datosRuta) {
+              try {
+                const direccionesData = await getDirecciones(
+                  userLocation.latitude,
+                  userLocation.longitude,
+                  datosViaje.destino.lat,
+                  datosViaje.destino.lng,
+                  mapboxgl.accessToken
+                );
+                setDirecciones(direccionesData.pasos);
+              } catch (errorDir) {
+                console.error("Error al obtener direcciones:", errorDir);
+              }
+            }
+            
+            // Restaurar viaje con una pequeña demora para asegurar que el mapa esté listo
+            setTimeout(async () => {
+              try {
+                const resultado = await restaurarViaje(map);
+                if (resultado) {
+                  console.log('Viaje restaurado correctamente:', resultado);
+                  setIsStripStarted(true);
+                } else {
+                  console.warn("El viaje no pudo ser restaurado");
+                }
+              } catch (error) {
+                console.error('Error en la restauración del viaje:', error);
+              }
+            }, 500);
+          }
+        } catch (error) {
+          console.error("Error al restaurar viaje:", error);
+        }
+      }
+    };
+
+    checkAndRestoreTrip();
+  }, [map, userLocation, mapLoaded]);
+
   // Efecto para añadir el marcador de usuario cuando cambia la ubicación
   useEffect(() => {
     if (map && userLocation) {
       // Limpiar marcadores anteriores de ubicación
       activeMarkers.forEach(marker => {
-        if (marker._element.classList.contains('user-location')) {
+        if (marker._element && marker._element.classList.contains('user-location')) {
           marker.remove();
         }
       });
@@ -112,13 +180,28 @@ function MapView() {
           .setHTML('<strong>Tu ubicación</strong>'))
         .addTo(map);
 
-      setActiveMarkers(prev => [...prev.filter(m => !m._element.classList.contains('user-location')), marker]);
+      setActiveMarkers(prev => [...prev.filter(m => !m._element || !m._element.classList.contains('user-location')), marker]);
     }
   }, [map, userLocation]);
 
-  const startTrip = () => {
+  const startTrip = async () => {
+    // Obtener direcciones cuando se inicia un viaje
+    if (userLocation && destination) {
+      try {
+        const direccionesData = await getDirecciones(
+          userLocation.latitude,
+          userLocation.longitude,
+          destination.lat,
+          destination.lng,
+          mapboxgl.accessToken
+        );
+        setDirecciones(direccionesData.pasos);
+      } catch (error) {
+        console.error("Error al obtener direcciones:", error);
+      }
+    }
     setIsStripStarted(true);
-  }
+  };
 
   // Función para manejar la ubicación del usuario
   const handleLocateMe = () => {
@@ -141,6 +224,21 @@ function MapView() {
       );
     } else {
       console.error('Geolocalización no está soportada en este navegador.');
+    }
+  };
+
+  // Función para cancelar el viaje actual
+  const handleCancelTrip = () => {
+    if (map) {
+      try {
+        cancelarViaje(map);
+        setIsStripStarted(false);
+        setDirecciones([]);
+        Toast.success('Viaje cancelado correctamente');
+      } catch (error) {
+        console.error('Error al cancelar el viaje:', error);
+        Toast.error('Error al cancelar el viaje');
+      }
     }
   };
 
@@ -171,10 +269,6 @@ function MapView() {
       console.error("Error subiendo la imagen desde URL:", error);
     }
   };
-  
-  
-  
-
   
   // Función para guardar la actividad en la base de datos
   const guardarActividadEnBaseDeDatos = async (actividad) => {
@@ -208,6 +302,7 @@ function MapView() {
       
       // Mostrar notificación de éxito
       console.log('Actividad guardada correctamente');
+      Toast.success('Actividad guardada correctamente');
       
       return resultado;
     } catch (error) {
@@ -243,13 +338,17 @@ function MapView() {
         longitud: destinationlng,
       },
     };
-    await uploadImageFromUrl(
-      `https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/pin-l+000(${nuevaActividad.coordenadas.longitud},${nuevaActividad.coordenadas.latitud})/${nuevaActividad.coordenadas.longitud},${nuevaActividad.coordenadas.latitud},14.20,0,0/600x400?access_token=${import.meta.env.VITE_MAPBOX_TOKEN}`,
-      nuevaActividad
-    );    
+    try {
+      await uploadImageFromUrl(
+        `https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/pin-l+000(${nuevaActividad.coordenadas.longitud},${nuevaActividad.coordenadas.latitud})/${nuevaActividad.coordenadas.longitud},${nuevaActividad.coordenadas.latitud},14.20,0,0/600x400?access_token=${import.meta.env.VITE_MAPBOX_TOKEN}`,
+        nuevaActividad
+      );
+    } catch (error) {
+      console.error("Error al subir imagen del viaje:", error);
+      Toast.error("Error al crear la imagen del viaje");
+    }
     setIsModalOpen(false);
   };
-  
 
   const handleModalCancel = () => {
     setIsModalOpen(false);
@@ -275,7 +374,7 @@ function MapView() {
             destinoLat={destination?.lat || 0}
             destinoLng={destination?.lng || 0}
             style="absolute top-0 right-0 mt-5 mr-5 shadow-black bg-gray-800 text-white p-4 rounded-lg shadow-lg w-80 max-w-sm z-50"
-            onClose={() => {/* Add your close handler here */}}
+            onClose={() => setIsStripStarted(false)}
           />
         )}
 
@@ -291,11 +390,11 @@ function MapView() {
 
         {/* Mapa */}
         <div className="flex justify-center">
-  <div
-    ref={mapContainerRef}
-    className='w-full md:w-[70vw] h-[80vh]'
-  />
-</div>
+          <div
+            ref={mapContainerRef}
+            className='w-full md:w-[70vw] h-[80vh]'
+          />
+        </div>
 
         <div className="button absolute bottom-0 left-0 w-full z-20">
           {isConfirmationModalOpen && userLocation && (
@@ -312,26 +411,40 @@ function MapView() {
         </div>
       </div>
     
+      <div className="control-buttons mt-5 flex flex-col sm:flex-row justify-center gap-4">
+        <button 
+          onClick={handleCancelTrip}
+          className='px-6 py-3 bg-red-600 text-white font-semibold rounded-lg shadow-md hover:bg-red-700 transition-colors'
+          disabled={!isTripStarted}
+        >
+          Cancelar Viaje
+        </button>
+      </div>
       
-      <h3 className='text-xl font-semibold mt-5'>Notificaciones de prueba del usuario</h3>
+      {/* Notificaciones de prueba */}
+      <h3 className='text-xl font-semibold mt-6'>Notificaciones de prueba del usuario</h3>
+      
+      <div className="flex flex-wrap gap-3 mt-2">
+        <button onClick={() => problemaDeRetraso("Hubieron Problemas")} 
+          className='px-4 py-2 bg-gray-700 text-white font-semibold rounded-lg tracking-wide'>
+          Retraso
+        </button>
 
-      {/* <div className="flex gap-5">
-        <button onClick={() => {
-          problemaDeRetraso("Hubieron Problemas");
-        }} className='p-5 bg-gray-700/50 text-white font-semibold mt-3 rounded-lg tracking-widest'>Retraso</button>
+        <button onClick={() => llegada()} 
+          className='px-4 py-2 bg-gray-700 text-white font-semibold rounded-lg tracking-wide'>
+          Llegada
+        </button>
 
-        <button onClick={() => {
-          llegada();
-        }} className='p-5 bg-gray-700/50 text-white font-semibold mt-3 rounded-lg tracking-widest '>Llegada</button>
+        <button onClick={() => busCerca("5")} 
+          className='px-4 py-2 bg-gray-700 text-white font-semibold rounded-lg tracking-wide'>
+          Bus Cerca
+        </button>
 
-        <button onClick={() => {
-          busCerca("5");
-        }} className='p-5 bg-gray-700/50 text-white font-semibold mt-3 rounded-lg tracking-widest '>Bus Cerca</button>
-
-        <button onClick={() => {
-          rutaFinalizada("5");
-        }} className='p-5 bg-gray-700/50 text-white font-semibold mt-3 rounded-lg tracking-widest '>Final de viaje</button>
-      </div> */}
+        <button onClick={() => rutaFinalizada("5")} 
+          className='px-4 py-2 bg-gray-700 text-white font-semibold rounded-lg tracking-wide'>
+          Final de viaje
+        </button>
+      </div>
     </div>
   );
 }
