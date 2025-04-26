@@ -44,14 +44,24 @@ function HistorialRecarga() {
         const response = await fetch(
           `${import.meta.env.VITE_API_LINK}/wallet/recargas/user/${userId}`
         );
+    
         if (!response.ok) {
           throw new Error("Error al obtener los datos");
         }
-        const data = await response.json();
-        console.log(data)
+    
+        const text = await response.text();
+    
+        if (!text) {
+          console.warn("La respuesta está vacía");
+          setRecargas([]); // o null, según tu lógica
+          return;
+        }
+    
+        const data = JSON.parse(text);
         setRecargas(data);
       } catch (error) {
         console.error("Error al obtener datos:", error);
+        setRecargas([]); // para mantener el estado limpio
       }
     };
     fetchData();
