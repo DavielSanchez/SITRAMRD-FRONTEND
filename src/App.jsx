@@ -14,8 +14,9 @@ import Unauthorized from './pages/unauthorized';
 // import Pay from './pages/Pay';
 import Chat from './pages/Chat';
 import HomeView from './pages/HomeView';
+import ActividadLogica from "./pages/Actividad"
 import Billetera from './pages/Billetera'
-import Actividad from "./pages/Actividad";
+
 
 const stripePromise = loadStripe(`${import.meta.env.VITE_STRIPE_SECRET_LINK}`);
 function App() {
@@ -32,8 +33,13 @@ function App() {
           <Route path='/send-otp' element={<SendOtp/>}/>
           <Route path='/reset' element={<ResetPassword/>}/>
           <Route path='/chat' element={<Chat/>}/>
-          {/* <Route path='/pay' element={<Pay/>}/> */}
-          {/* <Route path='/HomeView' element={<Home />}/> */}
+          <Route path='/pay' element={<Pay/>}/>
+          <Route path="/dashboard" element={<AdminDashboard />} />
+          <Route path="/gestion" element={<GestionOperadores />} />
+          <Route path="/auditoria" element={<Auditoria />} />
+          <Route path='/HomeView' element={<HomeView/>}/>
+          <Route path='/actividad' element={<ActividadLogica/>}/>
+
           <Route 
             path="/" 
             element={

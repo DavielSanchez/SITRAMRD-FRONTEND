@@ -7,6 +7,7 @@ import NavBar from "../components/NavBar";
 import { useBG, useText } from "../ColorClass";
 
 
+
 function Home() {
   const MySwal = withReactContent(Swal)
   const navigate = useNavigate();
