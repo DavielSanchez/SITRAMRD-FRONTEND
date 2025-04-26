@@ -3,7 +3,8 @@ import drawRouteLines, {
   drawWalkingRoute, 
   drawBusRoute, 
   drawTransferRoute, 
-  clearAllRoutes 
+  clearAllRoutes,
+  drawMetroRoute
 } from "../draw/drawRouteLines";
 
 import { jwtDecode } from 'jwt-decode';
@@ -11,94 +12,100 @@ import { jwtDecode } from 'jwt-decode';
 //Esto llama a la api y devuelve el viaje recomendado
 
 export const getViaje = (lat, lng, destinoLat, destinoLng, map) => {
-  // Verificar que el mapa existe
   if (!map) {
     console.error('El mapa no está definido en getViaje');
     return Promise.reject(new Error('Mapa no disponible'));
   }
 
-  // Verificar que el mapa está listo para ser usado
   if (!map.loaded()) {
     console.log('El mapa está cargando, esperando...');
-    
-    // Devolvemos una promesa que se resolverá cuando el mapa esté listo
     return new Promise((resolve) => {
       map.once('load', () => {
         console.log('Mapa cargado, procediendo con getViaje');
-        // Ahora que el mapa está listo, llamamos recursivamente a getViaje
         resolve(getViaje(lat, lng, destinoLat, destinoLng, map));
       });
     });
   }
 
   clearAllRoutes(map);
-  
+
   const userLocation = { latitude: lat, longitude: lng };
   const destination = { lat: destinoLat, lng: destinoLng };
-  
+
   drawRouteLines(map, userLocation, destination);
-  
+
   return axios.get('http://localhost:3001/ruta/RutasAutoBus', {
     params: {
       lat: lat,
       lng: lng,
       destinoLat: destinoLat,
       destinoLng: destinoLng,
-      tipo: "Metro"
+      tipo: "Metro" // <-- Este tipo es el que podrías hacer dinámico si quieres también
     }
   }).then(async (response) => {
     const data = response.data;
     console.log('Datos de ruta recibidos:', data);
-    
+
     let distanciaTotal = 0;
     let tiempoEstimado = 0;
-    
+
+    // Función interna para decidir si es Metro/Teleférico o Bus
+    const dibujarRuta = async (mapa, origen, destino, index) => {
+      if (data.modo === 'Metro' || data.modo === 'Teleferico') {
+        // Llama a la función de dibujar Metro o Teleférico
+        return await drawMetroRoute(mapa, origen, destino, index);
+      } else {
+        // Si no es Metro o Teleférico, se asume que es autobús
+        return await drawBusRoute(mapa, origen, destino, index);
+      }
+    };
+
     if (data.tipo === 'Directa') {
       const distanciaInicial = await drawWalkingRoute(map, userLocation, data['Parada De Inicio'].ubicacion);
-      
-      const distanciaBus = await drawBusRoute(
-        map, 
-        data['Parada De Inicio'].ubicacion, 
-        data['Parada de destino'].ubicacion, 
+
+      const distanciaBus = await dibujarRuta(
+        map,
+        data['Parada De Inicio'].ubicacion,
+        data['Parada de destino'].ubicacion,
         1
       );
-      
+
       distanciaTotal = distanciaInicial + distanciaBus;
-      
-      const tiempoCaminando = (distanciaInicial / 1000) / 5 * 60; 
-      const tiempoBus = (distanciaBus / 1000) / 25 * 60; 
+
+      const tiempoCaminando = (distanciaInicial / 1000) / 5 * 60;
+      const tiempoBus = (distanciaBus / 1000) / 25 * 60;
       tiempoEstimado = tiempoCaminando + tiempoBus;
-      
+
     } else if (data.tipo === 'Con Transbordo') {
       const distanciaInicial = await drawWalkingRoute(map, userLocation, data['Parada De Inicio'].ubicacion);
-      
-      const distanciaBus1 = await drawBusRoute(
-        map, 
-        data['Parada De Inicio'].ubicacion, 
-        data['Parada Intermedia (bajada)'].ubicacion, 
+
+      const distanciaBus1 = await dibujarRuta(
+        map,
+        data['Parada De Inicio'].ubicacion,
+        data['Parada Intermedia (bajada)'].ubicacion,
         1
       );
-      
+
       const distanciaTransbordo = await drawTransferRoute(
         map,
         data['Parada Intermedia (bajada)'].ubicacion,
         data['Parada Intermedia (subida)'].ubicacion
       );
-      
-      const distanciaBus2 = await drawBusRoute(
+
+      const distanciaBus2 = await dibujarRuta(
         map,
         data['Parada Intermedia (subida)'].ubicacion,
         data['Parada De Destino'].ubicacion,
         2
       );
-      
+
       distanciaTotal = distanciaInicial + distanciaBus1 + distanciaTransbordo + distanciaBus2;
-      
+
       const tiempoCaminando = ((distanciaInicial + distanciaTransbordo) / 1000) / 5 * 60;
       const tiempoBus = ((distanciaBus1 + distanciaBus2) / 1000) / 25 * 60;
       tiempoEstimado = tiempoCaminando + tiempoBus;
     }
-    
+
     return {
       data,
       distanciaTotal: distanciaTotal / 1000,

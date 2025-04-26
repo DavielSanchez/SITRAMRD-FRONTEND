@@ -290,13 +290,13 @@ function MapView() {
         )}
 
         {/* Mapa */}
-        <div
-          ref={mapContainerRef}
-          style={{
-            width: '70vw',
-            height: '80vh',
-          }}
-        />
+        <div className="flex justify-center">
+  <div
+    ref={mapContainerRef}
+    className='w-full md:w-[70vw] h-[80vh]'
+  />
+</div>
+
         <div className="button absolute bottom-0 left-0 w-full z-20">
           {isConfirmationModalOpen && userLocation && (
             <ConfirmationModal 
@@ -315,7 +315,7 @@ function MapView() {
       
       <h3 className='text-xl font-semibold mt-5'>Notificaciones de prueba del usuario</h3>
 
-      <div className="flex gap-5">
+      {/* <div className="flex gap-5">
         <button onClick={() => {
           problemaDeRetraso("Hubieron Problemas");
         }} className='p-5 bg-gray-700/50 text-white font-semibold mt-3 rounded-lg tracking-widest'>Retraso</button>
@@ -331,7 +331,7 @@ function MapView() {
         <button onClick={() => {
           rutaFinalizada("5");
         }} className='p-5 bg-gray-700/50 text-white font-semibold mt-3 rounded-lg tracking-widest '>Final de viaje</button>
-      </div>
+      </div> */}
     </div>
   );
 }

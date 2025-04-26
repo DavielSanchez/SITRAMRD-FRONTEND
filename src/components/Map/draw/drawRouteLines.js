@@ -285,5 +285,84 @@ const clearAllRoutes = (map) => {
   });
 };
 
-export { drawWalkingRoute, drawBusRoute, drawTransferRoute, clearAllRoutes };
+const drawMetroRoute = async (map, metroStops) => {
+  if (!map || !map.loaded()) {
+    console.error('El mapa no está listo en drawMetroRoute');
+    return;
+  }
+
+  if (metroStops.length < 2) {
+    console.error('Se necesitan al menos dos paradas para dibujar una ruta');
+    return;
+  }
+
+  let fullRouteCoordinates = [];
+
+  for (let i = 0; i < metroStops.length - 1; i++) {
+    const start = metroStops[i];
+    const end = metroStops[i + 1];
+
+    const directionsUrl = `https://api.mapbox.com/directions/v5/mapbox/walking/${start.longitud},${start.latitud};${end.longitud},${end.latitud}?steps=true&geometries=geojson&access_token=${mapboxgl.accessToken}`;
+
+    try {
+      const response = await fetch(directionsUrl);
+      const data = await response.json();
+      const segmentCoordinates = data.routes[0].geometry.coordinates;
+
+      // Agregar al arreglo general (sin repetir el último punto de cada segmento)
+      if (i === 0) {
+        fullRouteCoordinates.push(...segmentCoordinates);
+      } else {
+        fullRouteCoordinates.push(...segmentCoordinates.slice(1));
+      }
+
+    } catch (error) {
+      console.error('Error obteniendo direcciones entre paradas:', error);
+    }
+  }
+
+  // Agregar la fuente y capa de la ruta completa
+  if (!map.getSource('metro-route')) {
+    map.addSource('metro-route', {
+      type: 'geojson',
+      data: {
+        type: 'Feature',
+        geometry: {
+          type: 'LineString',
+          coordinates: fullRouteCoordinates
+        }
+      }
+    });
+
+    map.addLayer({
+      id: 'metro-route-layer',
+      type: 'line',
+      source: 'metro-route',
+      layout: {
+        'line-join': 'round',
+        'line-cap': 'round'
+      },
+      paint: {
+        'line-color': '#000000', // Negro estilo mapa
+        'line-width': 6
+      }
+    });
+  } else {
+    map.getSource('metro-route').setData({
+      type: 'Feature',
+      geometry: {
+        type: 'LineString',
+        coordinates: fullRouteCoordinates
+      }
+    });
+  }
+
+  // Dibujar las paradas
+  metroStops.forEach((stop, index) => {
+    addStopMarker(map, stop, `metro-stop-${index}`, '#000000');
+  });
+};
+
+
+export { drawWalkingRoute, drawBusRoute, drawTransferRoute, clearAllRoutes, drawMetroRoute };
 export default drawRouteLines;

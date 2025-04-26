@@ -2,7 +2,7 @@ import { useState } from "react";
 import metro from "../../../assets/Map/8579892.webp";
 import bus from "../../../assets/Map/4844858.webp";
 import teleferico from "../../../assets/Map/7778238.webp";
-import { StartViaje } from "../utils/Events";
+import { iniciarViaje } from "../utils/Events";
 
 function ConfirmationModal({ onClose, lat, lng, destinoLat, destinoLng, map, start }) {
   const [metodoPreferido, setMetodoPreferido] = useState([]);
@@ -20,7 +20,7 @@ function ConfirmationModal({ onClose, lat, lng, destinoLat, destinoLng, map, sta
     setIsLoading(true);
     start()
     try {
-      await StartViaje(lat, lng, destinoLat, destinoLng, map);
+      await iniciarViaje(lat, lng, destinoLat, destinoLng, map);
       onClose();
     } catch (error) {
       console.error("Error al obtener el viaje:", error);
