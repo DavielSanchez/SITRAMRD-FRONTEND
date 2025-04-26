@@ -30,7 +30,7 @@ const ESTADO_VIAJE = {
 };
 
 
-export const iniciarViaje = async (lat, lng, destinoLat, destinoLng, map) => {
+export const iniciarViaje = async (lat, lng, destinoLat, destinoLng, map, metodoPreferido) => {
   try {
     const origen = { lat, lng };
     const destino = { lat: destinoLat, lng: destinoLng };
@@ -40,8 +40,8 @@ export const iniciarViaje = async (lat, lng, destinoLat, destinoLng, map) => {
     localStorage.setItem(STORAGE_KEYS.ESTADO, ESTADO_VIAJE.ACTIVO);
     localStorage.setItem(STORAGE_KEYS.TIEMPO_INICIO, Date.now().toString());
     
-    // Obtener y dibujar la ruta
-    const datosViaje = await getViaje(lat, lng, destinoLat, destinoLng, map);
+    console.log(metodoPreferido)
+    const datosViaje = await getViaje(lat, lng, destinoLat, destinoLng, map, metodoPreferido);
     
     // Guardar datos de la ruta
     if (datosViaje) {

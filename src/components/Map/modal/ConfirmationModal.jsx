@@ -5,22 +5,19 @@ import teleferico from "../../../assets/Map/7778238.webp";
 import { iniciarViaje } from "../utils/Events";
 
 function ConfirmationModal({ onClose, lat, lng, destinoLat, destinoLng, map, start }) {
-  const [metodoPreferido, setMetodoPreferido] = useState([]);
+  const [metodoPreferido, setMetodoPreferido] = useState(null); // Cambiado a null
   const [isLoading, setIsLoading] = useState(false);
 
   const handleMetodoClick = (metodo) => {
-    setMetodoPreferido((prev) =>
-      prev.includes(metodo)
-        ? prev.filter((m) => m !== metodo)
-        : [...prev, metodo]
-    );
+    setMetodoPreferido(metodo); // Solo uno a la vez
   };
 
   const handleConfirmar = async () => {
+    if (!metodoPreferido) return;
     setIsLoading(true);
-    start()
+    start();
     try {
-      await iniciarViaje(lat, lng, destinoLat, destinoLng, map);
+      await iniciarViaje(lat, lng, destinoLat, destinoLng, map, metodoPreferido);
       onClose();
     } catch (error) {
       console.error("Error al obtener el viaje:", error);
@@ -30,7 +27,7 @@ function ConfirmationModal({ onClose, lat, lng, destinoLat, destinoLng, map, sta
   };
 
   const opciones = [
-    { nombre: "Bus", imagen: bus, color: "blue" },
+    { nombre: "Corredor", imagen: bus, color: "blue" },
     { nombre: "Metro", imagen: metro, color: "red" },
     { nombre: "Teleferico", imagen: teleferico, color: "yellow" },
   ];
@@ -44,22 +41,15 @@ function ConfirmationModal({ onClose, lat, lng, destinoLat, destinoLng, map, sta
 
         <div className="p-6 space-y-6">
           <div className="text-gray-600 text-sm">
-            {metodoPreferido.length ? (
+            {metodoPreferido ? (
               <div className="flex items-center space-x-2">
                 <span>Seleccionado:</span>
-                <div className="flex flex-wrap gap-2">
-                  {metodoPreferido.map(metodo => (
-                    <span 
-                      key={metodo}
-                      className="bg-indigo-100 text-indigo-800 text-xs font-medium px-2.5 py-0.5 rounded-full"
-                    >
-                      {metodo}
-                    </span>
-                  ))}
-                </div>
+                <span className="bg-indigo-100 text-indigo-800 text-xs font-medium px-2.5 py-0.5 rounded-full">
+                  {metodoPreferido}
+                </span>
               </div>
             ) : (
-              <span>Selecciona al menos una opción</span>
+              <span>Selecciona una opción</span>
             )}
           </div>
 
@@ -69,7 +59,7 @@ function ConfirmationModal({ onClose, lat, lng, destinoLat, destinoLng, map, sta
                 key={nombre}
                 onClick={() => handleMetodoClick(nombre)}
                 className={`flex flex-col items-center justify-center cursor-pointer rounded-lg border-2 transition-all duration-300 p-4 hover:shadow-lg ${
-                  metodoPreferido.includes(nombre)
+                  metodoPreferido === nombre
                     ? "border-indigo-500 bg-indigo-50 transform scale-105"
                     : "border-gray-200 hover:border-indigo-300"
                 }`}
@@ -77,7 +67,7 @@ function ConfirmationModal({ onClose, lat, lng, destinoLat, destinoLng, map, sta
                 <div className="w-16 h-16 mb-2 overflow-hidden rounded-full bg-gray-100 p-2 flex items-center justify-center">
                   <img src={imagen} alt={nombre} className="w-10 h-10 object-contain" />
                 </div>
-                <span className={`text-sm font-medium ${metodoPreferido.includes(nombre) ? "text-indigo-700" : "text-gray-700"}`}>
+                <span className={`text-sm font-medium ${metodoPreferido === nombre ? "text-indigo-700" : "text-gray-700"}`}>
                   {nombre}
                 </span>
               </div>
@@ -94,9 +84,9 @@ function ConfirmationModal({ onClose, lat, lng, destinoLat, destinoLng, map, sta
           </button>
           <button
             onClick={handleConfirmar}
-            disabled={metodoPreferido.length === 0 || isLoading}
+            disabled={!metodoPreferido || isLoading}
             className={`px-6 py-2 rounded-lg font-medium text-white transition-colors ${
-              metodoPreferido.length === 0 || isLoading
+              !metodoPreferido || isLoading
                 ? "bg-gray-400 cursor-not-allowed"
                 : "bg-indigo-600 hover:bg-indigo-700"
             }`}

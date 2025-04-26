@@ -46,18 +46,18 @@ function Actividad() {
     // Clear any existing trip
     reiniciarViaje();
     
-    // Get origin coordinates properly
+    // Get origin coordinates from current user location
     let origen;
     
     try {
       // Try to get current position using a Promise-based approach
       origen = await getCurrentPosition();
-      console.log("Successfully obtained current position:", origen);
+      console.log("Successfully obtained current position for origin:", origen);
     } catch (error) {
-      console.error("Error getting location:", error);
+      console.error("Error getting current location:", error);
       // Use default coordinates if geolocation fails
-      origen = { lat: 18.479794498094996, lng: -69.93504763767407 }; // Default Santo Domingo coordinates
-      console.log("Using default coordinates:", origen);
+      origen = { lat: 18.481152, lng: -69.9826176 }; // Default coordinates
+      console.log("Using default origin coordinates:", origen);
     }
     
     // Extract destination coordinates from activity data
@@ -94,17 +94,26 @@ function Actividad() {
   const extractDestinationCoordinates = (actividad) => {
     let destino = { lat: 0, lng: 0 };
     
+    console.log("Activity data to extract coordinates from:", actividad);
+    
     // Check all possible coordinate locations in the activity object
     if (actividad.destinoLat !== undefined && actividad.destinoLng !== undefined) {
       destino.lat = parseFloat(actividad.destinoLat);
       destino.lng = parseFloat(actividad.destinoLng);
+    } else if (actividad.coordinates) {
+      // Handle coordinates array format [longitude, latitude] (GeoJSON format)
+      if (Array.isArray(actividad.coordinates) && actividad.coordinates.length >= 2) {
+        destino.lng = parseFloat(actividad.coordinates[0]);  // First element is longitude
+        destino.lat = parseFloat(actividad.coordinates[1]);  // Second element is latitude
+        console.log("Extracted from coordinates array:", destino);
+      }
     } else if (actividad.coordenadas) {
       if (typeof actividad.coordenadas === 'object') {
         // Handle object with latitud/longitud properties
         destino.lat = parseFloat(actividad.coordenadas.latitud || 0);
         destino.lng = parseFloat(actividad.coordenadas.longitud || 0);
       } else if (Array.isArray(actividad.coordenadas) && actividad.coordenadas.length >= 2) {
-        // Handle array format [lng, lat]
+        // Handle array format [longitude, latitude]
         destino.lng = parseFloat(actividad.coordenadas[0]);
         destino.lat = parseFloat(actividad.coordenadas[1]);
       }
@@ -117,7 +126,7 @@ function Actividad() {
     }
     
     // Log for debugging
-    console.log("Extracted coordinates:", destino);
+    console.log("Extracted destination coordinates:", destino);
     
     return destino;
   };
@@ -130,24 +139,47 @@ function Actividad() {
       alert("No se pudieron obtener las coordenadas del destino");
       return;
     }
+
+    // Ensure we have valid coordinates
+    const validOrigen = {
+      lat: origen.lat || 18.481152,
+      lng: origen.lng || -69.9826176
+    };
+    
+    const validDestino = {
+      lat: destino.lat || 18.495145188021013,
+      lng: destino.lng || -69.90165264449827
+    };
     
     console.log("Trip data to save:", {
-      origen: origen,
-      destino: destino
+      origen: validOrigen,
+      destino: validDestino
     });
     
-    // Save basic data in localStorage for the new trip
-    localStorage.setItem('viaje_origen', JSON.stringify(origen));
-    localStorage.setItem('viaje_destino', JSON.stringify(destino));
-    localStorage.setItem('viaje_estado', 'activo');
-    localStorage.setItem('viaje_tiempo_inicio', Date.now().toString());
-    localStorage.setItem('viaje_ultimo_paso', 'inicio');
-    
-    // Save additional information that might be useful
-    localStorage.setItem('viaje_destino_nombre', actividad.calle || actividad.nombreLugar || 'Destino');
-    
-    // Redirect user to the map
-    navigate('/homeview');
+    try {
+      // Save basic data in localStorage for the new trip - convert objects to JSON strings
+      localStorage.setItem('viaje_origen', JSON.stringify(validOrigen));
+      localStorage.setItem('viaje_destino', JSON.stringify(validDestino));
+      localStorage.setItem('viaje_estado', 'activo');
+      localStorage.setItem('viaje_tiempo_inicio', Date.now().toString());
+      localStorage.setItem('viaje_ultimo_paso', 'inicio');
+      
+      // Save additional information that might be useful
+      localStorage.setItem('viaje_destino_nombre', actividad.calle || actividad.nombreLugar || 'Destino');
+      
+      // Verify storage worked correctly
+      console.log("Trip data saved successfully:");
+      console.log("origen:", localStorage.getItem('viaje_origen'));
+      console.log("destino:", localStorage.getItem('viaje_destino'));
+      console.log("estado:", localStorage.getItem('viaje_estado'));
+      console.log("tiempo inicio:", localStorage.getItem('viaje_tiempo_inicio'));
+      
+      // Redirect user to the map
+      navigate('/homeview');
+    } catch (error) {
+      console.error("Error saving trip data to localStorage:", error);
+      alert("Error al guardar los datos del viaje. Por favor, inténtelo de nuevo.");
+    }
   };
 
   useEffect(() => {

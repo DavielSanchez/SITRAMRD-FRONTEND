@@ -11,10 +11,14 @@ import { jwtDecode } from 'jwt-decode';
 
 //Esto llama a la api y devuelve el viaje recomendado
 
-export const getViaje = (lat, lng, destinoLat, destinoLng, map) => {
+export const getViaje = (lat, lng, destinoLat, destinoLng, map, metodoPreferido) => {
   if (!map) {
     console.error('El mapa no está definido en getViaje');
     return Promise.reject(new Error('Mapa no disponible'));
+  }
+
+  if(!metodoPreferido){
+    alert("No existe un metodopreferido");
   }
 
   if (!map.loaded()) {
@@ -22,7 +26,7 @@ export const getViaje = (lat, lng, destinoLat, destinoLng, map) => {
     return new Promise((resolve) => {
       map.once('load', () => {
         console.log('Mapa cargado, procediendo con getViaje');
-        resolve(getViaje(lat, lng, destinoLat, destinoLng, map));
+        resolve(getViaje(lat, lng, destinoLat, destinoLng, map, metodoPreferido));
       });
     });
   }
@@ -32,15 +36,15 @@ export const getViaje = (lat, lng, destinoLat, destinoLng, map) => {
   const userLocation = { latitude: lat, longitude: lng };
   const destination = { lat: destinoLat, lng: destinoLng };
 
+  console.log(metodoPreferido)
   drawRouteLines(map, userLocation, destination);
-
   return axios.get('http://localhost:3001/ruta/RutasAutoBus', {
     params: {
       lat: lat,
       lng: lng,
       destinoLat: destinoLat,
       destinoLng: destinoLng,
-      tipo: "Metro"
+      tipo: metodoPreferido
     }
   }).then(async (response) => {
     const data = response.data;
