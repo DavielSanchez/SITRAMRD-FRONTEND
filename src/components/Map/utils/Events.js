@@ -1,3 +1,5 @@
+import { getViaje } from "./ApiCall"
+
 //Usuario Cancelo Viaje
 
 export const CancelarViaje = () =>{
@@ -11,10 +13,10 @@ export const CancelarViaje = () =>{
 //
 
 
-export const StartViaje = (latitud, longitud, destinoLat, destinoLng) =>{
-    const origen = {lat: latitud, lng: longitud}
+export const StartViaje = (lat, lng, destinoLat, destinoLng, map) =>{
+    const origen = {lat: lat, lng: lng}
     const destino = {destinoLat: destinoLat, destinoLng: destinoLng}
-
+    getViaje(lat, lng, destinoLat, destinoLng, map);
     localStorage.setItem("origen", JSON.stringify(origen));
     localStorage.setItem("destino", JSON.stringify(destino));
 }

@@ -31,17 +31,13 @@ export const getViaje = (lat, lng, destinoLat, destinoLng, map) => {
     });
   }
 
-  // First clear any existing routes
   clearAllRoutes(map);
   
-  // Define user location and destination
   const userLocation = { latitude: lat, longitude: lng };
   const destination = { lat: destinoLat, lng: destinoLng };
   
-  // Initialize the markers for user and destination
   drawRouteLines(map, userLocation, destination);
   
-  // Call the API
   return axios.get('http://localhost:3001/ruta/RutasAutoBus', {
     params: {
       lat: lat,
@@ -58,10 +54,8 @@ export const getViaje = (lat, lng, destinoLat, destinoLng, map) => {
     let tiempoEstimado = 0;
     
     if (data.tipo === 'Directa') {
-      // Draw walking route to first bus stop
       const distanciaInicial = await drawWalkingRoute(map, userLocation, data['Parada De Inicio'].ubicacion);
       
-      // Draw bus route
       const distanciaBus = await drawBusRoute(
         map, 
         data['Parada De Inicio'].ubicacion, 
@@ -71,16 +65,13 @@ export const getViaje = (lat, lng, destinoLat, destinoLng, map) => {
       
       distanciaTotal = distanciaInicial + distanciaBus;
       
-      // Estimate time (walking 5km/h, bus 25km/h)
-      const tiempoCaminando = (distanciaInicial / 1000) / 5 * 60; // Minutes walking
-      const tiempoBus = (distanciaBus / 1000) / 25 * 60; // Minutes on bus
+      const tiempoCaminando = (distanciaInicial / 1000) / 5 * 60; 
+      const tiempoBus = (distanciaBus / 1000) / 25 * 60; 
       tiempoEstimado = tiempoCaminando + tiempoBus;
       
     } else if (data.tipo === 'Con Transbordo') {
-      // Draw walking route to first bus stop
       const distanciaInicial = await drawWalkingRoute(map, userLocation, data['Parada De Inicio'].ubicacion);
       
-      // Draw first bus route
       const distanciaBus1 = await drawBusRoute(
         map, 
         data['Parada De Inicio'].ubicacion, 
@@ -88,14 +79,12 @@ export const getViaje = (lat, lng, destinoLat, destinoLng, map) => {
         1
       );
       
-      // Draw transfer walking route
       const distanciaTransbordo = await drawTransferRoute(
         map,
         data['Parada Intermedia (bajada)'].ubicacion,
         data['Parada Intermedia (subida)'].ubicacion
       );
       
-      // Draw second bus route
       const distanciaBus2 = await drawBusRoute(
         map,
         data['Parada Intermedia (subida)'].ubicacion,
@@ -105,16 +94,15 @@ export const getViaje = (lat, lng, destinoLat, destinoLng, map) => {
       
       distanciaTotal = distanciaInicial + distanciaBus1 + distanciaTransbordo + distanciaBus2;
       
-      // Estimate time (walking 5km/h, bus 25km/h)
-      const tiempoCaminando = ((distanciaInicial + distanciaTransbordo) / 1000) / 5 * 60; // Minutes walking
-      const tiempoBus = ((distanciaBus1 + distanciaBus2) / 1000) / 25 * 60; // Minutes on buses
+      const tiempoCaminando = ((distanciaInicial + distanciaTransbordo) / 1000) / 5 * 60;
+      const tiempoBus = ((distanciaBus1 + distanciaBus2) / 1000) / 25 * 60;
       tiempoEstimado = tiempoCaminando + tiempoBus;
     }
     
     return {
       data,
-      distanciaTotal: distanciaTotal / 1000, // Convert to kilometers
-      tiempoEstimado: Math.round(tiempoEstimado), // Round to nearest minute
+      distanciaTotal: distanciaTotal / 1000,
+      tiempoEstimado: Math.round(tiempoEstimado),
     };
   }).catch((error) => {
     console.error('Error obteniendo ruta:', error);
@@ -197,7 +185,6 @@ export const getUserIdFromToken = () => {
     const decodedToken = jwtDecode(token);
     console.log('Decoded token:', decodedToken); // Debug log
     
-    // Try to get user ID from various possible properties in the token
     const userId = decodedToken._id || decodedToken.id || decodedToken.userId || decodedToken.sub;
     
     if (!userId) {
@@ -270,10 +257,10 @@ export const getViajes = async () => {
   }
   
   try {
-    const response = await axios.get('http://localhost:3001/actividad/:id', {
-      params: { idUsuario: userId },
+    const response = await axios.get(`http://localhost:3001/actividad/usuario/${userId}`, {
       headers: getAuthHeaders()
     });
+    
     
     return response.data;
   } catch (error) {
@@ -301,7 +288,7 @@ export const actualizarEstadoViaje = async (actividadId, nuevoEstado) => {
   }
 };
 
-// Add this function to your ApiCall.js file
+
 export const getRecentViajes = async (limit = 3) => {
   const userId = getUserIdFromToken();
   
@@ -325,13 +312,11 @@ export const getRecentViajes = async (limit = 3) => {
   }
 };
 
-// Alternative approach using the existing getViajes function
 export const getRecentTripsFromAll = async (limit = 3) => {
   try {
-    // Get all trips
-    const allTrips = await getViajes();
+    const allTripsResponse = await getViajes();
+    const allTrips = allTripsResponse.data;
     
-    // Sort by date (newest first) and slice to get only the most recent ones
     return allTrips
       .sort((a, b) => new Date(b.fecha) - new Date(a.fecha))
       .slice(0, limit);

@@ -26,41 +26,6 @@ function MapView() {
   const [isTripStarted, setIsStripStarted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [recentTrips, setRecentTrips] = useState([]);
-  const [isLoadingTrips, setIsLoadingTrips] = useState(false);
-
-  // Función para obtener viajes recientes
-  const fetchRecentTrips = async () => {
-    setIsLoadingTrips(true);
-    try {
-      const trips = await getRecentTripsFromAll(3);
-      setRecentTrips(trips);
-    } catch (err) {
-      console.error("Error al cargar viajes recientes:", err);
-      Toast.error("No se pudieron cargar los viajes recientes");
-    } finally {
-      setIsLoadingTrips(false);
-    }
-  };
-
-  // Cargar viajes recientes al montar el componente
-  useEffect(() => {
-    fetchRecentTrips();
-  }, []);
-
-  // Función para actualizar los viajes recientes después de crear uno nuevo
-  useEffect(() => {
-    // Escuchar el evento personalizado
-    const handleActividadActualizada = () => {
-      fetchRecentTrips();
-    };
-
-    window.addEventListener('actividadActualizada', handleActividadActualizada);
-
-    return () => {
-      window.removeEventListener('actividadActualizada', handleActividadActualizada);
-    };
-  }, []);
 
   // Función para obtener el nombre del lugar
   const obtenerNombreLugar = (lat, lng) => {
@@ -208,7 +173,7 @@ function MapView() {
       window.dispatchEvent(new Event("actividadActualizada"));
       
       // Mostrar notificación de éxito
-      Toast.success('Actividad guardada correctamente');
+      console.log('Actividad guardada correctamente');
       
       return resultado;
     } catch (error) {
@@ -353,41 +318,7 @@ function MapView() {
           )}
         </div>
       </div>
-      
-      {/* Viajes recientes */}
-      <div className="mt-5 mb-5">
-        <h3 className='text-xl font-semibold'>Viajes Recientes</h3>
-        {isLoadingTrips ? (
-          <p className="text-gray-500 italic">Cargando viajes recientes...</p>
-        ) : recentTrips.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-3">
-            {recentTrips.map((trip, index) => (
-              <div 
-                key={trip._id || index}
-                onClick={() => handleRecentTripClick(trip)}
-                className="bg-white rounded-lg shadow-md p-4 cursor-pointer hover:bg-gray-50 transition-colors"
-              >
-                <h4 className="font-medium">{trip.calle || 'Destino sin nombre'}</h4>
-                <div className="text-sm text-gray-500 mt-1">
-                  <p>Fecha: {new Date(trip.fecha).toLocaleDateString()}</p>
-                  <p>Hora: {trip.hora}</p>
-                  <p>Precio: RD$ {trip.precio?.toFixed(2) || '0.00'}</p>
-                  <p className="mt-1">
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium
-                      ${trip.estado === 'Finalizado' ? 'bg-green-100 text-green-800' : 
-                        trip.estado === 'Iniciado' ? 'bg-blue-100 text-blue-800' : 
-                        'bg-yellow-100 text-yellow-800'}`}>
-                      {trip.estado || 'En proceso'}
-                    </span>
-                  </p>
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <p className="text-gray-500 italic mt-2">No hay viajes recientes</p>
-        )}
-      </div>
+    
       
       <h3 className='text-xl font-semibold mt-5'>Notificaciones de prueba del usuario</h3>
 

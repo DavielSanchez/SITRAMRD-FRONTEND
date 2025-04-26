@@ -11,6 +11,7 @@ import TopBar from '../components/TopBar.jsx';
 import { toast } from 'react-toastify';
 import MapView from '../components/Map/MapView.jsx';
 import useActividadStore from "../components/Map/store/useActividadStore.js";
+import { getRecentTripsFromAll } from "../components/Map/utils/ApiCall.js";
 
 function HomeView() {
     const [openModal, setOpenModal] = useState(false);
@@ -38,6 +39,8 @@ function HomeView() {
     const iconColor = useIconColor(theme);
     const BorderColor = useBorderColor(theme);
     const [refresh, setRefresh] = useState(false);
+    const [recentTrips, setRecentTrips] = useState([]);
+    const [isLoadingTrips, setIsLoadingTrips] = useState(false);
     
     const MySwal = withReactContent(Swal);
 
@@ -48,6 +51,58 @@ function HomeView() {
             draggable: true,
         });
     };
+
+// Refine the handler to handle different trip data formats consistently
+const handleRecentTripClick = (trip) => {
+    setViajesShowModal(true);
+    setViajeObjetivo(trip);
+    
+    // Handle different data formats for coordinates
+    if (trip.coordenadas) {
+      setLocationCoords({
+        latitude: trip.coordenadas.latitud || 0,
+        longitude: trip.coordenadas.longitud || 0
+      });
+    }
+    
+    // Set destination based on available properties (check different possible field names)
+    setDestinationInput(trip.calle || trip.viaje || 'Destino sin nombre');
+  };
+  
+  // Then update both sections to use this handler
+
+      // Función para obtener viajes recientes
+  const fetchRecentTrips = async () => {
+    setIsLoadingTrips(true);
+    try {
+      const trips = await getRecentTripsFromAll(3);
+      setRecentTrips(trips);
+    } catch (err) {
+      console.error("Error al cargar viajes recientes:", err);
+      Toast.error("No se pudieron cargar los viajes recientes");
+    } finally {
+      setIsLoadingTrips(false);
+    }
+  };
+
+  // Cargar viajes recientes al montar el componente
+  useEffect(() => {
+    fetchRecentTrips();
+  }, []);
+
+  // Función para actualizar los viajes recientes después de crear uno nuevo
+  useEffect(() => {
+    // Escuchar el evento personalizado
+    const handleActividadActualizada = () => {
+      fetchRecentTrips();
+    };
+
+    window.addEventListener('actividadActualizada', handleActividadActualizada);
+
+    return () => {
+      window.removeEventListener('actividadActualizada', handleActividadActualizada);
+    };
+  }, []);
 
     useEffect(() => {
         const handler = () => setRefresh(prev => !prev);
@@ -190,16 +245,6 @@ function HomeView() {
         // Aquí puedes llamar a la función que maneje tu ruta con los datos locationCoords y destinationCoords
     };
 
-    const imagenStatica = (lat, lng) => {
-        return (
-            <img 
-                src={`https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/pin-l+000(${lng},${lat})/${lng},${lat},14.20,0,0/600x400?access_token=${mapboxToken}`} 
-                alt="Imagen Estática" 
-                className="rounded-lg shadow-md w-full h-auto"
-            />
-        );
-    };
-
     return (
         <>
             <div className={`flex flex-col items-center p-4 ${bgColor} min-h-screen relative`}>
@@ -236,24 +281,21 @@ function HomeView() {
                     
                     <p className={`${textColor} text-lg font-medium mb-3`}>Viajes recientes</p>
                     <div className="grid grid-cols-1 p-2 gap-5 sm:grid-cols-2 xl:grid-cols-3">
-                        {viajesRecientes.map((viaje, index) => (
+                        {recentTrips.map((viaje, index) => (
                             <div 
                                 key={index}
                                 onClick={() => {
-                                    setViajesShowModal(true);
-                                    setLocationCoords({
-                                        latitude: viaje.coordenadas.latitud,
-                                        longitude: viaje.coordenadas.longitud
-                                    });
-                                    setDestinationInput(viaje.viaje);
-                                    setViajeObjetivo(viaje);
+                                    // setViajesShowModal(true);
+                                    handleRecentTripClick(viaje)
                                 }} 
                                 className={`w-full flex items-center gap-4 p-4 border rounded-lg cursor-pointer transition-all duration-300 hover:shadow-md ${textColor} ${BorderColor} bg-opacity-75`}
                             >
                                 <RefreshIcon className="flex-shrink-0" color={iconColor} />
                                 <div>
-                                    <p className="font-medium">{viaje.viaje}</p>
-                                    <p className="text-sm opacity-75">{viaje.fecha} - {viaje.hora}</p>
+                                <p>{viaje.calle}</p>
+                                <p></p>
+                                    <p className="text-sm opacity-65">Precio: RD$ {viaje.precio?.toFixed(2) || '0.00'}</p>
+                                    <p className="text-sm opacity-75">Hora: {viaje.hora}</p>
                                 </div>
                             </div>
                         ))}
@@ -290,7 +332,7 @@ function HomeView() {
                                         </div>
                                     </div>
                                     <div className="w-full">
-                                        {imagenStatica(viajeObjetivo.coordenadas.latitud, viajeObjetivo.coordenadas.longitud)}
+                                        <img src={viajeObjetivo.fotoUrl}/>
                                     </div>
                                 </div>
                             )}
