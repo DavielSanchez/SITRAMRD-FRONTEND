@@ -54,14 +54,24 @@ function PrincipalCard() {
       const response = await fetch(
         `${import.meta.env.VITE_API_LINK}/wallet/user/tarjetas/virtuales/${userId}`,
       );
-      const data = await response.json();
-
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const text = await response.text();
+      
+      if (!text) {
+        throw new Error('Respuesta vacía del servidor');
+      }
+      
+      const data = JSON.parse(text);
+      
       if (!data || data.length === 0) {
         throw new Error('No se recibió un Client Secret válido.');
       }
-
       const principalCard = data.find((card) => card.principal === true);
       if (principalCard) {
+        console.log('Tarjeta principal:', principalCard);
         setCardBalance(principalCard.saldo);
         setCardNumber(principalCard.numeroTarjeta);
         setCardName(principalCard.nombre);
@@ -80,10 +90,32 @@ function PrincipalCard() {
         if (!pagos.ok) {
           throw new Error('Error al obtener los pagos');
         }
-        const recargasData = await recargas.json();
-        const pagosData = await pagos.json();
-        const ultimoPagos = pagosData[pagosData.length - 1];
-        const ultimaRecargas = recargasData[recargasData.length - 1];
+        const recargasText = await recargas.text();
+        const pagosText = await pagos.text();
+
+        let recargasData = [];
+        let pagosData = [];
+
+        try {
+          recargasData = recargasText ? JSON.parse(recargasText) : [];
+        } catch (err) {
+          console.error("Error parseando recargas:", err);
+        }
+
+        try {
+          pagosData = pagosText ? JSON.parse(pagosText) : [];
+        } catch (err) {
+          console.error("Error parseando pagos:", err);
+        }
+
+        const ultimoPagos = pagosData.length ? pagosData[pagosData.length - 1] : null;
+        const ultimaRecargas = recargasData.length ? recargasData[recargasData.length - 1] : null;
+
+        // Verifica si hay datos antes de usarlos
+        if (!ultimoPagos || !ultimaRecargas) {
+          console.warn("No se encontraron pagos o recargas recientes.");
+}
+
 
         if (ultimoPagos) {
           setUltimoPago(ultimoPagos.fecha);

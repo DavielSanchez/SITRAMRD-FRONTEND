@@ -23,10 +23,10 @@ function PaymentQr({ tarjetaId }) {
 
   const paymentData = { userId, tarjetaId };
 
-  const encryptedData = CryptoJS.AES.encrypt(
-    JSON.stringify(paymentData), 
-    secretKey
-  ).toString(CryptoJS.enc.Base64);
+  // const encryptedData = CryptoJS.AES.encrypt(
+  //   JSON.stringify(paymentData), 
+  //   secretKey
+  // ).toString(CryptoJS.enc.Base64);
 
   // Función para generar OTP usando fetch
   const generateOtp = async () => {
@@ -58,6 +58,10 @@ function PaymentQr({ tarjetaId }) {
     const wordArray = CryptoJS.enc.Utf8.parse(data); // Convierte el string a un array de palabras
     return CryptoJS.enc.Base64.stringify(wordArray); // Convierte el array de palabras a base64
   };
+
+  const claveSecreta = "5f9242fb225533bed1706b";
+  const stringifiedData = JSON.stringify(paymentData);
+  const encrypted = CryptoJS.AES.encrypt(stringifiedData, claveSecreta).toString();
 
   const base64OtpToken = otpToken ? encodeDataToBase64(otpToken) : null;
 
@@ -120,7 +124,7 @@ function PaymentQr({ tarjetaId }) {
             {!loading && otpToken && (
               <Box display="flex" justifyContent="center" mt={2}>
                 <QRCodeCanvas 
-                  value={base64OtpToken} // Mostramos el OTP en base64 en el QR
+                  value={encrypted} // Mostramos el OTP en base64 en el QR
                   size={200} 
                   imageSettings={{
                     src: LogoBlue,
