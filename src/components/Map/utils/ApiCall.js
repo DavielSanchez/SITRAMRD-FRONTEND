@@ -218,7 +218,7 @@ export const postViaje = async ({ nombreLugar, destinoLat, destinoLng, lat, lng,
               ahora.getMinutes().toString().padStart(2, '0');
   
   try {
-    const response = await axios.post('http://localhost:3001/actividad/add', {
+    const response = await axios.post(`http://localhost:3001/actividad/add`, {
       idUsuario: userId,
       calle: nombreLugar || 'Lugar desconocido',
       fecha: new Date().toISOString(),

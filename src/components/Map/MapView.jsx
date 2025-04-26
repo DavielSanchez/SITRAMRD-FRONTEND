@@ -26,6 +26,8 @@ function MapView() {
   const [isTripStarted, setIsStripStarted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [actividadPendiente, setActividadPendiente] = useState(null);
+
 
   // Función para obtener el nombre del lugar
   const obtenerNombreLugar = (lat, lng) => {
@@ -142,6 +144,38 @@ function MapView() {
     }
   };
 
+  const uploadImageFromUrl = async (imageUrl, actividad) => {
+    try {
+      const formData = new FormData();
+      formData.append("file", imageUrl);
+      formData.append("upload_preset", import.meta.env.VITE_CLOUDINARY_PRESET);
+  
+      const response = await fetch(
+        `https://api.cloudinary.com/v1_1/${import.meta.env.VITE_CLOUD_NAME}/image/upload`,
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+  
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error("Error al subir imagen desde URL: " + errorText);
+      }
+  
+      const data = await response.json();
+      const imagenUrl = data.secure_url;
+  
+      await guardarActividadEnBaseDeDatos({ ...actividad, imagenUrl });
+    } catch (error) {
+      console.error("Error subiendo la imagen desde URL:", error);
+    }
+  };
+  
+  
+  
+
+  
   // Función para guardar la actividad en la base de datos
   const guardarActividadEnBaseDeDatos = async (actividad) => {
     setIsLoading(true);
@@ -158,7 +192,7 @@ function MapView() {
         lat: userLocation?.latitude || 0,
         lng: userLocation?.longitude || 0,
         precio: precioNumerico,
-        url: `${`https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/pin-l+000(${actividad.coordenadas.longitud},${actividad.coordenadas.latitud})/${actividad.coordenadas.longitud},${actividad.coordenadas.latitud},14.20,0,0/600x400?access_token=pk.eyJ1IjoibmVvZGV2IiwiYSI6ImNtOGQ4ZmIxMzBtc2kybHBzdzNxa3U4eDcifQ.1Oa8lXU045VvFUul26Kwkg`}`
+        url: actividad.imagenUrl
       };
       
       // Llamar a la función de utilidad
@@ -194,14 +228,10 @@ function MapView() {
       setIsModalOpen(false);
       return;
     }
-
-    // Usar el nombre del lugar en la actividad
+  
     const nombreDeActividadViaje = nombreLugar || 'Lugar desconocido';
-    
-    // Extraer precio aleatorio entre 50 y 200 pesos
-    const precioAleatorio = Math.floor(Math.random() * 150) + 50;
-
-    // Crear objeto de actividad
+    const precioAleatorio = 35;
+  
     const nuevaActividad = {
       viaje: nombreDeActividadViaje,
       fecha: new Date().toISOString().split('T')[0],
@@ -213,19 +243,13 @@ function MapView() {
         longitud: destinationlng,
       },
     };
-
-    try {
-      // Guardar la actividad en la base de datos
-      await guardarActividadEnBaseDeDatos(nuevaActividad);
-      
-      // Limpiar estados
-      setDirecciones([]);
-      setIsModalOpen(false);
-    } catch (error) {
-      console.error("Error al guardar la actividad:", error);
-      // El error ya se maneja en guardarActividadEnBaseDeDatos
-    }
+    await uploadImageFromUrl(
+      `https://api.mapbox.com/styles/v1/mapbox/streets-v11/static/pin-l+000(${nuevaActividad.coordenadas.longitud},${nuevaActividad.coordenadas.latitud})/${nuevaActividad.coordenadas.longitud},${nuevaActividad.coordenadas.latitud},14.20,0,0/600x400?access_token=${import.meta.env.VITE_MAPBOX_TOKEN}`,
+      nuevaActividad
+    );    
+    setIsModalOpen(false);
   };
+  
 
   const handleModalCancel = () => {
     setIsModalOpen(false);
@@ -233,37 +257,6 @@ function MapView() {
 
   const handleConfirmModalClose = () => {
     setConfirmationModal(false);
-  };
-
-  // Función para manejar clic en un viaje reciente
-  const handleRecentTripClick = (trip) => {
-    if (map) {
-      // Establecer el destino basado en las coordenadas del viaje
-      const tripLngLat = {
-        lng: trip.destinoLng,
-        lat: trip.destinoLat
-      };
-      
-      setDestination(tripLngLat);
-      setDestinationLng(trip.destinoLng);
-      setDestinationLat(trip.destinoLat);
-      setNombreLugar(trip.calle);
-      
-      // Centrar el mapa en un punto medio entre ubicación actual y destino
-      if (userLocation) {
-        const bounds = new mapboxgl.LngLatBounds();
-        bounds.extend([userLocation.longitude, userLocation.latitude]);
-        bounds.extend([trip.destinoLng, trip.destinoLat]);
-        
-        map.fitBounds(bounds, {
-          padding: 100,
-          maxZoom: 15
-        });
-      }
-      
-      // Abrir el modal de confirmación
-      setIsModalOpen(true);
-    }
   };
 
   return (

@@ -17,7 +17,6 @@ function ActividadLogica() {
         
         const data = await response.json();
         
-        // Ordenar actividades por fecha (más recientes primero)
         const actividadesOrdenadas = data.data.sort((a, b) => 
           new Date(b.fecha) - new Date(a.fecha)
         );
@@ -36,7 +35,7 @@ function ActividadLogica() {
     fetchActividades();
   }, []);
 
-  // Aqui las codicionales
+
   if (loading) {
     return <div className="text-center p-4">Cargando actividades...</div>;
   }
@@ -49,9 +48,7 @@ function ActividadLogica() {
     return <div className="text-center p-4">No hay actividades disponibles</div>;
   }
 
-  // La actividad más reciente estará en la posición 0 del array
   const actividadMasReciente = actividades[0];
-  //Aqui apareceran del 2 hacia arriba
   const restoActividades = actividades.slice(1);
 
   return (
